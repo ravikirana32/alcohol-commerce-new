@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const manifestPath = path.join(root, 'P543-RELEASE-GATE.json');
+const manifestPath = path.join(root, 'reports/P543-RELEASE-GATE.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const allowed = new Set(['PASS', 'OPEN', 'NOT_RUN', 'BLOCKED']);
 const checks = [
@@ -17,8 +17,8 @@ const checks = [
   ['Gate IDs are unique', new Set(manifest.gates.map(g => g.id)).size === manifest.gates.length],
   ['GO requires every gate to PASS', manifest.decision_rule.includes('every gate is PASS')],
   ['NO_GO is recorded while gates remain unresolved', manifest.decision === 'NO_GO' && manifest.gates.some(g => g.status !== 'PASS')],
-  ['Deployment, rollback and decision documents exist', ['P543-RELEASE-CHECKLIST.md','P543-DEPLOYMENT-RUNBOOK.md','P543-ROLLBACK-PLAN.md','P543-GO-LIVE-DECISION.md'].every(f => fs.existsSync(path.join(root, f)))],
-  ['P543 test report explicitly distinguishes static and runtime evidence', fs.existsSync(path.join(root, 'P543-TEST-REPORT.md')) && fs.readFileSync(path.join(root, 'P543-TEST-REPORT.md'), 'utf8').includes('NOT RUN')]
+  ['Deployment, rollback and decision documents exist', ['doc-new/P543-RELEASE-CHECKLIST.md','doc-new/P543-DEPLOYMENT-RUNBOOK.md','doc-new/P543-ROLLBACK-PLAN.md','doc-new/P543-GO-LIVE-DECISION.md'].every(f => fs.existsSync(path.join(root, f)))],
+  ['P543 test report explicitly distinguishes static and runtime evidence', fs.existsSync(path.join(root, 'doc-new/P543-TEST-REPORT.md')) && fs.readFileSync(path.join(root, 'doc-new/P543-TEST-REPORT.md'), 'utf8').includes('NOT RUN')]
 ];
 let failed = 0;
 for (const [label, ok] of checks) {

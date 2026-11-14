@@ -36,6 +36,8 @@ for(const [bin,args] of commands){
 const failed=results.filter(r=>!r.ok);
 const result={version,commands:results.length,passed:results.length-failed.length,failed:failed.length,results,productionReady:false};
 const reportName = version === '0.501.0-dev' ? 'P501-INTEGRATION-VERIFICATION.json' : (version === '0.505.0-dev' ? 'P505-INHERITED-P501-VERIFICATION.json' : 'P504-INHERITED-P501-VERIFICATION.json');
-fs.writeFileSync(path.join(root,reportName),JSON.stringify(result,null,2)+'\n');
+const reportDirectory = path.join(root, 'reports');
+fs.mkdirSync(reportDirectory, { recursive: true });
+fs.writeFileSync(path.join(reportDirectory,reportName),JSON.stringify(result,null,2)+'\n');
 if(failed.length)process.exit(1);
 console.log(`P501 deterministic integration gate: ${result.passed}/${result.commands} passed; productionReady=false`);

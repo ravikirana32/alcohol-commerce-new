@@ -1,7 +1,7 @@
 
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
-const m=JSON.parse(fs.readFileSync('P585-PRODUCTION-RELEASE-GATES.json','utf8'));
+const m=JSON.parse(fs.readFileSync('reports/P585-PRODUCTION-RELEASE-GATES.json','utf8'));
 const gate=fs.readFileSync('apps/api/src/services/finalReleaseEvidence.ts','utf8');
 const allowed=new Set(['PASS','OPEN','NOT_RUN','BLOCKED']);
 assert.equal(m.phase,'P585');assert.equal(m.production_approved,false);assert.equal(m.decision,'NO_GO');

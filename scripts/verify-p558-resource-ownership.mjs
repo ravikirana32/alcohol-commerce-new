@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 const root=process.cwd();
-const inventory=JSON.parse(fs.readFileSync(path.join(root,'P557-TENANT-ROUTE-COVERAGE.json'),'utf8'));
+const inventory=JSON.parse(fs.readFileSync(path.join(root,'reports/P557-TENANT-ROUTE-COVERAGE.json'),'utf8'));
 const read=(file)=>fs.readFileSync(path.join(root,'apps/api/src/routes',file),'utf8');
 const routes=inventory.routes;
 const unmarked=routes.filter(r=>!r.explicitScopeGuardInRouteDeclaration);
@@ -40,5 +40,6 @@ const report={generatedAt:new Date().toISOString(),source:'P557 route inventory 
  {name:'Health and capability endpoints are public metadata/probes',passed:true},
  {name:'Tenant context explicitly rejects client-supplied org scope',passed:true}
 ]};
-fs.writeFileSync(path.join(root,'P558-RESOURCE-OWNERSHIP-AUDIT.json'),JSON.stringify(report,null,2)+'\n');
+fs.mkdirSync(path.join(root, 'reports'), { recursive: true });
+fs.writeFileSync(path.join(root,'reports/P558-RESOURCE-OWNERSHIP-AUDIT.json'),JSON.stringify(report,null,2)+'\n');
 console.log(`P558 resource ownership audit: ${report.checks.length}/${report.checks.length} PASS; ${disposition.length} unmarked routes dispositioned`);

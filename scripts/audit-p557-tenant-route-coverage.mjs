@@ -32,7 +32,8 @@ const summary = {
   pathIdentifierRoutes: routes.filter(r => r.pathIdentifiers.length).length,
   routes
 };
-fs.writeFileSync('P557-TENANT-ROUTE-COVERAGE.json', JSON.stringify(summary, null, 2) + '\n');
+fs.mkdirSync('reports', { recursive: true });
+fs.writeFileSync('reports/P557-TENANT-ROUTE-COVERAGE.json', JSON.stringify(summary, null, 2) + '\n');
 const lines = [
   '# P557 Tenant-Aware API Route Coverage', '',
   `- Route files scanned: ${summary.routeFilesScanned}`,
@@ -47,5 +48,5 @@ const lines = [
   '|---|---|---|---:|---:|---:|---|',
   ...routes.map(r => `| ${r.method} | \`${r.path}\` | ${r.file} | ${r.permissionGuard ? 'yes' : 'no'} | ${r.authenticationGuard ? 'yes' : 'no'} | ${r.explicitScopeGuardInRouteDeclaration ? 'yes' : 'not visible'} | ${r.pathIdentifiers.join(', ') || '—'} |`), ''
 ];
-fs.writeFileSync('P557-TENANT-ROUTE-COVERAGE.md', lines.join('\n'));
+fs.writeFileSync('doc-new/P557-TENANT-ROUTE-COVERAGE.md', lines.join('\n'));
 console.log(`P557 route audit: ${routes.length} declarations in ${files.length} files; ${summary.explicitScopeGuardVisible} show explicit scope marker; ${summary.routeDeclarationsFound - summary.explicitScopeGuardVisible} require source-level review.`);

@@ -1,0 +1,68 @@
+{
+  "phase": "P575-P578",
+  "version": "0.578.0-dev",
+  "baseline": "P574 cumulative",
+  "scope": "FIFO inventory valuation, procurement returns, bank settlement/chargeback reconciliation, financial statements and period-close controls",
+  "migrations": [
+    "apps/api/src/db/251_p575_inventory_cost_layers.sql",
+    "apps/api/src/db/252_p576_supplier_returns.sql",
+    "apps/api/src/db/253_p577_settlement_reconciliation.sql",
+    "apps/api/src/db/254_p578_financial_statement_controls.sql"
+  ],
+  "added_services": [
+    "apps/api/src/services/inventoryCosting.ts"
+  ],
+  "added_scripts": [
+    "scripts/verify-p575-inventory-costing.mjs",
+    "scripts/verify-p576-procurement-completion.mjs",
+    "scripts/verify-p577-settlement-reconciliation.mjs",
+    "scripts/verify-p578-financial-statements.mjs"
+  ],
+  "verification": {
+    "p575_static": "11/11 PASS",
+    "p576_static": "8/8 PASS",
+    "p577_static": "9/9 PASS",
+    "p578_static": "8/8 PASS",
+    "p574_static": "10/10 PASS",
+    "p573_static": "7/7 PASS",
+    "p572_static": "8/8 PASS",
+    "p571_static": "12/12 PASS",
+    "p570_static": "10/10 PASS",
+    "p569_static": "10/10 PASS",
+    "p568_static": "10/10 PASS",
+    "p567_static": "10/10 PASS",
+    "p566_static": "10/10 PASS",
+    "p565_static": "11/11 PASS",
+    "p564_static": "14/14 PASS",
+    "p563_static": "10/10 PASS",
+    "p562_static": "8/8 PASS",
+    "p561_static": "5/5 PASS",
+    "typescript_syntax": "276 files; 0 diagnostics",
+    "migration_static": "254 ordered SQL files PASS"
+  },
+  "runtime_status": "NOT RUN: PostgreSQL/Docker unavailable; Vitest, semantic typecheck, database fixtures, concurrency, API/browser E2E and security acceptance not run",
+  "release_decision": "NO-GO",
+  "known_gaps": [
+    "FIFO cost basis propagation for stock transfers, opening stock, retail refunds and open bottles/peg volume",
+    "automatic COGS, supplier credit note, settlement fee and chargeback journal posting across all source transactions",
+    "landed cost and multi-currency procurement",
+    "full bank feed/parser and provider certification",
+    "cash flow report is a direct cash/bank movement summary, not full indirect statement",
+    "finance approved chart of accounts, comparative/consolidated statements, audit exports and UAT",
+    "runtime PostgreSQL, concurrency, E2E, tenant IDOR, penetration, load and backup/restore acceptance"
+  ],
+  "added_files": [
+    "doc-new/P575-P578-IMPLEMENTATION.md",
+    "doc-new/P575-P578-TEST-REPORT.md",
+    "doc-new/P575-P578-RUNBOOK.md",
+    "doc-new/P575-P578-STATUS.md",
+    "doc-new/P575-P578-RELEASE-NOTES.md",
+    "doc-new/P513-P578-Cumulative-Gap-Register.md",
+    "manifests/P575-P578-CUMULATIVE-MANIFEST.json",
+    "apps/api/src/services/inventoryCosting.ts",
+    "scripts/verify-p575-inventory-costing.mjs",
+    "scripts/verify-p576-procurement-completion.mjs",
+    "scripts/verify-p577-settlement-reconciliation.mjs",
+    "scripts/verify-p578-financial-statements.mjs"
+  ]
+}

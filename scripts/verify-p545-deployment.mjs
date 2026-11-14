@@ -23,7 +23,7 @@ const checks=[
  ['Smoke script checks liveness, readiness, metadata and web', ['API liveness','API readiness (database included)','API metadata','Web root'].every(x=>smoke.includes(x))],
  ['P544 environment verifier is retained', fs.existsSync(path.join(root,'scripts/verify-p544-environment.mjs'))],
  ['P545 runtime runner is present and non-destructive', fs.existsSync(path.join(root,'scripts/run-p545-runtime-validation.sh')) && /docker compose config/.test(read('scripts/run-p545-runtime-validation.sh')) && !/down -v|volume rm/.test(read('scripts/run-p545-runtime-validation.sh'))],
- ['P545 evidence documents are present', ['P545-IMPLEMENTATION.md','P545-TEST-REPORT.md','P545-STATUS.md','P545-RUNTIME-VALIDATION.md','P545-ROLLBACK.md'].every(f=>fs.existsSync(path.join(root,f)))],
+ ['P545 evidence documents are present', ['doc-new/P545-IMPLEMENTATION.md','doc-new/P545-TEST-REPORT.md','doc-new/P545-STATUS.md','doc-new/P545-RUNTIME-VALIDATION.md','doc-new/P545-ROLLBACK.md'].every(f=>fs.existsSync(path.join(root,f)))],
  ['P545 npm commands are registered', ['verify:p545','runtime:p545'].every(k=>Boolean(pkg.scripts[k]))]
 ];
 let fail=0; for(const [label,ok] of checks){console.log(`${ok?'PASS':'FAIL'} ${label}`);if(!ok)fail++;}

@@ -3,9 +3,9 @@ const checks = [
   ['P557 route audit script', 'scripts/audit-p557-tenant-route-coverage.mjs'],
   ['P556 tenant isolation harness retained', 'scripts/run-p556-tenant-isolation.mjs'],
   ['P555 authenticated API harness retained', 'scripts/run-p555-authenticated-api-matrix.mjs'],
-  ['P557 cumulative gap register', 'P513-P557-Cumulative-Gap-Register.md'],
-  ['P557 route coverage report', 'P557-TENANT-ROUTE-COVERAGE.md'],
-  ['P557 machine-readable coverage', 'P557-TENANT-ROUTE-COVERAGE.json']
+  ['P557 cumulative gap register', 'doc-new/P513-P557-Cumulative-Gap-Register.md'],
+  ['P557 route coverage report', 'doc-new/P557-TENANT-ROUTE-COVERAGE.md'],
+  ['P557 machine-readable coverage', 'reports/P557-TENANT-ROUTE-COVERAGE.json']
 ];
 let failed = 0;
 for (const [label, file] of checks) { const ok = fs.existsSync(file); console.log(`${ok ? 'PASS' : 'FAIL'} ${label}`); if (!ok) failed++; }

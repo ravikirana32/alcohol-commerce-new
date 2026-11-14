@@ -18,7 +18,7 @@ const checks = [
  ['Compose migration gates API startup', /condition: service_completed_successfully/.test(compose)],
  ['Compose API readiness healthcheck exists', /api\/health\/ready/.test(compose)],
  ['Runtime smoke checks include API, DB readiness and web', fs.readFileSync(path.join(root,'scripts/smoke-p544.mjs'),'utf8').includes("API readiness (database included)") && fs.readFileSync(path.join(root,'scripts/smoke-p544.mjs'),'utf8').includes('Web root')],
- ['P544 runbooks and evidence files exist', ['P544-ENVIRONMENT-READINESS.md','P544-RUNTIME-VALIDATION.md','P544-STATUS.md','P544-IMPLEMENTATION.md','P544-TEST-REPORT.md'].every(f=>fs.existsSync(path.join(root,f)))],
+ ['P544 runbooks and evidence files exist', ['doc-new/P544-ENVIRONMENT-READINESS.md','doc-new/P544-RUNTIME-VALIDATION.md','doc-new/P544-STATUS.md','doc-new/P544-IMPLEMENTATION.md','doc-new/P544-TEST-REPORT.md'].every(f=>fs.existsSync(path.join(root,f)))],
  ['Production-sensitive features default off in sample env', ['AI_FEATURES_ENABLED','OFFLINE_SYNC_ENABLED','PAYMENT_LIVE_MODE','NOTIFICATIONS_LIVE_MODE'].every(k=>envExample[k]==='false')]
 ];
 let failed=0;

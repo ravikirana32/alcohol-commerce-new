@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 const checks=[];const ok=(name,fn)=>{try{if(!fn())throw new Error('condition false');checks.push({name,ok:true});}catch(e){checks.push({name,ok:false,error:e.message});}};
-const a=JSON.parse(fs.readFileSync('P559-SQL-TENANT-PREDICATE-AUDIT.json','utf8'));
-const r=JSON.parse(fs.readFileSync('P560-SQL-TRIAGE.json','utf8'));
-const md=fs.readFileSync('P560-SQL-TRIAGE.md','utf8');
+const a=JSON.parse(fs.readFileSync('reports/P559-SQL-TENANT-PREDICATE-AUDIT.json','utf8'));
+const r=JSON.parse(fs.readFileSync('reports/P560-SQL-TRIAGE.json','utf8'));
+const md=fs.readFileSync('doc-new/P560-SQL-TRIAGE.md','utf8');
 ok('P559 audit source exists',()=>a.statements.length===a.queryStatements);
-ok('P560 triage references P559',()=>r.inputAudit==='P559-SQL-TENANT-PREDICATE-AUDIT.json');
+ok('P560 triage references P559',()=>r.inputAudit==='reports/P559-SQL-TENANT-PREDICATE-AUDIT.json');
 ok('candidate count reconciles',()=>r.reviewCandidates===r.items.length);
 ok('category counts reconcile',()=>Object.values(r.counts).reduce((x,y)=>x+y,0)===r.items.length);
 ok('all candidate rows have source locations',()=>r.items.every(x=>x.file&&Number.isInteger(x.line)&&x.line>0));

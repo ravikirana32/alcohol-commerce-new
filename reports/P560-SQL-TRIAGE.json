@@ -1,0 +1,4890 @@
+{
+  "phase": "P560",
+  "generatedAt": "2026-11-14T13:27:27.810Z",
+  "inputAudit": "reports/P559-SQL-TENANT-PREDICATE-AUDIT.json",
+  "migrationFilesScanned": 259,
+  "reviewCandidates": 250,
+  "counts": {
+    "global-reference-or-auth": 1,
+    "schema-unresolved": 71,
+    "tenant-bearing-table-review": 178
+  },
+  "globalTableAllowlist": [
+    "role_permissions",
+    "permission_definitions",
+    "system_settings",
+    "schema_migrations"
+  ],
+  "method": "Conservative triage correlating P559 direct-query candidates with CREATE TABLE column declarations. This does not prove safe access, resolve CTE/join semantics, infer parent ownership, or cover helper-built/ORM SQL. No application SQL was modified.",
+  "items": [
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 26,
+      "operation": "SELECT",
+      "tables": [
+        "organisations"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 32,
+      "operation": "UPDATE",
+      "tables": [
+        "organisations"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 37,
+      "operation": "INSERT",
+      "tables": [
+        "organisations"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 45,
+      "operation": "INSERT",
+      "tables": [
+        "outlets"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlets",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 52,
+      "operation": "SELECT",
+      "tables": [
+        "role_permissions"
+      ],
+      "mutation": false,
+      "category": "global-reference-or-auth",
+      "rationale": "Table is in the explicit global/auth allowlist; confirm the query does not traverse a tenant-owned relation.",
+      "schema": [
+        {
+          "table": "role_permissions",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 65,
+      "operation": "INSERT",
+      "tables": [
+        "users"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "users",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 75,
+      "operation": "INSERT",
+      "tables": [
+        "organisation_memberships"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "organisation_memberships",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 81,
+      "operation": "INSERT",
+      "tables": [
+        "user_outlet_access"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "user_outlet_access",
+          "organisationId": false,
+          "outletId": true,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/middleware/authenticate.ts",
+      "line": 29,
+      "operation": "SELECT",
+      "tables": [
+        "auth_sessions",
+        "users"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "auth_sessions",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        },
+        {
+          "table": "users",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/middleware/securityRateLimit.ts",
+      "line": 13,
+      "operation": "INSERT",
+      "tables": [
+        "p583_rate_limit_buckets"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "p583_rate_limit_buckets",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/259_p583_shared_security_controls.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/auth.ts",
+      "line": 63,
+      "operation": "INSERT",
+      "tables": [
+        "users"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "users",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/auth.ts",
+      "line": 83,
+      "operation": "SELECT",
+      "tables": [
+        "users"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "users",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/auth.ts",
+      "line": 96,
+      "operation": "SELECT",
+      "tables": [
+        "organisation_memberships"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "organisation_memberships",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 84,
+      "operation": "SELECT",
+      "tables": [
+        "bar_refund_peg_restorations",
+        "bar_ticket_lines"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "bar_refund_peg_restorations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/214_p502_refund_inventory_allocations.sql"
+        },
+        {
+          "table": "bar_ticket_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/008_bar_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 124,
+      "operation": "INSERT",
+      "tables": [
+        "bar_table_sessions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_table_sessions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/219_p517_bar_tables_kot.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 129,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 151,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 176,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 194,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 230,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 317,
+      "operation": "INSERT",
+      "tables": [
+        "bar_tickets"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_tickets",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/008_bar_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 324,
+      "operation": "INSERT",
+      "tables": [
+        "bar_kot_orders"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_kot_orders",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/219_p517_bar_tables_kot.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 350,
+      "operation": "UPDATE",
+      "tables": [
+        "open_bottles"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "open_bottles",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/007_peg_inventory.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 355,
+      "operation": "INSERT",
+      "tables": [
+        "peg_transactions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "peg_transactions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/007_peg_inventory.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 378,
+      "operation": "INSERT",
+      "tables": [
+        "bar_ticket_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "bar_ticket_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/008_bar_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 393,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 20,
+      "operation": "INSERT",
+      "tables": [
+        "product_categories"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "product_categories",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/004_catalogue.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/deviceOperations.ts",
+      "line": 23,
+      "operation": "INSERT",
+      "tables": [
+        "p580_device_health_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p580_device_health_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/256_p580_pos_device_offline_health.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/deviceOperations.ts",
+      "line": 31,
+      "operation": "SELECT",
+      "tables": [
+        "p580_device_health_events",
+        "pos_devices"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p580_device_health_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/256_p580_pos_device_offline_health.sql"
+        },
+        {
+          "table": "pos_devices",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/240_p538_device_trust.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/deviceOperations.ts",
+      "line": 35,
+      "operation": "SELECT",
+      "tables": [
+        "p580_offline_sync_checkpoints",
+        "offline_sync_devices"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p580_offline_sync_checkpoints",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/256_p580_pos_device_offline_health.sql"
+        },
+        {
+          "table": "offline_sync_devices",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/devices.ts",
+      "line": 28,
+      "operation": "INSERT",
+      "tables": [
+        "pos_devices"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "pos_devices",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/240_p538_device_trust.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/devices.ts",
+      "line": 45,
+      "operation": "INSERT",
+      "tables": [
+        "pos_device_challenges"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "pos_device_challenges",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/240_p538_device_trust.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/devices.ts",
+      "line": 58,
+      "operation": "SELECT",
+      "tables": [
+        "pos_device_challenges"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "pos_device_challenges",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/240_p538_device_trust.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 25,
+      "operation": "INSERT",
+      "tables": [
+        "outlet_transfers"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_transfers",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/011_multi_outlet.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 65,
+      "operation": "INSERT",
+      "tables": [
+        "expenses"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "expenses",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/012_finance_accounting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 80,
+      "operation": "INSERT",
+      "tables": [
+        "accounting_exports"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "accounting_exports",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/012_finance_accounting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 88,
+      "operation": "INSERT",
+      "tables": [
+        "customers"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "customers",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/013_crm_consent.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 98,
+      "operation": "INSERT",
+      "tables": [
+        "customer_consents"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "customer_consents",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/013_crm_consent.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 137,
+      "operation": "INSERT",
+      "tables": [
+        "distributor_outlet_assignments"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "distributor_outlet_assignments",
+          "organisationId": false,
+          "outletId": true,
+          "migration": "apps/api/src/db/015_distributor_portal.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 148,
+      "operation": "SELECT",
+      "tables": [
+        "distributor_outlet_assignments"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "distributor_outlet_assignments",
+          "organisationId": false,
+          "outletId": true,
+          "migration": "apps/api/src/db/015_distributor_portal.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 167,
+      "operation": "INSERT",
+      "tables": [
+        "trade_scheme_participants"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "trade_scheme_participants",
+          "organisationId": false,
+          "outletId": true,
+          "migration": "apps/api/src/db/016_trade_engagement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 185,
+      "operation": "INSERT",
+      "tables": [
+        "field_visits"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "field_visits",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/016_trade_engagement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 199,
+      "operation": "INSERT",
+      "tables": [
+        "consumer_discovery_settings"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "consumer_discovery_settings",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/017_consumer_discovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 208,
+      "operation": "INSERT",
+      "tables": [
+        "consumer_public_listings"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "consumer_public_listings",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/017_consumer_discovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 251,
+      "operation": "INSERT",
+      "tables": [
+        "device_registrations"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "device_registrations",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/019_offline_sync_integrations.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 267,
+      "operation": "INSERT",
+      "tables": [
+        "sync_batches"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "sync_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/019_offline_sync_integrations.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 290,
+      "operation": "INSERT",
+      "tables": [
+        "release_checks"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "release_checks",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/020_production_ops.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 17,
+      "operation": "INSERT",
+      "tables": [
+        "security_audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "security_audit_events",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/242_p541_security_reliability.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 34,
+      "operation": "INSERT",
+      "tables": [
+        "enterprise_integrations"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "enterprise_integrations",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/241_p540_enterprise_integrations.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 87,
+      "operation": "INSERT",
+      "tables": [
+        "p582_provider_certification_runs"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p582_provider_certification_runs",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/258_p582_provider_adapter_certification.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 22,
+      "operation": "INSERT",
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 24,
+      "operation": "INSERT",
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_pack_audit",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 29,
+      "operation": "SELECT",
+      "tables": [
+        "excise_rule_packs",
+        "excise_rule_pack_rules"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        },
+        {
+          "table": "excise_rule_pack_rules",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 47,
+      "operation": "INSERT",
+      "tables": [
+        "excise_rule_pack_rules"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_pack_rules",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 50,
+      "operation": "INSERT",
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_pack_audit",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 57,
+      "operation": "UPDATE",
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 60,
+      "operation": "INSERT",
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_pack_audit",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 77,
+      "operation": "UPDATE",
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 78,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 80,
+      "operation": "INSERT",
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_pack_audit",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 100,
+      "operation": "UPDATE",
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 101,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 103,
+      "operation": "INSERT",
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_pack_audit",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 123,
+      "operation": "INSERT",
+      "tables": [
+        "outlet_licence_excise_conditions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_licence_excise_conditions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 125,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 143,
+      "operation": "UPDATE",
+      "tables": [
+        "outlet_licence_excise_conditions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_licence_excise_conditions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 144,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 155,
+      "operation": "INSERT",
+      "tables": [
+        "excise_dry_day_orders"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_dry_day_orders",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 158,
+      "operation": "INSERT",
+      "tables": [
+        "excise_dry_day_order_audit"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_dry_day_order_audit",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 181,
+      "operation": "INSERT",
+      "tables": [
+        "excise_dry_day_order_audit"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_dry_day_order_audit",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 45,
+      "operation": "INSERT",
+      "tables": [
+        "finance_accounts"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "finance_accounts",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p521_finance_accounting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 67,
+      "operation": "INSERT",
+      "tables": [
+        "finance_journals"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "finance_journals",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/223_p521_finance_accounting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 70,
+      "operation": "INSERT",
+      "tables": [
+        "finance_journal_lines"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "finance_journal_lines",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p521_finance_accounting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 20,
+      "operation": "INSERT",
+      "tables": [
+        "p536_accounting_mappings"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p536_accounting_mappings",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/238_p536_automated_accounting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 45,
+      "operation": "INSERT",
+      "tables": [
+        "finance_journals"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "finance_journals",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/223_p521_finance_accounting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 71,
+      "operation": "INSERT",
+      "tables": [
+        "p536_source_postings"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p536_source_postings",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/238_p536_automated_accounting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 89,
+      "operation": "INSERT",
+      "tables": [
+        "p578_period_close_checks"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p578_period_close_checks",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/254_p578_financial_statement_controls.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 139,
+      "operation": "INSERT",
+      "tables": [
+        "offline_authoritative_checks"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_authoritative_checks",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/227_p528_authoritative_offline_checks.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 142,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit",
+        "offline_sync_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        },
+        {
+          "table": "offline_sync_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 44,
+      "operation": "INSERT",
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_posting_executions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/229_p530_offline_transactional_posting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 46,
+      "operation": "INSERT",
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_recovery_cases",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/231_p532_offline_exception_recovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 52,
+      "operation": "INSERT",
+      "tables": [
+        "offline_recovery_actions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_recovery_actions",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/231_p532_offline_exception_recovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 54,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 59,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 129,
+      "operation": "INSERT",
+      "tables": [
+        "bar_tickets"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_tickets",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/008_bar_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 136,
+      "operation": "INSERT",
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_posting_executions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/229_p530_offline_transactional_posting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 144,
+      "operation": "INSERT",
+      "tables": [
+        "bar_kot_orders"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_kot_orders",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/219_p517_bar_tables_kot.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 152,
+      "operation": "UPDATE",
+      "tables": [
+        "open_bottles"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "open_bottles",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/007_peg_inventory.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 153,
+      "operation": "INSERT",
+      "tables": [
+        "peg_transactions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "peg_transactions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/007_peg_inventory.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 161,
+      "operation": "INSERT",
+      "tables": [
+        "bar_ticket_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "bar_ticket_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/008_bar_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 164,
+      "operation": "INSERT",
+      "tables": [
+        "bar_payments"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_payments",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/008_bar_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 165,
+      "operation": "INSERT",
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_posting_executions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/229_p530_offline_transactional_posting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 168,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 191,
+      "operation": "INSERT",
+      "tables": [
+        "retail_sales"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "retail_sales",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/006_retail_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 198,
+      "operation": "INSERT",
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_posting_executions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/229_p530_offline_transactional_posting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 207,
+      "operation": "INSERT",
+      "tables": [
+        "retail_sale_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "retail_sale_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/006_retail_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 212,
+      "operation": "INSERT",
+      "tables": [
+        "sale_payments"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "sale_payments",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/006_retail_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 213,
+      "operation": "INSERT",
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_posting_executions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/229_p530_offline_transactional_posting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 217,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlinePostingApproval.ts",
+      "line": 45,
+      "operation": "INSERT",
+      "tables": [
+        "offline_posting_approvals"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_posting_approvals",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/228_p529_offline_posting_approval.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlinePostingApproval.ts",
+      "line": 51,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit",
+        "offline_sync_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        },
+        {
+          "table": "offline_sync_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 25,
+      "operation": "SELECT",
+      "tables": [
+        "offline_sync_events",
+        "offline_sync_batches"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        },
+        {
+          "table": "offline_sync_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 46,
+      "operation": "UPDATE",
+      "tables": [
+        "offline_sync_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 49,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 52,
+      "operation": "SELECT",
+      "tables": [
+        "offline_sync_events"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 16,
+      "operation": "INSERT",
+      "tables": [
+        "offline_recovery_actions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_recovery_actions",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/231_p532_offline_exception_recovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 18,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit",
+        "offline_sync_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        },
+        {
+          "table": "offline_sync_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 49,
+      "operation": "INSERT",
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_recovery_cases",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/231_p532_offline_exception_recovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 87,
+      "operation": "UPDATE",
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_recovery_cases",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/231_p532_offline_exception_recovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 109,
+      "operation": "UPDATE",
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_recovery_cases",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/231_p532_offline_exception_recovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 126,
+      "operation": "UPDATE",
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_recovery_cases",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/231_p532_offline_exception_recovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 145,
+      "operation": "UPDATE",
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_recovery_cases",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/231_p532_offline_exception_recovery.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 70,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_batches"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 82,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 88,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 92,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 95,
+      "operation": "UPDATE",
+      "tables": [
+        "offline_sync_devices"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_devices",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 97,
+      "operation": "INSERT",
+      "tables": [
+        "p580_offline_sync_checkpoints"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p580_offline_sync_checkpoints",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/256_p580_pos_device_offline_health.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 102,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 66,
+      "operation": "INSERT",
+      "tables": [
+        "offline_event_validations"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_event_validations",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/226_p527_offline_event_validation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 69,
+      "operation": "INSERT",
+      "tables": [
+        "offline_posting_intents"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_posting_intents",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/226_p527_offline_event_validation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 75,
+      "operation": "INSERT",
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_sync_audit",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/224_p525_offline_sync_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 88,
+      "operation": "SELECT",
+      "tables": [
+        "offline_posting_intents",
+        "offline_event_validations"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "offline_posting_intents",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/226_p527_offline_event_validation.sql"
+        },
+        {
+          "table": "offline_event_validations",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/226_p527_offline_event_validation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 30,
+      "operation": "INSERT",
+      "tables": [
+        "organisations"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 48,
+      "operation": "INSERT",
+      "tables": [
+        "outlets"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlets",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 72,
+      "operation": "INSERT",
+      "tables": [
+        "outlet_licences"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_licences",
+          "organisationId": false,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 80,
+      "operation": "UPDATE",
+      "tables": [
+        "outlet_licences"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_licences",
+          "organisationId": false,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 83,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 100,
+      "operation": "INSERT",
+      "tables": [
+        "products"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "products",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/004_catalogue.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 131,
+      "operation": "INSERT",
+      "tables": [
+        "stock_opening_balance_snapshots"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "stock_opening_balance_snapshots",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/247_p571_stock_ledger_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 161,
+      "operation": "INSERT",
+      "tables": [
+        "stock_reconciliation_runs"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "stock_reconciliation_runs",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/246_p570_stock_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 163,
+      "operation": "INSERT",
+      "tables": [
+        "stock_reconciliation_exceptions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "stock_reconciliation_exceptions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/246_p570_stock_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 211,
+      "operation": "INSERT",
+      "tables": [
+        "stock_variance_correction_requests"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "stock_variance_correction_requests",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/250_p574_stock_variance_corrections.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 286,
+      "operation": "INSERT",
+      "tables": [
+        "inventory_cost_exceptions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "inventory_cost_exceptions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/251_p575_inventory_cost_layers.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 332,
+      "operation": "INSERT",
+      "tables": [
+        "inventory_batches"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "inventory_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/220_p518_inventory_warehouse.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 338,
+      "operation": "INSERT",
+      "tables": [
+        "inventory_cost_exceptions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "inventory_cost_exceptions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/251_p575_inventory_cost_layers.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 361,
+      "operation": "INSERT",
+      "tables": [
+        "stock_transfers"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "stock_transfers",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/220_p518_inventory_warehouse.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 461,
+      "operation": "UPDATE",
+      "tables": [
+        "outlet_product_prices"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_product_prices",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/203_p203_outlet_product_prices.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 464,
+      "operation": "INSERT",
+      "tables": [
+        "outlet_product_prices"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_product_prices",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/203_p203_outlet_product_prices.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 583,
+      "operation": "INSERT",
+      "tables": [
+        "retail_sales"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "retail_sales",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/006_retail_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 609,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 663,
+      "operation": "SELECT",
+      "tables": [
+        "retail_refund_restock_lines",
+        "retail_sale_lines"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "retail_refund_restock_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/214_p502_refund_inventory_allocations.sql"
+        },
+        {
+          "table": "retail_sale_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/006_retail_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 689,
+      "operation": "INSERT",
+      "tables": [
+        "open_bottles"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "open_bottles",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/007_peg_inventory.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 708,
+      "operation": "INSERT",
+      "tables": [
+        "peg_transactions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "peg_transactions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/007_peg_inventory.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 735,
+      "operation": "INSERT",
+      "tables": [
+        "bar_bottle_reservations"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_bottle_reservations",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/230_p531_offline_bar_measure_posting.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 737,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 748,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 776,
+      "operation": "INSERT",
+      "tables": [
+        "outlet_shifts"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_shifts",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/009_shifts_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 819,
+      "operation": "INSERT",
+      "tables": [
+        "shift_events"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "shift_events",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/009_shifts_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 21,
+      "operation": "SELECT",
+      "tables": [
+        "organisations"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 32,
+      "operation": "UPDATE",
+      "tables": [
+        "organisations"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 34,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 63,
+      "operation": "INSERT",
+      "tables": [
+        "organisation_invitations"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "organisation_invitations",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/217_p514_organisation_access.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 65,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 78,
+      "operation": "SELECT",
+      "tables": [
+        "organisation_invitations"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "organisation_invitations",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/217_p514_organisation_access.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 93,
+      "operation": "INSERT",
+      "tables": [
+        "users"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "users",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 96,
+      "operation": "INSERT",
+      "tables": [
+        "organisation_memberships"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "organisation_memberships",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/002_auth_tenancy.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 98,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 122,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 139,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 19,
+      "operation": "INSERT",
+      "tables": [
+        "p535_provider_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_provider_events",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 28,
+      "operation": "INSERT",
+      "tables": [
+        "p535_cash_counts"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_cash_counts",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 29,
+      "operation": "INSERT",
+      "tables": [
+        "shift_events"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "shift_events",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/009_shifts_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 32,
+      "operation": "SELECT",
+      "tables": [
+        "p535_provider_events"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_provider_events",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 35,
+      "operation": "INSERT",
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_settlement_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 35,
+      "operation": "INSERT",
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "p535_settlement_items",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 43,
+      "operation": "INSERT",
+      "tables": [
+        "p535_tender_allocations"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_tender_allocations",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "operation": "SELECT",
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "p535_settlement_items",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "operation": "UPDATE",
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "p535_settlement_items",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "operation": "UPDATE",
+      "tables": [
+        "p535_tender_allocations"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_tender_allocations",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "operation": "UPDATE",
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "p535_settlement_items",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "operation": "INSERT",
+      "tables": [
+        "p535_payment_exceptions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_payment_exceptions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "operation": "SELECT",
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "p535_settlement_items",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "operation": "UPDATE",
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_settlement_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 49,
+      "operation": "INSERT",
+      "tables": [
+        "p535_payment_exceptions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_payment_exceptions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 49,
+      "operation": "UPDATE",
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p535_settlement_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/237_p535_payment_provider_cash_settlement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 17,
+      "operation": "INSERT",
+      "tables": [
+        "payment_reconciliation_batches"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "payment_reconciliation_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/222_p520_payment_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 18,
+      "operation": "INSERT",
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "payment_reconciliation_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/222_p520_payment_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 25,
+      "operation": "SELECT",
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "payment_reconciliation_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/222_p520_payment_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 26,
+      "operation": "UPDATE",
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "payment_reconciliation_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/222_p520_payment_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 26,
+      "operation": "UPDATE",
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "payment_reconciliation_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/222_p520_payment_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 27,
+      "operation": "SELECT",
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "payment_reconciliation_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/222_p520_payment_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 27,
+      "operation": "UPDATE",
+      "tables": [
+        "payment_reconciliation_batches"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "payment_reconciliation_batches",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/222_p520_payment_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 18,
+      "operation": "INSERT",
+      "tables": [
+        "procurement_audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "procurement_audit_events",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/221_p519_procurement_supplier_controls.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 29,
+      "operation": "INSERT",
+      "tables": [
+        "suppliers"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "suppliers",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/005_inventory_procurement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 30,
+      "operation": "INSERT",
+      "tables": [
+        "procurement_audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "procurement_audit_events",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/221_p519_procurement_supplier_controls.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 49,
+      "operation": "INSERT",
+      "tables": [
+        "supplier_returns"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "supplier_returns",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/252_p576_supplier_returns.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 54,
+      "operation": "INSERT",
+      "tables": [
+        "supplier_return_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "supplier_return_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/252_p576_supplier_returns.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 73,
+      "operation": "UPDATE",
+      "tables": [
+        "supplier_returns"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "supplier_returns",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/252_p576_supplier_returns.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 90,
+      "operation": "INSERT",
+      "tables": [
+        "supplier_return_movements"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "supplier_return_movements",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/252_p576_supplier_returns.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 93,
+      "operation": "UPDATE",
+      "tables": [
+        "supplier_returns"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "supplier_returns",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/252_p576_supplier_returns.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 108,
+      "operation": "INSERT",
+      "tables": [
+        "purchase_orders"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "purchase_orders",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/027_p27_inventory_procurement_completion.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 130,
+      "operation": "INSERT",
+      "tables": [
+        "goods_receipts"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "goods_receipts",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/216_p510_goods_receiving_three_way_match.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 132,
+      "operation": "INSERT",
+      "tables": [
+        "goods_receipt_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "goods_receipt_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/216_p510_goods_receiving_three_way_match.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/regulatoryReports.ts",
+      "line": 28,
+      "operation": "INSERT",
+      "tables": [
+        "p579_regulatory_report_runs"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p579_regulatory_report_runs",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/255_p579_regulatory_traceability.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/regulatoryReports.ts",
+      "line": 44,
+      "operation": "SELECT",
+      "tables": [
+        "p579_product_traceability_links",
+        "products"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p579_product_traceability_links",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/255_p579_regulatory_traceability.sql"
+        },
+        {
+          "table": "products",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/004_catalogue.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/reportGovernance.ts",
+      "line": 14,
+      "operation": "INSERT",
+      "tables": [
+        "p581_saved_reports"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p581_saved_reports",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/257_p581_analytics_governance.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/reportGovernance.ts",
+      "line": 17,
+      "operation": "INSERT",
+      "tables": [
+        "p581_report_execution_evidence"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p581_report_execution_evidence",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/257_p581_analytics_governance.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 30,
+      "operation": "INSERT",
+      "tables": [
+        "p577_bank_statement_lines"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p577_bank_statement_lines",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/253_p577_settlement_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 70,
+      "operation": "INSERT",
+      "tables": [
+        "p577_chargeback_cases"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "p577_chargeback_cases",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/253_p577_settlement_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 102,
+      "operation": "INSERT",
+      "tables": [
+        "retail_refunds"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "retail_refunds",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/210_p210_refunds_cash_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 114,
+      "operation": "INSERT",
+      "tables": [
+        "retail_refund_restock_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "retail_refund_restock_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/214_p502_refund_inventory_allocations.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 115,
+      "operation": "INSERT",
+      "tables": [
+        "stock_balances"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "stock_balances",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/005_inventory_procurement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 122,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 143,
+      "operation": "INSERT",
+      "tables": [
+        "bar_refunds"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_refunds",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/210_p210_refunds_cash_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 145,
+      "operation": "SELECT",
+      "tables": [
+        "bar_ticket_lines"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "bar_ticket_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/008_bar_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 154,
+      "operation": "INSERT",
+      "tables": [
+        "bar_refund_peg_restorations"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "bar_refund_peg_restorations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/214_p502_refund_inventory_allocations.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 155,
+      "operation": "INSERT",
+      "tables": [
+        "peg_transactions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "peg_transactions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/007_peg_inventory.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 158,
+      "operation": "UPDATE",
+      "tables": [
+        "bar_tickets"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "bar_tickets",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/008_bar_pos.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 159,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 213,
+      "operation": "UPDATE",
+      "tables": [
+        "bar_refund_peg_restorations"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "bar_refund_peg_restorations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/214_p502_refund_inventory_allocations.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 219,
+      "operation": "INSERT",
+      "tables": [
+        "audit_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "audit_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 239,
+      "operation": "INSERT",
+      "tables": [
+        "shift_cash_movements"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "shift_cash_movements",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/210_p210_refunds_cash_ledger.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 240,
+      "operation": "INSERT",
+      "tables": [
+        "shift_events"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "shift_events",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/009_shifts_reconciliation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 12,
+      "operation": "SELECT",
+      "tables": [
+        "tax_rule_packs",
+        "tax_rule_components"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "tax_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        },
+        {
+          "table": "tax_rule_components",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 13,
+      "operation": "INSERT",
+      "tables": [
+        "tax_rule_packs"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "tax_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 15,
+      "operation": "INSERT",
+      "tables": [
+        "tax_rule_components"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "tax_rule_components",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 17,
+      "operation": "UPDATE",
+      "tables": [
+        "tax_rule_packs"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "tax_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 18,
+      "operation": "SELECT",
+      "tables": [
+        "tax_rule_components"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "tax_rule_components",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 20,
+      "operation": "INSERT",
+      "tables": [
+        "tax_product_profiles"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "tax_product_profiles",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 24,
+      "operation": "INSERT",
+      "tables": [
+        "outlet_tax_prices"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "outlet_tax_prices",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 28,
+      "operation": "INSERT",
+      "tables": [
+        "tax_calculation_snapshots"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "tax_calculation_snapshots",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 29,
+      "operation": "INSERT",
+      "tables": [
+        "trade_partner_profiles"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "trade_partner_profiles",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 59,
+      "operation": "SELECT",
+      "tables": [
+        "organisations"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 61,
+      "operation": "INSERT",
+      "tables": [
+        "trade_relationships"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "trade_relationships",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 72,
+      "operation": "UPDATE",
+      "tables": [
+        "trade_relationships"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "trade_relationships",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 80,
+      "operation": "SELECT",
+      "tables": [
+        "trade_relationships",
+        "organisations"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "trade_relationships",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        },
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 97,
+      "operation": "INSERT",
+      "tables": [
+        "trade_catalogue_items"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "trade_catalogue_items",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 111,
+      "operation": "SELECT",
+      "tables": [
+        "trade_catalogue_items",
+        "products"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "trade_catalogue_items",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        },
+        {
+          "table": "products",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/004_catalogue.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 130,
+      "operation": "SELECT",
+      "tables": [
+        "trade_catalogue_items",
+        "products"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "trade_catalogue_items",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        },
+        {
+          "table": "products",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/004_catalogue.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 138,
+      "operation": "INSERT",
+      "tables": [
+        "trade_orders"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "trade_orders",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 141,
+      "operation": "INSERT",
+      "tables": [
+        "trade_order_lines"
+      ],
+      "mutation": true,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "trade_order_lines",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 166,
+      "operation": "SELECT",
+      "tables": [
+        "trade_orders",
+        "organisations"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "trade_orders",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        },
+        {
+          "table": "organisations",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/001_foundation.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 186,
+      "operation": "SELECT",
+      "tables": [
+        "trade_orders"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "trade_orders",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/223_p523_trade_portals.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 197,
+      "operation": "INSERT",
+      "tables": [
+        "trade_order_fulfilment_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "trade_order_fulfilment_events",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/239_p537_trade_fulfilment_evidence.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 208,
+      "operation": "SELECT",
+      "tables": [
+        "trade_order_fulfilment_events"
+      ],
+      "mutation": false,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "trade_order_fulfilment_events",
+          "organisationId": true,
+          "outletId": false,
+          "migration": "apps/api/src/db/239_p537_trade_fulfilment_evidence.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 46,
+      "operation": "SELECT",
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 85,
+      "operation": "SELECT",
+      "tables": [
+        "excise_dry_day_orders"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "excise_dry_day_orders",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 93,
+      "operation": "INSERT",
+      "tables": [
+        "excise_compliance_decisions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "excise_compliance_decisions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/232_p533_excise_regulatory_rules.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 35,
+      "operation": "INSERT",
+      "tables": [
+        "inventory_cost_consumptions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "inventory_cost_consumptions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/251_p575_inventory_cost_layers.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 40,
+      "operation": "INSERT",
+      "tables": [
+        "inventory_cost_consumption_events"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "inventory_cost_consumption_events",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/251_p575_inventory_cost_layers.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 44,
+      "operation": "INSERT",
+      "tables": [
+        "inventory_cost_exceptions"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "inventory_cost_exceptions",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/251_p575_inventory_cost_layers.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 57,
+      "operation": "INSERT",
+      "tables": [
+        "inventory_cost_layers"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "inventory_cost_layers",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/251_p575_inventory_cost_layers.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/stockMovementIdempotency.ts",
+      "line": 50,
+      "operation": "INSERT",
+      "tables": [
+        "stock_movements"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "stock_movements",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/005_inventory_procurement.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 39,
+      "operation": "INSERT",
+      "tables": [
+        "tax_calculation_attempts"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "tax_calculation_attempts",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 50,
+      "operation": "SELECT",
+      "tables": [
+        "tax_rule_packs"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "tax_rule_packs",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 54,
+      "operation": "INSERT",
+      "tables": [
+        "tax_calculation_attempts"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "tax_calculation_attempts",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 59,
+      "operation": "SELECT",
+      "tables": [
+        "tax_rule_components"
+      ],
+      "mutation": false,
+      "category": "schema-unresolved",
+      "rationale": "One or more table names were not resolved from CREATE TABLE statements; inspect dynamic/legacy schema and query construction.",
+      "schema": [
+        {
+          "table": "tax_rule_components",
+          "organisationId": false,
+          "outletId": false,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 68,
+      "operation": "INSERT",
+      "tables": [
+        "tax_calculation_snapshots"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "tax_calculation_snapshots",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 72,
+      "operation": "INSERT",
+      "tables": [
+        "tax_calculation_attempts"
+      ],
+      "mutation": true,
+      "category": "tenant-bearing-table-review",
+      "rationale": "At least one referenced table declares an organisation_id or outlet_id column; verify the predicate applies to every tenant-owned row and joined parent.",
+      "schema": [
+        {
+          "table": "tax_calculation_attempts",
+          "organisationId": true,
+          "outletId": true,
+          "migration": "apps/api/src/db/233_p534_tax_gst_cess_pricing.sql"
+        }
+      ]
+    }
+  ]
+}

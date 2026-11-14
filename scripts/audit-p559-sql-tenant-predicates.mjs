@@ -21,8 +21,9 @@ for(const file of files){const src=fs.readFileSync(file,'utf8');
   }
 }
 const report={generatedAt:new Date().toISOString(),method:'Heuristic static scan of SQL template literals passed directly to .query(); does not resolve helper-built SQL, parameterized fragments, CTE semantics, joins, row-level security, or runtime query paths.',filesScanned:files.length,queryStatements:statements.length,explicitOrganisationPredicate:statements.filter(x=>x.hasOrganisationPredicate).length,outletPredicateOnly:statements.filter(x=>!x.hasOrganisationPredicate&&x.hasOutletPredicate).length,manualReviewRequired:statements.filter(x=>!x.hasOrganisationPredicate&&!x.hasOutletPredicate).length,mutationStatements:statements.filter(x=>x.mutation).length,statements};
-fs.writeFileSync('P559-SQL-TENANT-PREDICATE-AUDIT.json',JSON.stringify(report,null,2)+'\n');
+fs.mkdirSync('reports', { recursive: true });
+fs.writeFileSync('reports/P559-SQL-TENANT-PREDICATE-AUDIT.json',JSON.stringify(report,null,2)+'\n');
 const md=['# P559 SQL Tenant Predicate Audit','',`- TypeScript files scanned: ${report.filesScanned}`,`- Direct query template literals inspected: ${report.queryStatements}`,`- Statements with explicit organisation predicate: ${report.explicitOrganisationPredicate}`,`- Outlet-only predicate: ${report.outletPredicateOnly}`,`- Manual review required: ${report.manualReviewRequired}`,`- Mutation statements: ${report.mutationStatements}`,'','## Method and limitations','',report.method,'','## Manual-review candidates',''];
 for(const s of statements.filter(x=>x.classification==='manual-review-required').slice(0,250))md.push(`- [${s.operation} ${s.file}:${s.line} — tables: ${s.tables.join(', ')}`);
-fs.writeFileSync('P559-SQL-TENANT-PREDICATE-AUDIT.md',md.join('\n')+'\n');
+fs.writeFileSync('doc-new/P559-SQL-TENANT-PREDICATE-AUDIT.md',md.join('\n')+'\n');
 console.log(`P559 SQL audit: ${report.queryStatements} direct SQL templates across ${files.length} TypeScript files; ${report.manualReviewRequired} manual-review candidates.`);

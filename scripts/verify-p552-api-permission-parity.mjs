@@ -71,7 +71,9 @@ const report = {
   unclassifiedRoutes: unclassified,
   routes
 };
-fs.writeFileSync(path.join(root, 'P552-API-ROUTE-PERMISSION-MATRIX.json'), `${JSON.stringify(report, null, 2)}\n`);
+const reportDirectory = path.join(root, 'reports');
+fs.mkdirSync(reportDirectory, { recursive: true });
+fs.writeFileSync(path.join(reportDirectory, 'P552-API-ROUTE-PERMISSION-MATRIX.json'), `${JSON.stringify(report, null, 2)}\n`);
 for (const item of checks) console.log(`${item.ok ? 'PASS' : 'FAIL'} ${item.name}`);
 if (unknownPermissions.length) console.log(`Unknown backend permissions: ${unknownPermissions.join(', ')}`);
 if (unknownFrontendPermissions.length) console.log(`Unknown frontend permissions: ${unknownFrontendPermissions.join(', ')}`);

@@ -1,0 +1,37 @@
+{
+  "phase": "P562",
+  "version": "0.562.0-dev",
+  "baseline": "P561 cumulative v0.561.0-dev",
+  "scope": "Tenant-scoped shift reconciliation reads",
+  "sqlReadStatementsUpdated": 8,
+  "filesChanged": [
+    "apps/api/src/routes/operations.ts",
+    "scripts/verify-p562-tenant-scoped-reads.mjs",
+    "package.json",
+    "apps/api/package.json",
+    "apps/web/package.json",
+    "VERSION",
+    "doc-new/P562-IMPLEMENTATION.md",
+    "doc-new/P562-TEST-REPORT.md",
+    "doc-new/P562-RUNBOOK.md",
+    "doc-new/P562-STATUS.md",
+    "doc-new/P562-RELEASE-NOTES.md",
+    "doc-new/P513-P562-Cumulative-Gap-Register.md"
+  ],
+  "verification": {
+    "p562SourceAssertions": "8/8 PASS",
+    "p561SourceAssertions": "5/5 PASS",
+    "p560Static": "10/10 PASS",
+    "p558OwnershipAudit": "8/8 PASS",
+    "typescriptSyntax": "272 files, 0 diagnostics",
+    "sqlMigrationStatic": "242 ordered files PASS"
+  },
+  "runtimeTests": "NOT RUN",
+  "productionStatus": "NO-GO",
+  "limitations": [
+    "PostgreSQL runtime not executed",
+    "Authenticated cross-organisation/outlet tests not executed",
+    "P560 review queues remain open: 188 tenant-bearing-table candidates and 71 schema-unresolved candidates",
+    "Playwright and penetration testing not executed"
+  ]
+}

@@ -1,0 +1,3690 @@
+{
+  "phase": "P552",
+  "generatedAt": "2026-11-14T13:27:19.246Z",
+  "source": "Static scan of apps/api/src/routes/*.ts and inherited Router.use middleware; not runtime proof.",
+  "summary": {
+    "routeDeclarations": 265,
+    "permissionGuardedRoutes": 254,
+    "explicitlyExemptRoutes": 11,
+    "unclassifiedRoutes": 0,
+    "distinctBackendPermissions": 94
+  },
+  "unknownPermissions": [
+    "device:health:read",
+    "offline:checkpoint:read",
+    "compliance:reports:read",
+    "compliance:traceability:manage",
+    "reports:governance:read",
+    "reports:governance:manage"
+  ],
+  "unknownFrontendPermissions": [],
+  "unclassifiedRoutes": [],
+  "routes": [
+    {
+      "file": "analytics.ts",
+      "router": "analyticsRouter",
+      "method": "GET",
+      "path": "/reports/overview",
+      "directPermissions": [],
+      "inheritedPermissions": [
+        "finance:view"
+      ],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "analytics.ts",
+      "router": "analyticsRouter",
+      "method": "GET",
+      "path": "/reports/sales-trend",
+      "directPermissions": [],
+      "inheritedPermissions": [
+        "finance:view"
+      ],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "analytics.ts",
+      "router": "analyticsRouter",
+      "method": "GET",
+      "path": "/reports/top-products",
+      "directPermissions": [],
+      "inheritedPermissions": [
+        "finance:view"
+      ],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "analytics.ts",
+      "router": "analyticsRouter",
+      "method": "GET",
+      "path": "/reports/inventory-movements",
+      "directPermissions": [],
+      "inheritedPermissions": [
+        "finance:view"
+      ],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "analytics.ts",
+      "router": "analyticsRouter",
+      "method": "GET",
+      "path": "/reports/finance/profit-and-loss",
+      "directPermissions": [],
+      "inheritedPermissions": [
+        "finance:view"
+      ],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "auth.ts",
+      "router": "authRouter",
+      "method": "POST",
+      "path": "/bootstrap",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "One-time bootstrap endpoint; implementation enforces bootstrap eligibility."
+    },
+    {
+      "file": "auth.ts",
+      "router": "authRouter",
+      "method": "POST",
+      "path": "/login",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Credential exchange endpoint protected by rate limiting."
+    },
+    {
+      "file": "auth.ts",
+      "router": "authRouter",
+      "method": "GET",
+      "path": "/me",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Authenticated self-profile endpoint."
+    },
+    {
+      "file": "auth.ts",
+      "router": "authRouter",
+      "method": "POST",
+      "path": "/logout",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Authenticated session revocation endpoint."
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "GET",
+      "path": "/bar/tickets",
+      "directPermissions": [
+        "bar:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "GET",
+      "path": "/bar/tickets/:ticketId",
+      "directPermissions": [
+        "bar:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "GET",
+      "path": "/bar/table-sessions",
+      "directPermissions": [
+        "bar:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "POST",
+      "path": "/bar/table-sessions",
+      "directPermissions": [
+        "bar:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "POST",
+      "path": "/bar/table-sessions/:sessionId/transfer",
+      "directPermissions": [
+        "bar:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "POST",
+      "path": "/bar/table-sessions/:sessionId/merge",
+      "directPermissions": [
+        "bar:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "POST",
+      "path": "/bar/table-sessions/:sessionId/close",
+      "directPermissions": [
+        "bar:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "GET",
+      "path": "/bar/kot",
+      "directPermissions": [
+        "bar:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "POST",
+      "path": "/bar/kot/:kotId/status",
+      "directPermissions": [
+        "bar:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "barCheckout.ts",
+      "router": "barCheckoutRouter",
+      "method": "POST",
+      "path": "/bar/checkout",
+      "directPermissions": [
+        "bar:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "capabilities.ts",
+      "router": "capabilitiesRouter",
+      "method": "GET",
+      "path": "/capabilities/phases",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Public static capability metadata."
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "GET",
+      "path": "/catalogue/categories",
+      "directPermissions": [
+        "catalogue:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "POST",
+      "path": "/catalogue/categories",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "PATCH",
+      "path": "/catalogue/categories/:id",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "GET",
+      "path": "/catalogue/brands",
+      "directPermissions": [
+        "catalogue:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "POST",
+      "path": "/catalogue/brands",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "PATCH",
+      "path": "/catalogue/brands/:id",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "GET",
+      "path": "/catalogue/products",
+      "directPermissions": [
+        "catalogue:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "POST",
+      "path": "/catalogue/products",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "PATCH",
+      "path": "/catalogue/products/:productId",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "GET",
+      "path": "/catalogue/products/export",
+      "directPermissions": [
+        "catalogue:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "POST",
+      "path": "/catalogue/products/import",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "GET",
+      "path": "/catalogue/products/:productId/variants",
+      "directPermissions": [
+        "catalogue:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "POST",
+      "path": "/catalogue/products/:productId/variants",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "PATCH",
+      "path": "/catalogue/variants/:variantId",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "catalogue.ts",
+      "router": "catalogueRouter",
+      "method": "GET",
+      "path": "/outlets/:outletId/prices/history",
+      "directPermissions": [
+        "catalogue:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "deviceOperations.ts",
+      "router": "deviceOperationsRouter",
+      "method": "POST",
+      "path": "/devices/:deviceId/health",
+      "directPermissions": [
+        "device:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "device:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "deviceOperations.ts",
+      "router": "deviceOperationsRouter",
+      "method": "GET",
+      "path": "/devices/health",
+      "directPermissions": [
+        "device:health:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "device:health:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "deviceOperations.ts",
+      "router": "deviceOperationsRouter",
+      "method": "GET",
+      "path": "/offline/checkpoints",
+      "directPermissions": [
+        "offline:checkpoint:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:checkpoint:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "devices.ts",
+      "router": "devicesRouter",
+      "method": "GET",
+      "path": "/devices",
+      "directPermissions": [
+        "device:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "device:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "devices.ts",
+      "router": "devicesRouter",
+      "method": "POST",
+      "path": "/devices",
+      "directPermissions": [
+        "device:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "device:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "devices.ts",
+      "router": "devicesRouter",
+      "method": "POST",
+      "path": "/devices/:deviceId/challenge",
+      "directPermissions": [
+        "device:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "device:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "devices.ts",
+      "router": "devicesRouter",
+      "method": "POST",
+      "path": "/devices/:deviceId/attest",
+      "directPermissions": [
+        "device:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "device:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "devices.ts",
+      "router": "devicesRouter",
+      "method": "POST",
+      "path": "/devices/:deviceId/revoke",
+      "directPermissions": [
+        "device:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "device:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/outlet-transfers",
+      "directPermissions": [
+        "outlet:transfer"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "outlet:transfer"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/outlet-transfers/:transferId/receive",
+      "directPermissions": [
+        "outlet:transfer"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "outlet:transfer"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/finance/expenses",
+      "directPermissions": [
+        "finance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "GET",
+      "path": "/finance/summary",
+      "directPermissions": [
+        "finance:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/finance/exports",
+      "directPermissions": [
+        "finance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/crm/customers",
+      "directPermissions": [
+        "crm:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "crm:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/crm/customers/:customerId/consents",
+      "directPermissions": [
+        "crm:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "crm:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/brands/campaigns",
+      "directPermissions": [
+        "brand:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "brand:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/brands/campaigns/:campaignId/review",
+      "directPermissions": [
+        "brand:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "brand:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "GET",
+      "path": "/brands/campaigns",
+      "directPermissions": [
+        "brand:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "brand:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/platform/distributor-assignments",
+      "directPermissions": [
+        "distributor:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "distributor:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/distributor/orders",
+      "directPermissions": [
+        "distributor:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "distributor:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "GET",
+      "path": "/distributor/orders",
+      "directPermissions": [
+        "distributor:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "distributor:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/trade/schemes/:schemeId/enrol",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/trade/schemes",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/trade/visits",
+      "directPermissions": [
+        "trade:visit"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:visit"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/trade/visits/:visitId/checkout",
+      "directPermissions": [
+        "trade:visit"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:visit"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/platform/consumer-discovery/:organisationId/enable",
+      "directPermissions": [
+        "consumer:review"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "consumer:review"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/consumer/listings",
+      "directPermissions": [
+        "consumer:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "consumer:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/consumer/listings/:listingId/review",
+      "directPermissions": [
+        "consumer:review"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "consumer:review"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/analytics/reports",
+      "directPermissions": [
+        "analytics:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "analytics:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "GET",
+      "path": "/analytics/sales-summary",
+      "directPermissions": [
+        "analytics:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "analytics:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/sync/devices",
+      "directPermissions": [
+        "sync:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "sync:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/sync/batches",
+      "directPermissions": [
+        "sync:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "sync:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/platform/ops/alerts",
+      "directPermissions": [
+        "ops:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "ops:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "ecosystem.ts",
+      "router": "ecosystemRouter",
+      "method": "POST",
+      "path": "/platform/ops/release-checks",
+      "directPermissions": [
+        "ops:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "ops:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "enterpriseIntegrations.ts",
+      "router": "enterpriseIntegrationsRouter",
+      "method": "GET",
+      "path": "/enterprise-integrations",
+      "directPermissions": [
+        "integration:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "integration:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "enterpriseIntegrations.ts",
+      "router": "enterpriseIntegrationsRouter",
+      "method": "POST",
+      "path": "/enterprise-integrations",
+      "directPermissions": [
+        "integration:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "integration:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "enterpriseIntegrations.ts",
+      "router": "enterpriseIntegrationsRouter",
+      "method": "POST",
+      "path": "/enterprise-integrations/:integrationId/configure",
+      "directPermissions": [
+        "integration:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "integration:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "enterpriseIntegrations.ts",
+      "router": "enterpriseIntegrationsRouter",
+      "method": "POST",
+      "path": "/enterprise-integrations/:integrationId/status",
+      "directPermissions": [
+        "integration:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "integration:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "enterpriseIntegrations.ts",
+      "router": "enterpriseIntegrationsRouter",
+      "method": "GET",
+      "path": "/enterprise-integrations/:integrationId/events",
+      "directPermissions": [
+        "integration:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "integration:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "enterpriseIntegrations.ts",
+      "router": "enterpriseIntegrationsRouter",
+      "method": "POST",
+      "path": "/enterprise-integrations/:integrationId/adapter-assess",
+      "directPermissions": [
+        "integration:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "integration:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "enterpriseIntegrations.ts",
+      "router": "enterpriseIntegrationsRouter",
+      "method": "GET",
+      "path": "/enterprise-integrations/:integrationId/adapter-assessments",
+      "directPermissions": [
+        "integration:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "integration:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/rule-packs",
+      "directPermissions": [
+        "excise:manage-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:manage-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "GET",
+      "path": "/excise/rule-packs",
+      "directPermissions": [
+        "excise:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "GET",
+      "path": "/excise/rule-packs/:packId/rules",
+      "directPermissions": [
+        "excise:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/rule-packs/:packId/rules",
+      "directPermissions": [
+        "excise:manage-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:manage-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/rule-packs/:packId/submit",
+      "directPermissions": [
+        "excise:manage-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:manage-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/rule-packs/:packId/review",
+      "directPermissions": [
+        "excise:review-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:review-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/rule-packs/:packId/activate",
+      "directPermissions": [
+        "excise:activate-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:activate-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "GET",
+      "path": "/outlets/:outletId/excise/conditions",
+      "directPermissions": [
+        "excise:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/outlets/:outletId/licences/:licenceId/excise-conditions",
+      "directPermissions": [
+        "excise:manage-conditions"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:manage-conditions"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/licence-conditions/:conditionId/review",
+      "directPermissions": [
+        "excise:review-conditions"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:review-conditions"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/dry-day-orders",
+      "directPermissions": [
+        "excise:manage-dry-days"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:manage-dry-days"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "GET",
+      "path": "/excise/dry-day-orders",
+      "directPermissions": [
+        "excise:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/dry-day-orders/:orderId/review",
+      "directPermissions": [
+        "excise:review-dry-days"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:review-dry-days"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "POST",
+      "path": "/excise/evaluate",
+      "directPermissions": [
+        "excise:evaluate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:evaluate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "exciseCompliance.ts",
+      "router": "exciseComplianceRouter",
+      "method": "GET",
+      "path": "/excise/decisions",
+      "directPermissions": [
+        "excise:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "excise:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "GET",
+      "path": "/finance/accounts",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "POST",
+      "path": "/finance/accounts",
+      "directPermissions": [
+        "finance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "POST",
+      "path": "/finance/journals",
+      "directPermissions": [
+        "finance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "GET",
+      "path": "/finance/trial-balance",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "GET",
+      "path": "/finance/profit-and-loss",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "GET",
+      "path": "/finance/balance-sheet",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "GET",
+      "path": "/finance/cash-flow",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "GET",
+      "path": "/finance/inventory-valuation",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "finance.ts",
+      "router": "financeRouter",
+      "method": "GET",
+      "path": "/finance/inventory-cost-exceptions",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "financeAutomation.ts",
+      "router": "financeAutomationRouter",
+      "method": "PUT",
+      "path": "/finance/accounting-mappings/:eventType",
+      "directPermissions": [
+        "finance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "financeAutomation.ts",
+      "router": "financeAutomationRouter",
+      "method": "POST",
+      "path": "/finance/source-postings",
+      "directPermissions": [
+        "finance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "financeAutomation.ts",
+      "router": "financeAutomationRouter",
+      "method": "POST",
+      "path": "/finance/periods",
+      "directPermissions": [
+        "finance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "financeAutomation.ts",
+      "router": "financeAutomationRouter",
+      "method": "GET",
+      "path": "/finance/periods",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "financeAutomation.ts",
+      "router": "financeAutomationRouter",
+      "method": "POST",
+      "path": "/finance/periods/:periodId/close",
+      "directPermissions": [
+        "finance:period:close"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:period:close"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "health.ts",
+      "router": "healthRouter",
+      "method": "GET",
+      "path": "/live",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Public liveness probe; no business data."
+    },
+    {
+      "file": "health.ts",
+      "router": "healthRouter",
+      "method": "GET",
+      "path": "/ready",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Operational readiness probe; no business data."
+    },
+    {
+      "file": "offlineAuthoritative.ts",
+      "router": "offlineAuthoritativeRouter",
+      "method": "POST",
+      "path": "/offline/posting-intents/:intentId/authoritative-check",
+      "directPermissions": [
+        "offline:authoritative-check"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:authoritative-check"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineAuthoritative.ts",
+      "router": "offlineAuthoritativeRouter",
+      "method": "GET",
+      "path": "/offline/authoritative-checks",
+      "directPermissions": [
+        "offline:authoritative-read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:authoritative-read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineLedgerPosting.ts",
+      "router": "offlineLedgerPostingRouter",
+      "method": "POST",
+      "path": "/offline/posting-intents/:intentId/post",
+      "directPermissions": [
+        "offline:ledger-post"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:ledger-post"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineLedgerPosting.ts",
+      "router": "offlineLedgerPostingRouter",
+      "method": "GET",
+      "path": "/offline/posting-executions",
+      "directPermissions": [
+        "offline:ledger-read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:ledger-read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlinePostingApproval.ts",
+      "router": "offlinePostingApprovalRouter",
+      "method": "POST",
+      "path": "/offline/posting-intents/:intentId/approval",
+      "directPermissions": [
+        "offline:posting-approve"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:posting-approve"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlinePostingApproval.ts",
+      "router": "offlinePostingApprovalRouter",
+      "method": "GET",
+      "path": "/offline/posting-approvals",
+      "directPermissions": [
+        "offline:posting-approval-read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:posting-approval-read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineReconciliation.ts",
+      "router": "offlineReconciliationRouter",
+      "method": "GET",
+      "path": "/offline/reconciliation/events",
+      "directPermissions": [
+        "offline:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineReconciliation.ts",
+      "router": "offlineReconciliationRouter",
+      "method": "POST",
+      "path": "/offline/reconciliation/events/:eventId/decision",
+      "directPermissions": [
+        "offline:review"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:review"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineRecovery.ts",
+      "router": "offlineRecoveryRouter",
+      "method": "GET",
+      "path": "/offline/recovery/cases",
+      "directPermissions": [
+        "offline:recovery-read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:recovery-read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineRecovery.ts",
+      "router": "offlineRecoveryRouter",
+      "method": "POST",
+      "path": "/offline/recovery/executions/:executionId/case",
+      "directPermissions": [
+        "offline:recovery-manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:recovery-manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineRecovery.ts",
+      "router": "offlineRecoveryRouter",
+      "method": "POST",
+      "path": "/offline/recovery/cases/:caseId/triage",
+      "directPermissions": [
+        "offline:recovery-manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:recovery-manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineRecovery.ts",
+      "router": "offlineRecoveryRouter",
+      "method": "POST",
+      "path": "/offline/recovery/cases/:caseId/retry-request",
+      "directPermissions": [
+        "offline:recovery-manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:recovery-manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineRecovery.ts",
+      "router": "offlineRecoveryRouter",
+      "method": "POST",
+      "path": "/offline/recovery/cases/:caseId/cancel",
+      "directPermissions": [
+        "offline:recovery-manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:recovery-manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineRecovery.ts",
+      "router": "offlineRecoveryRouter",
+      "method": "POST",
+      "path": "/offline/recovery/cases/:caseId/compensation-request",
+      "directPermissions": [
+        "offline:recovery-manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:recovery-manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineRecovery.ts",
+      "router": "offlineRecoveryRouter",
+      "method": "POST",
+      "path": "/offline/recovery/cases/:caseId/compensation-decision",
+      "directPermissions": [
+        "offline:recovery-compensate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:recovery-compensate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineSync.ts",
+      "router": "offlineSyncRouter",
+      "method": "POST",
+      "path": "/offline/devices",
+      "directPermissions": [
+        "offline:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineSync.ts",
+      "router": "offlineSyncRouter",
+      "method": "POST",
+      "path": "/offline/devices/:deviceId/revoke",
+      "directPermissions": [
+        "offline:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineSync.ts",
+      "router": "offlineSyncRouter",
+      "method": "POST",
+      "path": "/offline/sync-batches",
+      "directPermissions": [
+        "offline:sync"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:sync"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineSync.ts",
+      "router": "offlineSyncRouter",
+      "method": "GET",
+      "path": "/offline/sync-batches",
+      "directPermissions": [
+        "offline:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineValidation.ts",
+      "router": "offlineValidationRouter",
+      "method": "POST",
+      "path": "/offline/reconciliation/events/:eventId/validate",
+      "directPermissions": [
+        "offline:validate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:validate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "offlineValidation.ts",
+      "router": "offlineValidationRouter",
+      "method": "GET",
+      "path": "/offline/posting-intents",
+      "directPermissions": [
+        "offline:posting-intents:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "offline:posting-intents:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/organisations",
+      "directPermissions": [
+        "organisation:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "organisation:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/organisations",
+      "directPermissions": [
+        "organisation:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "organisation:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/outlets",
+      "directPermissions": [
+        "outlet:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "outlet:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/outlets/:outletId/status",
+      "directPermissions": [
+        "outlet:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "outlet:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/outlets",
+      "directPermissions": [
+        "outlet:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "outlet:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/outlets/:outletId/licences",
+      "directPermissions": [
+        "licence:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "licence:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/licences/:licenceId/review",
+      "directPermissions": [
+        "licence:review"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "licence:review"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/outlets/:outletId/licences",
+      "directPermissions": [
+        "licence:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "licence:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/catalogue/products",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/catalogue/products",
+      "directPermissions": [
+        "catalogue:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "PATCH",
+      "path": "/catalogue/products/:productId",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/opening-balance-snapshots",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/reconciliation-runs",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/reconciliation-runs",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/reconciliation-exceptions",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/reconciliation-exceptions/:exceptionId/status",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/variance-correction-requests",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/variance-correction-requests",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/variance-correction-requests/:requestId/approve",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/variance-correction-requests/:requestId/reject",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/receipts",
+      "directPermissions": [
+        "inventory:receive"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:receive"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/balances",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/adjustments",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/batches",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/batches",
+      "directPermissions": [
+        "inventory:receive"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:receive"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/transfers",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/transfers",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/transfers/:transferId",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/transfers/:transferId/dispatch",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/transfers/:transferId/receive",
+      "directPermissions": [
+        "inventory:receive"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:receive"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/stocktakes",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/stocktakes",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/inventory/stocktakes/:stocktakeId",
+      "directPermissions": [
+        "inventory:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "PUT",
+      "path": "/inventory/stocktakes/:stocktakeId/lines/:productId",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/stocktakes/:stocktakeId/submit",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/inventory/stocktakes/:stocktakeId/approve",
+      "directPermissions": [
+        "inventory:adjust"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "inventory:adjust"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/outlets/:outletId/prices",
+      "directPermissions": [
+        "catalogue:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/outlets/:outletId/prices",
+      "directPermissions": [
+        "catalogue:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "catalogue:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/retail/sales",
+      "directPermissions": [
+        "retail:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "retail:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/retail/sales",
+      "directPermissions": [
+        "retail:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "retail:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/retail/sales/:saleId",
+      "directPermissions": [
+        "retail:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "retail:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/bar/open-bottles",
+      "directPermissions": [
+        "peg:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "peg:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/bar/peg-transactions",
+      "directPermissions": [
+        "peg:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "peg:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/bar/open-bottles",
+      "directPermissions": [
+        "peg:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "peg:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/bar/open-bottles/:bottleId/reservations",
+      "directPermissions": [
+        "peg:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "peg:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/bar/bottle-reservations/:reservationId/release",
+      "directPermissions": [
+        "peg:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "peg:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/bar/bottle-reservations",
+      "directPermissions": [
+        "peg:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "peg:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/bar/tickets",
+      "directPermissions": [
+        "bar:sell"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:sell"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/bar/tickets/:ticketId/payments",
+      "directPermissions": [
+        "bar:take_payment"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:take_payment"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/shifts/open",
+      "directPermissions": [
+        "shift:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "shift:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/shifts/current",
+      "directPermissions": [
+        "shift:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "shift:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "GET",
+      "path": "/shifts/:shiftId/preview",
+      "directPermissions": [
+        "shift:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "shift:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "operations.ts",
+      "router": "operationsRouter",
+      "method": "POST",
+      "path": "/shifts/:shiftId/close",
+      "directPermissions": [
+        "shift:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "shift:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "organisationAccess.ts",
+      "router": "organisationAccessRouter",
+      "method": "GET",
+      "path": "/organisation/current",
+      "directPermissions": [
+        "organisation:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "organisation:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "organisationAccess.ts",
+      "router": "organisationAccessRouter",
+      "method": "PATCH",
+      "path": "/organisation/current",
+      "directPermissions": [
+        "organisation:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "organisation:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "organisationAccess.ts",
+      "router": "organisationAccessRouter",
+      "method": "GET",
+      "path": "/organisation/members",
+      "directPermissions": [
+        "user:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "user:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "organisationAccess.ts",
+      "router": "organisationAccessRouter",
+      "method": "POST",
+      "path": "/organisation/invitations",
+      "directPermissions": [
+        "user:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "user:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "organisationAccess.ts",
+      "router": "invitationAcceptanceRouter",
+      "method": "POST",
+      "path": "/organisation/invitations/accept",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Invitation-token acceptance flow; token is the scoped credential."
+    },
+    {
+      "file": "organisationAccess.ts",
+      "router": "organisationAccessRouter",
+      "method": "PATCH",
+      "path": "/organisation/members/:userId",
+      "directPermissions": [
+        "user:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "user:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "organisationAccess.ts",
+      "router": "organisationAccessRouter",
+      "method": "PUT",
+      "path": "/organisation/members/:userId/outlets",
+      "directPermissions": [
+        "user:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "user:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "organisationAccess.ts",
+      "router": "organisationAccessRouter",
+      "method": "GET",
+      "path": "/organisation/audit-events",
+      "directPermissions": [
+        "audit:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "audit:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "POST",
+      "path": "/payments/provider-webhooks/:provider",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Provider callback authenticated by webhook signature and replay controls."
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "POST",
+      "path": "/shifts/:shiftId/cash-counts",
+      "directPermissions": [
+        "payments:operate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:operate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "GET",
+      "path": "/payments/provider-events",
+      "directPermissions": [
+        "payments:reconcile"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:reconcile"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "POST",
+      "path": "/payments/settlements",
+      "directPermissions": [
+        "payments:reconcile"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:reconcile"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "POST",
+      "path": "/payments/exceptions/:exceptionId/resolve",
+      "directPermissions": [
+        "payments:exceptions:resolve"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:exceptions:resolve"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "GET",
+      "path": "/payments/exceptions",
+      "directPermissions": [
+        "payments:reconcile"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:reconcile"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "POST",
+      "path": "/payments/tender-allocations",
+      "directPermissions": [
+        "payments:operate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:operate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "POST",
+      "path": "/payments/settlements/:batchId/match",
+      "directPermissions": [
+        "payments:reconcile"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:reconcile"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentLifecycle.ts",
+      "router": "paymentLifecycleRouter",
+      "method": "POST",
+      "path": "/payments/settlements/:batchId/bank-confirm",
+      "directPermissions": [
+        "payments:reconcile"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:reconcile"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentReconciliation.ts",
+      "router": "paymentReconciliationRouter",
+      "method": "POST",
+      "path": "/payments/reconciliation/import",
+      "directPermissions": [
+        "payments:reconcile"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:reconcile"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentReconciliation.ts",
+      "router": "paymentReconciliationRouter",
+      "method": "POST",
+      "path": "/payments/reconciliation/:batchId/match",
+      "directPermissions": [
+        "payments:reconcile"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:reconcile"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "paymentReconciliation.ts",
+      "router": "paymentReconciliationRouter",
+      "method": "GET",
+      "path": "/payments/reconciliation/:batchId",
+      "directPermissions": [
+        "payments:reconcile"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:reconcile"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "platform.ts",
+      "router": "platformRouter",
+      "method": "GET",
+      "path": "/operating-modes",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Public static operating-mode metadata; not a licence grant."
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "GET",
+      "path": "/procurement/suppliers",
+      "directPermissions": [
+        "procurement:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "POST",
+      "path": "/procurement/suppliers",
+      "directPermissions": [
+        "procurement:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "PATCH",
+      "path": "/procurement/suppliers/:supplierId",
+      "directPermissions": [
+        "procurement:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "POST",
+      "path": "/procurement/supplier-returns",
+      "directPermissions": [
+        "procurement:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "GET",
+      "path": "/procurement/supplier-returns",
+      "directPermissions": [
+        "procurement:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "POST",
+      "path": "/procurement/supplier-returns/:returnId/approve",
+      "directPermissions": [
+        "procurement:approve"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:approve"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "POST",
+      "path": "/procurement/supplier-returns/:returnId/post",
+      "directPermissions": [
+        "procurement:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "GET",
+      "path": "/procurement/purchase-orders",
+      "directPermissions": [
+        "procurement:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "POST",
+      "path": "/procurement/purchase-orders",
+      "directPermissions": [
+        "procurement:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "POST",
+      "path": "/procurement/purchase-orders/:poId/submit",
+      "directPermissions": [
+        "procurement:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "POST",
+      "path": "/procurement/purchase-orders/:poId/review",
+      "directPermissions": [
+        "procurement:approve"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:approve"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "procurement.ts",
+      "router": "procurementRouter",
+      "method": "POST",
+      "path": "/procurement/purchase-orders/:poId/receipts",
+      "directPermissions": [
+        "procurement:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "procurement:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "regulatoryReports.ts",
+      "router": "regulatoryReportsRouter",
+      "method": "GET",
+      "path": "/compliance/reports",
+      "directPermissions": [
+        "compliance:reports:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "compliance:reports:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "regulatoryReports.ts",
+      "router": "regulatoryReportsRouter",
+      "method": "GET",
+      "path": "/compliance/reports/history",
+      "directPermissions": [
+        "compliance:reports:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "compliance:reports:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "regulatoryReports.ts",
+      "router": "regulatoryReportsRouter",
+      "method": "POST",
+      "path": "/compliance/traceability",
+      "directPermissions": [
+        "compliance:traceability:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "compliance:traceability:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "regulatoryReports.ts",
+      "router": "regulatoryReportsRouter",
+      "method": "GET",
+      "path": "/compliance/traceability",
+      "directPermissions": [
+        "compliance:reports:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "compliance:reports:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "reportGovernance.ts",
+      "router": "reportGovernanceRouter",
+      "method": "GET",
+      "path": "/reports/governance/saved",
+      "directPermissions": [
+        "reports:governance:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "reports:governance:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "reportGovernance.ts",
+      "router": "reportGovernanceRouter",
+      "method": "POST",
+      "path": "/reports/governance/saved",
+      "directPermissions": [
+        "reports:governance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "reports:governance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "reportGovernance.ts",
+      "router": "reportGovernanceRouter",
+      "method": "POST",
+      "path": "/reports/governance/saved/:id/status",
+      "directPermissions": [
+        "reports:governance:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "reports:governance:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "reportGovernance.ts",
+      "router": "reportGovernanceRouter",
+      "method": "GET",
+      "path": "/reports/governance/executions",
+      "directPermissions": [
+        "reports:governance:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "reports:governance:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "reportGovernance.ts",
+      "router": "reportGovernanceRouter",
+      "method": "POST",
+      "path": "/reports/governance/export-evidence",
+      "directPermissions": [
+        "reports:governance:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "reports:governance:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "securityAudit.ts",
+      "router": "securityAuditRouter",
+      "method": "GET",
+      "path": "/security/audit-events",
+      "directPermissions": [
+        "security:audit:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "security:audit:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "POST",
+      "path": "/finance/bank-statement-lines",
+      "directPermissions": [
+        "payments:operate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:operate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "GET",
+      "path": "/finance/bank-statement-lines",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "POST",
+      "path": "/finance/bank-statement-lines/:lineId/match",
+      "directPermissions": [
+        "payments:operate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:operate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "POST",
+      "path": "/finance/chargebacks",
+      "directPermissions": [
+        "payments:operate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:operate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "GET",
+      "path": "/finance/chargebacks",
+      "directPermissions": [
+        "finance:view"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "finance:view"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "POST",
+      "path": "/finance/chargebacks/:caseId/status",
+      "directPermissions": [
+        "payments:operate"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "payments:operate"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "POST",
+      "path": "/retail/sales/:saleId/refunds",
+      "directPermissions": [
+        "retail:refund"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "retail:refund"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "POST",
+      "path": "/bar/tickets/:ticketId/refunds",
+      "directPermissions": [
+        "bar:refund"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:refund"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "GET",
+      "path": "/bar/peg-quarantine",
+      "directPermissions": [
+        "bar:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "POST",
+      "path": "/bar/peg-quarantine/:restorationId/disposition",
+      "directPermissions": [
+        "bar:quarantine:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "bar:quarantine:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "POST",
+      "path": "/shifts/:shiftId/cash-movements",
+      "directPermissions": [
+        "shift:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "shift:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "settlements.ts",
+      "router": "settlementsRouter",
+      "method": "GET",
+      "path": "/shifts/:shiftId/cash-movements",
+      "directPermissions": [
+        "shift:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "shift:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "GET",
+      "path": "/tax/rule-packs",
+      "directPermissions": [
+        "tax:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/tax/rule-packs",
+      "directPermissions": [
+        "tax:manage-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:manage-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "GET",
+      "path": "/tax/rule-packs/:packId/components",
+      "directPermissions": [
+        "tax:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/tax/rule-packs/:packId/components",
+      "directPermissions": [
+        "tax:manage-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:manage-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/tax/rule-packs/:packId/submit",
+      "directPermissions": [
+        "tax:manage-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:manage-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/tax/rule-packs/:packId/review",
+      "directPermissions": [
+        "tax:review-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:review-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/tax/rule-packs/:packId/activate",
+      "directPermissions": [
+        "tax:activate-rules"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:activate-rules"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/tax/products/:productId/profiles",
+      "directPermissions": [
+        "tax:manage-products"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:manage-products"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "GET",
+      "path": "/tax/products/:productId/profiles",
+      "directPermissions": [
+        "tax:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/tax/product-profiles/:profileId/review",
+      "directPermissions": [
+        "tax:manage-products"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:manage-products"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/outlets/:outletId/prices",
+      "directPermissions": [
+        "tax:manage-prices"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:manage-prices"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/outlets/:outletId/prices/:priceId/review",
+      "directPermissions": [
+        "tax:manage-prices"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:manage-prices"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "GET",
+      "path": "/tax/outlets/:outletId/prices",
+      "directPermissions": [
+        "tax:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "POST",
+      "path": "/tax/quote",
+      "directPermissions": [
+        "tax:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "GET",
+      "path": "/tax/attempts",
+      "directPermissions": [
+        "tax:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "taxPricing.ts",
+      "router": "taxPricingRouter",
+      "method": "GET",
+      "path": "/tax/snapshots",
+      "directPermissions": [
+        "tax:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "tax:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tenant.ts",
+      "router": "tenantRouter",
+      "method": "GET",
+      "path": "/context",
+      "directPermissions": [],
+      "inheritedPermissions": [],
+      "effectivePermissions": [],
+      "exemption": "Authenticated self-context endpoint; returns only caller identity and grants."
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "POST",
+      "path": "/trade/profile",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "POST",
+      "path": "/platform/trade/profiles/:organisationId/approve",
+      "directPermissions": [
+        "platform:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "platform:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "POST",
+      "path": "/trade/relationships",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "POST",
+      "path": "/trade/relationships/:relationshipId/decision",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "GET",
+      "path": "/trade/relationships",
+      "directPermissions": [
+        "trade:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "POST",
+      "path": "/trade/catalogue",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "GET",
+      "path": "/trade/catalogue",
+      "directPermissions": [
+        "trade:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "POST",
+      "path": "/trade/orders",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "POST",
+      "path": "/trade/orders/:orderId/status",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "GET",
+      "path": "/trade/orders",
+      "directPermissions": [
+        "trade:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:read"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "POST",
+      "path": "/trade/orders/:orderId/fulfilment-evidence",
+      "directPermissions": [
+        "trade:manage"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:manage"
+      ],
+      "exemption": null
+    },
+    {
+      "file": "tradePortal.ts",
+      "router": "tradePortalRouter",
+      "method": "GET",
+      "path": "/trade/orders/:orderId/fulfilment-evidence",
+      "directPermissions": [
+        "trade:read"
+      ],
+      "inheritedPermissions": [],
+      "effectivePermissions": [
+        "trade:read"
+      ],
+      "exemption": null
+    }
+  ]
+}

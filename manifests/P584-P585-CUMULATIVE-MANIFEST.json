@@ -1,0 +1,40 @@
+{
+  "project": "Alcohol Commerce Platform",
+  "version": "0.585.0-dev",
+  "cumulative_from": "P513",
+  "through": "P585",
+  "baseline": "Alcohol-Commerce-Platform-P579-P583-Cumulative-v0.583.0-dev.zip",
+  "phases": [
+    "P584 E2E, UAT and business acceptance framework",
+    "P585 pilot and production readiness gates"
+  ],
+  "new_artifacts": [
+    "doc-new/P584-ACCEPTANCE-PLAN.md",
+    "reports/P584-EVIDENCE-TEMPLATE.json",
+    "reports/P585-PRODUCTION-RELEASE-GATES.json",
+    "doc-new/P585-PRODUCTION-DEPLOYMENT-CHECKLIST.md",
+    "doc-new/P584-P585-RUNBOOK.md"
+  ],
+  "verification": {
+    "p584": "7/7 static pass",
+    "p585": "4/4 static pass",
+    "typescript_syntax": "280 files, 0 diagnostics",
+    "postgres_runtime": "not run",
+    "api_smoke": "not run",
+    "semantic_typecheck": "blocked by missing dependencies",
+    "api_browser_mobile_e2e": "not run"
+  },
+  "production_release": {
+    "decision": "NO_GO",
+    "mandatory_gates": 13,
+    "passed": 0,
+    "unresolved": 13,
+    "production_approved": false
+  },
+  "safety": {
+    "live_payment_capture": false,
+    "outbound_provider_dispatch": false,
+    "offline_alcohol_financial_posting": false
+  },
+  "gap_register": "doc-new/P513-P585-Cumulative-Gap-Register.md"
+}

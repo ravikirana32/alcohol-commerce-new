@@ -11,7 +11,7 @@ const checks = [
   ['tenant isolation plan includes outlet scope', /A1-only cashier/.test(read('docs/security/P553-TENANT-ISOLATION-TEST-PLAN.md'))],
   ['tenant isolation plan covers IDOR and nested resources', /IDOR fuzz/.test(read('docs/security/P553-TENANT-ISOLATION-TEST-PLAN.md')) && /Nested resources/.test(read('docs/security/P553-TENANT-ISOLATION-TEST-PLAN.md'))],
   ['P552 permission matrix retained', fs.existsSync(path.join(root, 'apps/api/src/authz/permission-matrix.generated.json'))],
-  ['P552 API route parity report retained', fs.existsSync(path.join(root, 'P552-API-ROUTE-PERMISSION-MATRIX.json'))],
+  ['P552 API route parity report retained', fs.existsSync(path.join(root, 'reports/P552-API-ROUTE-PERMISSION-MATRIX.json'))],
   ['no production credential literal added', !/password\s*[:=]\s*['"][^'"]{8,}['"]/i.test(read('scripts/verify-p553-live-role-matrix.mjs'))]
 ];
 for (const [name, ok] of checks) console.log(`${ok ? 'PASS' : 'FAIL'} ${name}`);

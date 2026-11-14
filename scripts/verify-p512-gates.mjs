@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-const d=JSON.parse(await fs.readFile('P512-RELEASE-GATE.json','utf8'));
+const d=JSON.parse(await fs.readFile('reports/P512-RELEASE-GATE.json','utf8'));
 const checks=[
  ['release is not approved',d.release_status==='NOT_APPROVED'],
  ['production remains disabled',d.production_enabled===false],

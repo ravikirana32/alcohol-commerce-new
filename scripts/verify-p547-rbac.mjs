@@ -21,8 +21,8 @@ check('Demo seeder blocks production and requires explicit opt-in', () => /nodeE
 check('Outlet permission helper enforces exact outlet scope', () => /g\.outletId===undefined\|\|g\.outletId===outletId/.test(scope));
 check('Middleware tests cover 401, allow, deny and exact-match behavior', () => ['401','403','similar permission','exact permission'].every(s => permissionTest.includes(s)));
 check('Outlet scope tests cover match, mismatch and org-wide grant', () => ['outlet-a','outlet-b','inventory:read','finance:manage'].every(s => scopeTest.includes(s)));
-check('P546 runbook documents dynamic demo role accounts', () => /DEMO_SEED_PASSWORD/.test(read('P546-RUNBOOK.md')) && /demo\.acp\.local/.test(read('P546-RUNBOOK.md')));
-check('Tenant authorization is explicitly recorded as runtime-pending', () => /tenant isolation/i.test(read('P513-P546-Cumulative-Gap-Register.md')));
+check('P546 runbook documents dynamic demo role accounts', () => /DEMO_SEED_PASSWORD/.test(read('doc-new/P546-RUNBOOK.md')) && /demo\.acp\.local/.test(read('doc-new/P546-RUNBOOK.md')));
+check('Tenant authorization is explicitly recorded as runtime-pending', () => /tenant isolation/i.test(read('doc-new/P513-P546-Cumulative-Gap-Register.md')));
 const failed = checks.filter(c=>!c.ok);
 for (const c of checks) console.log(`${c.ok?'PASS':'FAIL'} ${c.name}${c.error?`: ${c.error}`:''}`);
 console.log(`P547 RBAC static checks: ${checks.length-failed.length}/${checks.length} PASS`);

@@ -19,5 +19,5 @@ CREATE TABLE IF NOT EXISTS bar_refund_peg_restorations (
 );
 CREATE INDEX IF NOT EXISTS idx_bar_refund_peg_line ON bar_refund_peg_restorations(ticket_line_id);
 INSERT INTO platform_phase_delivery_register(phase_code,phase_title,delivery_scope,delivery_state,evidence_reference)
-VALUES ('P502','Refund inventory allocation integrity','SKU-level retail restock and auditable bar peg-volume restoration','developer-preview','docs/P502-IMPLEMENTATION.md')
+VALUES ('P502','Refund inventory allocation integrity','SKU-level retail restock and auditable bar peg-volume restoration','developer-preview','doc-new/P502-IMPLEMENTATION.md')
 ON CONFLICT(phase_code) DO UPDATE SET phase_title=EXCLUDED.phase_title,delivery_scope=EXCLUDED.delivery_scope,delivery_state=EXCLUDED.delivery_state,evidence_reference=EXCLUDED.evidence_reference,updated_at=NOW();

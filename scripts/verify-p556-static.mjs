@@ -8,7 +8,7 @@ const checks = [
   ['permission scope helper', 'apps/api/src/services/permissionScope.ts'],
   ['P555 authenticated harness retained', 'scripts/run-p555-authenticated-api-matrix.mjs'],
   ['generated role matrix retained', 'apps/api/src/authz/permission-matrix.generated.json'],
-  ['cumulative gap register', 'P513-P556-Cumulative-Gap-Register.md']
+  ['cumulative gap register', 'doc-new/P513-P556-Cumulative-Gap-Register.md']
 ];
 let failed = 0;
 for (const [label, file] of checks) {

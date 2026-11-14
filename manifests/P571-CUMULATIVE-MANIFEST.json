@@ -1,0 +1,29 @@
+{
+  "phase": "P571",
+  "version": "0.571.0-dev",
+  "baseline": "P570 cumulative",
+  "scope": "Stock ledger foundation and signed adjustment direction",
+  "migration": "apps/api/src/db/247_p571_stock_ledger_foundation.sql",
+  "added_files": [
+    "doc-new/P571-IMPLEMENTATION.md",
+    "doc-new/P571-TEST-REPORT.md",
+    "doc-new/P571-RUNBOOK.md",
+    "doc-new/P571-STATUS.md",
+    "doc-new/P571-RELEASE-NOTES.md",
+    "doc-new/P513-P571-Cumulative-Gap-Register.md",
+    "scripts/verify-p571-stock-ledger-foundation.mjs"
+  ],
+  "verification": {
+    "p571_static": "12/12 PASS",
+    "p570_static": "10/10 PASS",
+    "p569_static": "10/10 PASS",
+    "p568_static": "10/10 PASS",
+    "p567_static": "10/10 PASS",
+    "p566_static": "10/10 PASS",
+    "p565_static": "11/11 PASS",
+    "typescript_syntax": "275 files; 0 diagnostics",
+    "migration_static": "247 ordered SQL files PASS"
+  },
+  "runtime_status": "NOT RUN: PostgreSQL, Vitest, semantic typecheck, API E2E, concurrency, tenant IDOR and penetration testing",
+  "release_decision": "NO-GO"
+}

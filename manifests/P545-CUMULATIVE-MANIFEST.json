@@ -1,0 +1,21 @@
+{
+  "phase": "P545",
+  "version": "0.545.0-dev",
+  "baseline": "P544",
+  "title": "Docker Deployment, PostgreSQL Runtime & API/Web Integration Validation",
+  "status": "developer-preview-runtime-evidence-pending",
+  "artifacts": [
+    "scripts/verify-p545-deployment.mjs",
+    "scripts/run-p545-runtime-validation.sh",
+    "doc-new/P545-IMPLEMENTATION.md",
+    "doc-new/P545-TEST-REPORT.md",
+    "doc-new/P545-STATUS.md",
+    "doc-new/P545-RUNTIME-VALIDATION.md",
+    "doc-new/P545-ROLLBACK.md",
+    "doc-new/P545-RELEASE-NOTES.md"
+  ],
+  "production_go_live": false,
+  "live_payment_capture_enabled": false,
+  "offline_alcohol_posting_enabled": false,
+  "outbound_provider_dispatch_enabled": false
+}

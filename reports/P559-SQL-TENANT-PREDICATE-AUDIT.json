@@ -1,0 +1,5507 @@
+{
+  "generatedAt": "2026-11-14T13:27:27.721Z",
+  "method": "Heuristic static scan of SQL template literals passed directly to .query(); does not resolve helper-built SQL, parameterized fragments, CTE semantics, joins, row-level security, or runtime query paths.",
+  "filesScanned": 236,
+  "queryStatements": 442,
+  "explicitOrganisationPredicate": 192,
+  "outletPredicateOnly": 2,
+  "manualReviewRequired": 248,
+  "mutationStatements": 264,
+  "statements": [
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 26,
+      "tables": [
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 32,
+      "tables": [
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 37,
+      "tables": [
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 45,
+      "tables": [
+        "outlets",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 52,
+      "tables": [
+        "role_permissions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 65,
+      "tables": [
+        "users",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 75,
+      "tables": [
+        "organisation_memberships",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/db/seed-demo-users.ts",
+      "line": 81,
+      "tables": [
+        "user_outlet_access"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/middleware/authenticate.ts",
+      "line": 29,
+      "tables": [
+        "auth_sessions",
+        "users"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/middleware/authenticate.ts",
+      "line": 45,
+      "tables": [
+        "organisation_memberships"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/middleware/securityRateLimit.ts",
+      "line": 13,
+      "tables": [
+        "p583_rate_limit_buckets",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/analytics.ts",
+      "line": 35,
+      "tables": [
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/analytics.ts",
+      "line": 41,
+      "tables": [
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/analytics.ts",
+      "line": 47,
+      "tables": [
+        "stock_movements"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/analytics.ts",
+      "line": 53,
+      "tables": [
+        "purchase_orders"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/analytics.ts",
+      "line": 80,
+      "tables": [
+        "retail_sales",
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/analytics.ts",
+      "line": 110,
+      "tables": [
+        "products",
+        "retail_sale_lines",
+        "retail_sales",
+        "bar_ticket_lines",
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/analytics.ts",
+      "line": 134,
+      "tables": [
+        "stock_movements",
+        "products",
+        "outlets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/analytics.ts",
+      "line": 151,
+      "tables": [
+        "finance_accounts",
+        "finance_journal_lines",
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/auth.ts",
+      "line": 63,
+      "tables": [
+        "users"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/auth.ts",
+      "line": 83,
+      "tables": [
+        "users"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/auth.ts",
+      "line": 96,
+      "tables": [
+        "organisation_memberships"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 71,
+      "tables": [
+        "bar_refunds",
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 84,
+      "tables": [
+        "bar_refund_peg_restorations",
+        "bar_ticket_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 100,
+      "tables": [
+        "bar_tickets",
+        "bar_kot_orders",
+        "bar_table_sessions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 124,
+      "tables": [
+        "bar_table_sessions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 129,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 151,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 176,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 194,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 204,
+      "tables": [
+        "bar_kot_orders",
+        "bar_tickets",
+        "bar_table_sessions",
+        "bar_kot_lines",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 229,
+      "tables": [
+        "bar_kot_orders"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 230,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 317,
+      "tables": [
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 324,
+      "tables": [
+        "bar_kot_orders"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 332,
+      "tables": [
+        "open_bottles"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 350,
+      "tables": [
+        "open_bottles"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 355,
+      "tables": [
+        "peg_transactions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 361,
+      "tables": [
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 378,
+      "tables": [
+        "bar_ticket_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/barCheckout.ts",
+      "line": 393,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 15,
+      "tables": [
+        "product_categories"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 20,
+      "tables": [
+        "product_categories"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 24,
+      "tables": [
+        "product_categories",
+        "tree"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "WITH",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 25,
+      "tables": [
+        "product_categories"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 34,
+      "tables": [
+        "products",
+        "product_brands"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 35,
+      "tables": [
+        "products",
+        "product_categories",
+        "product_brands"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 37,
+      "tables": [
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 38,
+      "tables": [
+        "products",
+        "product_categories",
+        "product_brands"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/catalogue.ts",
+      "line": 39,
+      "tables": [
+        "products",
+        "product_brands"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/deviceOperations.ts",
+      "line": 23,
+      "tables": [
+        "p580_device_health_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/deviceOperations.ts",
+      "line": 31,
+      "tables": [
+        "p580_device_health_events",
+        "pos_devices"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/deviceOperations.ts",
+      "line": 35,
+      "tables": [
+        "p580_offline_sync_checkpoints",
+        "offline_sync_devices"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/devices.ts",
+      "line": 17,
+      "tables": [
+        "pos_devices"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/devices.ts",
+      "line": 28,
+      "tables": [
+        "pos_devices",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/devices.ts",
+      "line": 45,
+      "tables": [
+        "pos_device_challenges"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/devices.ts",
+      "line": 58,
+      "tables": [
+        "pos_device_challenges"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 25,
+      "tables": [
+        "outlet_transfers"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 50,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 65,
+      "tables": [
+        "expenses"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 80,
+      "tables": [
+        "accounting_exports"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 88,
+      "tables": [
+        "customers",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 98,
+      "tables": [
+        "customer_consents"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 137,
+      "tables": [
+        "distributor_outlet_assignments",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 148,
+      "tables": [
+        "distributor_outlet_assignments"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "outlet-only-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 167,
+      "tables": [
+        "trade_scheme_participants",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 181,
+      "tables": [
+        "outlets",
+        "distributor_outlet_assignments",
+        "trade_scheme_participants",
+        "trade_schemes"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 185,
+      "tables": [
+        "field_visits"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 199,
+      "tables": [
+        "consumer_discovery_settings",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 208,
+      "tables": [
+        "consumer_public_listings"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 239,
+      "tables": [
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 251,
+      "tables": [
+        "device_registrations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 263,
+      "tables": [
+        "device_registrations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 267,
+      "tables": [
+        "sync_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/ecosystem.ts",
+      "line": 290,
+      "tables": [
+        "release_checks",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 17,
+      "tables": [
+        "security_audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 23,
+      "tables": [
+        "enterprise_integrations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 34,
+      "tables": [
+        "enterprise_integrations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 45,
+      "tables": [
+        "enterprise_integrations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 58,
+      "tables": [
+        "enterprise_integrations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 61,
+      "tables": [
+        "integration_outbox_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 62,
+      "tables": [
+        "integration_outbox_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 69,
+      "tables": [
+        "integration_delivery_attempts",
+        "integration_outbox_events",
+        "enterprise_integrations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 82,
+      "tables": [
+        "enterprise_integrations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 87,
+      "tables": [
+        "p582_provider_certification_runs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/enterpriseIntegrations.ts",
+      "line": 95,
+      "tables": [
+        "p582_provider_certification_runs"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 22,
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 24,
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 29,
+      "tables": [
+        "excise_rule_packs",
+        "excise_rule_pack_rules"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 47,
+      "tables": [
+        "excise_rule_pack_rules",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 50,
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 57,
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 60,
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 77,
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 78,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 80,
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 100,
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 101,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 103,
+      "tables": [
+        "excise_rule_pack_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 110,
+      "tables": [
+        "outlet_licence_excise_conditions",
+        "outlet_licences"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 119,
+      "tables": [
+        "outlet_licences",
+        "outlets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 123,
+      "tables": [
+        "outlet_licence_excise_conditions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 125,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 143,
+      "tables": [
+        "outlet_licence_excise_conditions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 144,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 155,
+      "tables": [
+        "excise_dry_day_orders"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 158,
+      "tables": [
+        "excise_dry_day_order_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 181,
+      "tables": [
+        "excise_dry_day_order_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/exciseCompliance.ts",
+      "line": 194,
+      "tables": [
+        "excise_compliance_decisions",
+        "excise_rule_packs",
+        "outlet_licences"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 32,
+      "tables": [
+        "finance_accounts"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 45,
+      "tables": [
+        "finance_accounts"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 67,
+      "tables": [
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 70,
+      "tables": [
+        "finance_journal_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 72,
+      "tables": [
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 80,
+      "tables": [
+        "finance_accounts",
+        "finance_journal_lines",
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 98,
+      "tables": [
+        "finance_accounts",
+        "finance_journal_lines",
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 115,
+      "tables": [
+        "finance_accounts",
+        "finance_journal_lines",
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 127,
+      "tables": [
+        "finance_accounts",
+        "finance_journal_lines",
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 138,
+      "tables": [
+        "finance_accounts",
+        "finance_journal_lines",
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 150,
+      "tables": [
+        "inventory_cost_layers",
+        "stock_balances",
+        "products",
+        "layers",
+        "balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "WITH",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/finance.ts",
+      "line": 170,
+      "tables": [
+        "inventory_cost_exceptions",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 20,
+      "tables": [
+        "p536_accounting_mappings",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 33,
+      "tables": [
+        "p536_accounting_periods"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 45,
+      "tables": [
+        "finance_journals"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 71,
+      "tables": [
+        "p536_source_postings"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 78,
+      "tables": [
+        "finance_journals",
+        "finance_journal_lines"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 82,
+      "tables": [
+        "finance_journals",
+        "finance_journal_lines"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 83,
+      "tables": [
+        "p535_payment_exceptions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 85,
+      "tables": [
+        "inventory_cost_exceptions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/financeAutomation.ts",
+      "line": 89,
+      "tables": [
+        "p578_period_close_checks"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 26,
+      "tables": [
+        "offline_posting_intents",
+        "offline_sync_events",
+        "outlets",
+        "organisations",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 47,
+      "tables": [
+        "outlet_licences"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 54,
+      "tables": [
+        "offline_device_time_attestations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 64,
+      "tables": [
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 78,
+      "tables": [
+        "outlet_product_prices"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 115,
+      "tables": [
+        "bar_bottle_reservations",
+        "open_bottles"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 139,
+      "tables": [
+        "offline_authoritative_checks"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 142,
+      "tables": [
+        "offline_sync_audit",
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineAuthoritative.ts",
+      "line": 151,
+      "tables": [
+        "offline_authoritative_checks"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 23,
+      "tables": [
+        "offline_posting_intents",
+        "offline_sync_events",
+        "offline_posting_approvals",
+        "offline_event_validations",
+        "offline_authoritative_checks",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 44,
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 46,
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 52,
+      "tables": [
+        "offline_recovery_actions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 54,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 59,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 68,
+      "tables": [
+        "outlets",
+        "organisations",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 72,
+      "tables": [
+        "offline_device_time_attestations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 89,
+      "tables": [
+        "outlet_product_prices"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 119,
+      "tables": [
+        "bar_bottle_reservations",
+        "open_bottles",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 124,
+      "tables": [
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 129,
+      "tables": [
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 136,
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 144,
+      "tables": [
+        "bar_kot_orders"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 147,
+      "tables": [
+        "open_bottles"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 152,
+      "tables": [
+        "open_bottles"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 153,
+      "tables": [
+        "peg_transactions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 155,
+      "tables": [
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 157,
+      "tables": [
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 161,
+      "tables": [
+        "bar_ticket_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 164,
+      "tables": [
+        "bar_payments"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 165,
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 168,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 177,
+      "tables": [
+        "outlet_product_prices",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 191,
+      "tables": [
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 198,
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 207,
+      "tables": [
+        "retail_sale_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 208,
+      "tables": [
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 212,
+      "tables": [
+        "sale_payments"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 213,
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 217,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineLedgerPosting.ts",
+      "line": 225,
+      "tables": [
+        "offline_posting_executions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlinePostingApproval.ts",
+      "line": 23,
+      "tables": [
+        "offline_posting_intents",
+        "offline_sync_events",
+        "offline_sync_batches",
+        "offline_event_validations",
+        "offline_authoritative_checks",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlinePostingApproval.ts",
+      "line": 45,
+      "tables": [
+        "offline_posting_approvals"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlinePostingApproval.ts",
+      "line": 51,
+      "tables": [
+        "offline_sync_audit",
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlinePostingApproval.ts",
+      "line": 61,
+      "tables": [
+        "offline_posting_approvals",
+        "offline_posting_intents"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 25,
+      "tables": [
+        "offline_sync_events",
+        "offline_sync_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 38,
+      "tables": [
+        "offline_sync_events",
+        "offline_sync_batches",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 46,
+      "tables": [
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 49,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineReconciliation.ts",
+      "line": 52,
+      "tables": [
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 16,
+      "tables": [
+        "offline_recovery_actions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 18,
+      "tables": [
+        "offline_sync_audit",
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 30,
+      "tables": [
+        "offline_recovery_cases",
+        "offline_posting_executions",
+        "offline_posting_intents"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 45,
+      "tables": [
+        "offline_posting_executions",
+        "offline_posting_intents",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 49,
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 70,
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 83,
+      "tables": [
+        "offline_recovery_cases",
+        "offline_posting_executions",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 87,
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 101,
+      "tables": [
+        "offline_recovery_cases",
+        "offline_posting_executions",
+        "offline_posting_intents",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 109,
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 122,
+      "tables": [
+        "offline_recovery_cases",
+        "offline_posting_executions",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 126,
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineRecovery.ts",
+      "line": 145,
+      "tables": [
+        "offline_recovery_cases"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 30,
+      "tables": [
+        "offline_sync_devices",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 40,
+      "tables": [
+        "offline_sync_devices"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 59,
+      "tables": [
+        "offline_sync_devices"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 70,
+      "tables": [
+        "offline_sync_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 76,
+      "tables": [
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 82,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 88,
+      "tables": [
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 92,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 95,
+      "tables": [
+        "offline_sync_devices"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 96,
+      "tables": [
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 97,
+      "tables": [
+        "p580_offline_sync_checkpoints",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 102,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineSync.ts",
+      "line": 112,
+      "tables": [
+        "offline_sync_batches",
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 58,
+      "tables": [
+        "offline_sync_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 66,
+      "tables": [
+        "offline_event_validations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 69,
+      "tables": [
+        "offline_posting_intents"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 75,
+      "tables": [
+        "offline_sync_audit"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/offlineValidation.ts",
+      "line": 88,
+      "tables": [
+        "offline_posting_intents",
+        "offline_event_validations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 30,
+      "tables": [
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 48,
+      "tables": [
+        "outlets"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 72,
+      "tables": [
+        "outlet_licences"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 80,
+      "tables": [
+        "outlet_licences"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 83,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 100,
+      "tables": [
+        "products"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 107,
+      "tables": [
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 114,
+      "tables": [
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 131,
+      "tables": [
+        "stock_opening_balance_snapshots"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 133,
+      "tables": [
+        "stock_opening_balance_lines",
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 161,
+      "tables": [
+        "stock_reconciliation_runs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 163,
+      "tables": [
+        "stock_reconciliation_exceptions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 172,
+      "tables": [
+        "stock_reconciliation_runs"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 178,
+      "tables": [
+        "stock_reconciliation_exceptions",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 185,
+      "tables": [
+        "stock_reconciliation_exceptions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 201,
+      "tables": [
+        "stock_reconciliation_exceptions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 205,
+      "tables": [
+        "stock_variance_correction_requests"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 211,
+      "tables": [
+        "stock_variance_correction_requests"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 215,
+      "tables": [
+        "stock_reconciliation_exceptions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 223,
+      "tables": [
+        "stock_variance_correction_requests"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 232,
+      "tables": [
+        "stock_variance_correction_requests"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 240,
+      "tables": [
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 247,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 250,
+      "tables": [
+        "stock_variance_correction_requests"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 253,
+      "tables": [
+        "stock_reconciliation_exceptions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 262,
+      "tables": [
+        "stock_variance_correction_requests"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 283,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 286,
+      "tables": [
+        "inventory_cost_exceptions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 295,
+      "tables": [
+        "stock_balances",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 312,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 322,
+      "tables": [
+        "inventory_batches",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 332,
+      "tables": [
+        "inventory_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 334,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 338,
+      "tables": [
+        "inventory_cost_exceptions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 347,
+      "tables": [
+        "stock_transfer_lines",
+        "stock_transfers",
+        "outlets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 361,
+      "tables": [
+        "stock_transfers"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 398,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 414,
+      "tables": [
+        "products",
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 425,
+      "tables": [
+        "inventory_stocktake_lines",
+        "inventory_stocktakes"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 435,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 461,
+      "tables": [
+        "outlet_product_prices"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": true,
+      "operation": "UPDATE",
+      "classification": "outlet-only-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 464,
+      "tables": [
+        "outlet_product_prices"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 473,
+      "tables": [
+        "outlet_product_prices",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 583,
+      "tables": [
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 594,
+      "tables": [
+        "stock_balances"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 609,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 651,
+      "tables": [
+        "retail_refunds",
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 663,
+      "tables": [
+        "retail_refund_restock_lines",
+        "retail_sale_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 689,
+      "tables": [
+        "open_bottles"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 708,
+      "tables": [
+        "peg_transactions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 714,
+      "tables": [
+        "bar_bottle_reservations",
+        "open_bottles",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 735,
+      "tables": [
+        "bar_bottle_reservations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 737,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 748,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 755,
+      "tables": [
+        "bar_bottle_reservations",
+        "open_bottles"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 776,
+      "tables": [
+        "outlet_shifts"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 790,
+      "tables": [
+        "sale_payments",
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 792,
+      "tables": [
+        "bar_payments",
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 794,
+      "tables": [
+        "shift_cash_movements"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 795,
+      "tables": [
+        "retail_refunds",
+        "bar_refunds"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 809,
+      "tables": [
+        "sale_payments",
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 811,
+      "tables": [
+        "bar_payments",
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 813,
+      "tables": [
+        "shift_cash_movements"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 814,
+      "tables": [
+        "retail_refunds",
+        "bar_refunds"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 817,
+      "tables": [
+        "outlet_shifts"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/operations.ts",
+      "line": 819,
+      "tables": [
+        "shift_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 21,
+      "tables": [
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 32,
+      "tables": [
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 34,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 40,
+      "tables": [
+        "user_outlet_access",
+        "outlets",
+        "organisation_memberships",
+        "users"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 63,
+      "tables": [
+        "organisation_invitations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 65,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 78,
+      "tables": [
+        "organisation_invitations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 93,
+      "tables": [
+        "users"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 96,
+      "tables": [
+        "organisation_memberships",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 98,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 121,
+      "tables": [
+        "organisation_memberships"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 122,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 139,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/organisationAccess.ts",
+      "line": 147,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 19,
+      "tables": [
+        "p535_provider_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 27,
+      "tables": [
+        "outlet_shifts"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 28,
+      "tables": [
+        "p535_cash_counts",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 29,
+      "tables": [
+        "shift_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 32,
+      "tables": [
+        "p535_provider_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 35,
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 35,
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 37,
+      "tables": [
+        "p535_payment_exceptions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 38,
+      "tables": [
+        "p535_payment_exceptions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 43,
+      "tables": [
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 43,
+      "tables": [
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 43,
+      "tables": [
+        "p535_tender_allocations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_tender_allocations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_tender_allocations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_payment_exceptions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_settlement_items"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 47,
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 49,
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 49,
+      "tables": [
+        "p535_payment_exceptions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentLifecycle.ts",
+      "line": 49,
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 17,
+      "tables": [
+        "payment_reconciliation_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 18,
+      "tables": [
+        "payment_reconciliation_lines",
+        "payment_reconciliation_batches"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 18,
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 24,
+      "tables": [
+        "payment_reconciliation_batches"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 25,
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 26,
+      "tables": [
+        "sale_payments",
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 26,
+      "tables": [
+        "bar_payments",
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 26,
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 26,
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 27,
+      "tables": [
+        "payment_reconciliation_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 27,
+      "tables": [
+        "payment_reconciliation_batches"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/paymentReconciliation.ts",
+      "line": 30,
+      "tables": [
+        "payment_reconciliation_batches",
+        "payment_reconciliation_lines"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 18,
+      "tables": [
+        "procurement_audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 23,
+      "tables": [
+        "suppliers"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 29,
+      "tables": [
+        "suppliers"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 30,
+      "tables": [
+        "procurement_audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 36,
+      "tables": [
+        "suppliers"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 49,
+      "tables": [
+        "supplier_returns"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 54,
+      "tables": [
+        "supplier_return_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 62,
+      "tables": [
+        "supplier_return_lines",
+        "supplier_returns",
+        "suppliers"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 73,
+      "tables": [
+        "supplier_returns"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 90,
+      "tables": [
+        "supplier_return_movements"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 93,
+      "tables": [
+        "supplier_returns"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 100,
+      "tables": [
+        "purchase_orders",
+        "suppliers",
+        "purchase_order_approvals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 108,
+      "tables": [
+        "purchase_orders"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 115,
+      "tables": [
+        "purchase_order_approvals",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 119,
+      "tables": [
+        "purchase_order_approvals",
+        "purchase_orders",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 119,
+      "tables": [
+        "purchase_order_approvals"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 127,
+      "tables": [
+        "purchase_orders",
+        "purchase_order_approvals",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 128,
+      "tables": [
+        "goods_receipts"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 130,
+      "tables": [
+        "goods_receipts"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 131,
+      "tables": [
+        "purchase_order_lines",
+        "purchase_orders",
+        "products"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 132,
+      "tables": [
+        "goods_receipt_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 133,
+      "tables": [
+        "purchase_order_lines",
+        "purchase_orders"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 134,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 137,
+      "tables": [
+        "inventory_batches",
+        "SET"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 139,
+      "tables": [
+        "goods_receipts"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 139,
+      "tables": [
+        "purchase_order_lines",
+        "purchase_orders"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/procurement.ts",
+      "line": 139,
+      "tables": [
+        "purchase_orders"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/regulatoryReports.ts",
+      "line": 28,
+      "tables": [
+        "p579_regulatory_report_runs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/regulatoryReports.ts",
+      "line": 32,
+      "tables": [
+        "p579_regulatory_report_runs"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/regulatoryReports.ts",
+      "line": 37,
+      "tables": [
+        "p579_product_traceability_links",
+        "outlets",
+        "products",
+        "stock_movements"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "INSERT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/regulatoryReports.ts",
+      "line": 44,
+      "tables": [
+        "p579_product_traceability_links",
+        "products"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/reportGovernance.ts",
+      "line": 13,
+      "tables": [
+        "p581_saved_reports"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/reportGovernance.ts",
+      "line": 14,
+      "tables": [
+        "p581_saved_reports",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/reportGovernance.ts",
+      "line": 15,
+      "tables": [
+        "p581_saved_reports"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/reportGovernance.ts",
+      "line": 16,
+      "tables": [
+        "p581_report_execution_evidence"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/reportGovernance.ts",
+      "line": 17,
+      "tables": [
+        "p581_report_execution_evidence"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/securityAudit.ts",
+      "line": 13,
+      "tables": [
+        "security_audit_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 30,
+      "tables": [
+        "p577_bank_statement_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 39,
+      "tables": [
+        "p577_bank_statement_lines"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 48,
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 54,
+      "tables": [
+        "p577_bank_statement_lines"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 56,
+      "tables": [
+        "p535_settlement_batches"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 70,
+      "tables": [
+        "p577_chargeback_cases"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 81,
+      "tables": [
+        "p577_chargeback_cases"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 94,
+      "tables": [
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 102,
+      "tables": [
+        "retail_refunds"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 114,
+      "tables": [
+        "retail_refund_restock_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 115,
+      "tables": [
+        "stock_balances",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 121,
+      "tables": [
+        "retail_sales"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 122,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 143,
+      "tables": [
+        "bar_refunds"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 145,
+      "tables": [
+        "bar_ticket_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 151,
+      "tables": [
+        "open_bottles"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 154,
+      "tables": [
+        "bar_refund_peg_restorations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 155,
+      "tables": [
+        "peg_transactions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 158,
+      "tables": [
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 159,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 177,
+      "tables": [
+        "bar_refund_peg_restorations",
+        "bar_refunds",
+        "bar_tickets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 199,
+      "tables": [
+        "bar_refund_peg_restorations",
+        "bar_refunds",
+        "OF"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 213,
+      "tables": [
+        "bar_refund_peg_restorations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 219,
+      "tables": [
+        "audit_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 239,
+      "tables": [
+        "shift_cash_movements"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/settlements.ts",
+      "line": 240,
+      "tables": [
+        "shift_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 12,
+      "tables": [
+        "tax_rule_packs",
+        "tax_rule_components"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 13,
+      "tables": [
+        "tax_rule_packs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 15,
+      "tables": [
+        "tax_rule_components"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 17,
+      "tables": [
+        "tax_rule_packs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 18,
+      "tables": [
+        "tax_rule_components"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 20,
+      "tables": [
+        "tax_product_profiles"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 22,
+      "tables": [
+        "tax_product_profiles"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 24,
+      "tables": [
+        "outlet_tax_prices"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 25,
+      "tables": [
+        "outlet_tax_prices"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 26,
+      "tables": [
+        "outlet_tax_prices",
+        "tax_product_profiles"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 28,
+      "tables": [
+        "outlet_tax_prices",
+        "tax_product_profiles",
+        "products",
+        "outlets",
+        "tax_rule_packs"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/taxPricing.ts",
+      "line": 28,
+      "tables": [
+        "tax_calculation_snapshots"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 29,
+      "tables": [
+        "trade_partner_profiles",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 44,
+      "tables": [
+        "trade_partner_profiles"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "explicit-organisation-predicate",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 54,
+      "tables": [
+        "trade_partner_profiles",
+        "organisations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 59,
+      "tables": [
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 61,
+      "tables": [
+        "trade_relationships",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 72,
+      "tables": [
+        "trade_relationships"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "UPDATE",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 80,
+      "tables": [
+        "trade_relationships",
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 97,
+      "tables": [
+        "trade_catalogue_items",
+        "SET"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 111,
+      "tables": [
+        "trade_catalogue_items",
+        "products"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 130,
+      "tables": [
+        "trade_catalogue_items",
+        "products"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 138,
+      "tables": [
+        "trade_orders"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 141,
+      "tables": [
+        "trade_order_lines"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 166,
+      "tables": [
+        "trade_orders",
+        "organisations"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 186,
+      "tables": [
+        "trade_orders"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 197,
+      "tables": [
+        "trade_order_fulfilment_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/routes/tradePortal.ts",
+      "line": 208,
+      "tables": [
+        "trade_order_fulfilment_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 41,
+      "tables": [
+        "outlets",
+        "organisations"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 46,
+      "tables": [
+        "excise_rule_packs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 53,
+      "tables": [
+        "outlet_licences"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 75,
+      "tables": [
+        "outlet_licence_excise_conditions"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 85,
+      "tables": [
+        "excise_dry_day_orders"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/exciseCompliance.ts",
+      "line": 93,
+      "tables": [
+        "excise_compliance_decisions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 11,
+      "tables": [
+        "inventory_cost_consumption_events"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 25,
+      "tables": [
+        "inventory_cost_layers"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 35,
+      "tables": [
+        "inventory_cost_consumptions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 40,
+      "tables": [
+        "inventory_cost_consumption_events"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 44,
+      "tables": [
+        "inventory_cost_exceptions"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/inventoryCosting.ts",
+      "line": 57,
+      "tables": [
+        "inventory_cost_layers"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/outletOperationalAccess.ts",
+      "line": 24,
+      "tables": [
+        "outlets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/outletOperationalAccess.ts",
+      "line": 52,
+      "tables": [
+        "outlet_licences"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/stockMovementIdempotency.ts",
+      "line": 50,
+      "tables": [
+        "stock_movements"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/stockMovementIdempotency.ts",
+      "line": 64,
+      "tables": [
+        "stock_movements"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/stockReconciliation.ts",
+      "line": 9,
+      "tables": [
+        "products",
+        "stock_balances",
+        "stock_opening_balance_lines",
+        "stock_opening_balance_snapshots",
+        "stock_movements"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 25,
+      "tables": [
+        "outlet_tax_prices",
+        "tax_product_profiles",
+        "products",
+        "outlets"
+      ],
+      "hasOrganisationPredicate": true,
+      "hasOutletPredicate": true,
+      "operation": "SELECT",
+      "classification": "explicit-organisation-predicate",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 39,
+      "tables": [
+        "tax_calculation_attempts"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 50,
+      "tables": [
+        "tax_rule_packs"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 54,
+      "tables": [
+        "tax_calculation_attempts"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 59,
+      "tables": [
+        "tax_rule_components"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "SELECT",
+      "classification": "manual-review-required",
+      "mutation": false
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 68,
+      "tables": [
+        "tax_calculation_snapshots"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    },
+    {
+      "file": "apps/api/src/services/taxQuote.ts",
+      "line": 72,
+      "tables": [
+        "tax_calculation_attempts"
+      ],
+      "hasOrganisationPredicate": false,
+      "hasOutletPredicate": false,
+      "operation": "INSERT",
+      "classification": "manual-review-required",
+      "mutation": true
+    }
+  ]
+}

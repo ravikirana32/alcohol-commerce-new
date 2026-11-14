@@ -1,0 +1,30 @@
+{
+  "phase": "P568",
+  "version": "0.568.0-dev",
+  "baseline": "P567 cumulative v0.567.0-dev",
+  "scope": "Complete stock movement idempotency and concurrency protection",
+  "files": [
+    "doc-new/P568-IMPLEMENTATION.md",
+    "doc-new/P568-TEST-REPORT.md",
+    "doc-new/P568-RUNBOOK.md",
+    "doc-new/P568-STATUS.md",
+    "doc-new/P568-RELEASE-NOTES.md",
+    "doc-new/P513-P568-Cumulative-Gap-Register.md",
+    "scripts/verify-p568-stock-request-idempotency.mjs",
+    "apps/api/src/db/244_p568_goods_receipt_request_idempotency.sql"
+  ],
+  "verification": {
+    "p568_static": "10/10 PASS",
+    "p567_static": "10/10 PASS",
+    "p566_static": "10/10 PASS",
+    "p565_static": "11/11 PASS",
+    "p564_static": "14/14 PASS",
+    "typescript_syntax": "274 files; 0 diagnostics",
+    "migration_static": "244 ordered SQL files PASS",
+    "vitest": "BLOCKED: vitest not found",
+    "semantic_typecheck": "BLOCKED: workspace dependencies/types missing",
+    "postgresql_runtime": "NOT RUN: Docker unavailable",
+    "concurrency": "NOT RUN",
+    "production": "NO-GO"
+  }
+}
