@@ -63,12 +63,14 @@ The current migrated database has these demo login emails:
 |---|---|---|
 | Auditor | `auditor@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Bartender | `bartender@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
+| Bar manager | `bar.manager@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Bar owner | `bar.owner@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Brand admin | `brand.admin@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Brand analyst | `brand.analyst@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Cashier | `cashier@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Distributor admin | `distributor.admin@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Platform administrator | `platform.admin@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
+| Outlet manager | `outlet.manager@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Retail manager | `retail.manager@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Retail owner | `retail.owner@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |
 | Sales representative | `sales.rep@demo.acp.local` | Your chosen `DEMO_SEED_PASSWORD` |

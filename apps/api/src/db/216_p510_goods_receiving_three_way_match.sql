@@ -13,6 +13,29 @@ CREATE TABLE IF NOT EXISTS goods_receipts (
   notes TEXT,
   UNIQUE (organisation_id, receipt_number)
 );
+ALTER TABLE goods_receipts
+  ADD COLUMN IF NOT EXISTS organisation_id UUID REFERENCES organisations(id) ON DELETE CASCADE,
+  ADD COLUMN IF NOT EXISTS receipt_number TEXT,
+  ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'DRAFT'
+    CHECK (status IN ('DRAFT','POSTED','VOID')),
+  ADD COLUMN IF NOT EXISTS posted_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS posted_by UUID REFERENCES users(id),
+  ADD COLUMN IF NOT EXISTS notes TEXT;
+UPDATE goods_receipts AS gr
+SET organisation_id = po.organisation_id
+FROM purchase_orders AS po
+WHERE gr.organisation_id IS NULL
+  AND gr.purchase_order_id = po.id;
+UPDATE goods_receipts
+SET receipt_number = 'LEGACY-' || id::text
+WHERE receipt_number IS NULL;
+ALTER TABLE goods_receipts
+  ALTER COLUMN organisation_id SET NOT NULL,
+  ALTER COLUMN receipt_number SET NOT NULL,
+  ALTER COLUMN purchase_order_id SET NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_goods_receipts_org_number
+  ON goods_receipts(organisation_id, receipt_number);
+
 CREATE TABLE IF NOT EXISTS goods_receipt_lines (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   goods_receipt_id UUID NOT NULL REFERENCES goods_receipts(id) ON DELETE CASCADE,

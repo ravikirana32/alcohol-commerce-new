@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS platform_phase_capabilities (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+ALTER TABLE platform_phase_capabilities
+  ADD COLUMN IF NOT EXISTS requires_review BOOLEAN NOT NULL DEFAULT FALSE;
+
 INSERT INTO platform_phase_capabilities
  (capability_key, phase_number, capability_name, enabled, requires_review, metadata)
 VALUES ('p101_full_codebase_audit', 101, 'Full codebase audit', FALSE, false,

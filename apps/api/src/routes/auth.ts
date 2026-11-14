@@ -120,8 +120,8 @@ authRouter.post('/login', async (req, res) => {
   const sessionId = randomUUID();
   const expiresAt = new Date(Date.now() + 8 * 60 * 60 * 1000);
   await pool.query(
-    'INSERT INTO auth_sessions(user_id, token_id, expires_at) VALUES ($1, $2, $3)',
-    [user.id, sessionId, expiresAt]
+    'INSERT INTO auth_sessions(id, user_id, token_id, expires_at) VALUES ($1, $2, $3, $4)',
+    [sessionId, user.id, sessionId, expiresAt]
   );
   await pool.query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
 
