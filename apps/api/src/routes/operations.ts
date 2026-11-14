@@ -370,6 +370,8 @@ operationsRouter.get('/inventory/transfers/:transferId',requirePermission('inven
  const l=await pool.query('SELECT l.*,p.name,p.sku FROM stock_transfer_lines l JOIN stock_transfers t ON t.id=l.transfer_id AND t.organisation_id=$2 JOIN products p ON p.id=l.product_id AND p.organisation_id=t.organisation_id WHERE l.transfer_id=$1 ORDER BY p.name',[req.params.transferId,orgId(req)]);res.json({data:{...t.rows[0],lines:l.rows}});
 });
 operationsRouter.post('/inventory/transfers/:transferId/dispatch',requirePermission('inventory:adjust'),async(req,res)=>{
+ if(Array.isArray(req.params.transferId))return fail(res,'INVALID_TRANSFER_ID','Transfer ID must be a single path value',400);
+ const transferId=req.params.transferId;
  const client=await pool.connect();try{await client.query('BEGIN');
   const t=await client.query("SELECT * FROM stock_transfers WHERE id=$1 AND organisation_id=$2 FOR UPDATE",[req.params.transferId,orgId(req)]);
   if(!t.rowCount){await client.query('ROLLBACK');return fail(res,'TRANSFER_NOT_FOUND','Transfer not found',404);}
@@ -378,7 +380,7 @@ operationsRouter.post('/inventory/transfers/:transferId/dispatch',requirePermiss
   for(const l of lines.rows){const b=await client.query('SELECT quantity_units FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE',[orgId(req),t.rows[0].source_outlet_id,l.product_id]);
    const onHand=Number(b.rows[0]?.quantity_units??0),qty=Number(l.requested_units);if(onHand<qty){await client.query('ROLLBACK');return fail(res,'INSUFFICIENT_STOCK',`Insufficient stock for product ${l.product_id}`,409);}
    await client.query('UPDATE stock_balances SET quantity_units=quantity_units-$1,updated_at=NOW() WHERE organisation_id=$2 AND outlet_id=$3 AND product_id=$4',[qty,orgId(req),t.rows[0].source_outlet_id,l.product_id]);
-   await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:t.rows[0].source_outlet_id,productId:l.product_id,movementType:'TRANSFER_OUT',quantityUnits:qty,referenceType:'STOCK_TRANSFER',referenceId:req.params.transferId,idempotencyKey:`stock-transfer:${req.params.transferId}:line:${l.id}:out`,notes:t.rows[0].transfer_number,createdBy:req.auth!.userId});
+   await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:t.rows[0].source_outlet_id,productId:l.product_id,movementType:'TRANSFER_OUT',quantityUnits:qty,referenceType:'STOCK_TRANSFER',referenceId:transferId,idempotencyKey:`stock-transfer:${transferId}:line:${l.id}:out`,notes:t.rows[0].transfer_number,createdBy:req.auth!.userId});
    await client.query('UPDATE stock_transfer_lines SET dispatched_units=$1 WHERE id=$2 AND transfer_id IN (SELECT id FROM stock_transfers WHERE id=$3 AND organisation_id=$4)',[qty,l.id,req.params.transferId,orgId(req)]);
   }
   const updated=await client.query("UPDATE stock_transfers SET status='DISPATCHED',dispatched_by=$1,dispatched_at=NOW() WHERE id=$2 AND organisation_id=$3 RETURNING *",[req.auth!.userId,req.params.transferId,orgId(req)]);
@@ -386,6 +388,8 @@ operationsRouter.post('/inventory/transfers/:transferId/dispatch',requirePermiss
  }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
 });
 operationsRouter.post('/inventory/transfers/:transferId/receive',requirePermission('inventory:receive'),async(req,res)=>{
+ if(Array.isArray(req.params.transferId))return fail(res,'INVALID_TRANSFER_ID','Transfer ID must be a single path value',400);
+ const transferId=req.params.transferId;
  const s=z.object({lines:z.array(z.object({productId:uuid,receivedQuantity:z.number().min(0).max(999999).refine(v=>Math.abs(Math.round(v*1000)-v*1000)<1e-7),varianceReason:z.string().max(500).optional()})).min(1).max(100)}).superRefine((v,ctx)=>{if(new Set(v.lines.map(x=>x.productId)).size!==v.lines.length)ctx.addIssue({code:'custom',message:'Each product may appear only once'});}).safeParse(req.body);
  if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
  const client=await pool.connect();try{await client.query('BEGIN');
@@ -396,7 +400,7 @@ operationsRouter.post('/inventory/transfers/:transferId/receive',requirePermissi
   if(s.data.lines.length!==lines.rowCount||s.data.lines.some(x=>!lines.rows.some((l:any)=>l.product_id===x.productId))){await client.query('ROLLBACK');return fail(res,'TRANSFER_LINES_MISMATCH','Receive quantities must cover every transfer line exactly once');}
   for(const l of lines.rows){const input=s.data.lines.find(x=>x.productId===l.product_id)!;const dispatched=Number(l.dispatched_units);if(input.receivedQuantity>dispatched){await client.query('ROLLBACK');return fail(res,'RECEIVED_EXCEEDS_DISPATCHED','Received quantity cannot exceed dispatched quantity');}
    await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units) VALUES($1,$2,$3,$4) ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=stock_balances.quantity_units+EXCLUDED.quantity_units,updated_at=NOW() WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),t.rows[0].destination_outlet_id,l.product_id,input.receivedQuantity]);
-   if(input.receivedQuantity>0)await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:t.rows[0].destination_outlet_id,productId:l.product_id,movementType:'TRANSFER_IN',quantityUnits:input.receivedQuantity,referenceType:'STOCK_TRANSFER',referenceId:t.rows[0].id,idempotencyKey:`stock-transfer:${req.params.transferId}:line:${l.id}:in`,notes:t.rows[0].transfer_number,createdBy:req.auth!.userId});
+   if(input.receivedQuantity>0)await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:t.rows[0].destination_outlet_id,productId:l.product_id,movementType:'TRANSFER_IN',quantityUnits:input.receivedQuantity,referenceType:'STOCK_TRANSFER',referenceId:t.rows[0].id,idempotencyKey:`stock-transfer:${transferId}:line:${l.id}:in`,notes:t.rows[0].transfer_number,createdBy:req.auth!.userId});
    const variance=dispatched-input.receivedQuantity;if(variance>0&&!input.varianceReason?.trim()){await client.query('ROLLBACK');return fail(res,'VARIANCE_REASON_REQUIRED','A reason is required for every transfer shortage');}
    await client.query('UPDATE stock_transfer_lines SET received_units=$1,variance_reason=$2 WHERE id=$3 AND transfer_id IN (SELECT id FROM stock_transfers WHERE id=$4 AND organisation_id=$5)',[input.receivedQuantity,input.varianceReason??null,l.id,req.params.transferId,orgId(req)]);
   }
@@ -428,12 +432,14 @@ operationsRouter.post('/inventory/stocktakes/:stocktakeId/submit',requirePermiss
  const r=await pool.query("UPDATE inventory_stocktakes SET status='SUBMITTED',submitted_at=NOW() WHERE id=$1 AND organisation_id=$2 AND status='COUNTING' RETURNING *",[req.params.stocktakeId,orgId(req)]);if(!r.rowCount)return fail(res,'STOCKTAKE_NOT_SUBMITTABLE','Only an open count can be submitted',409);res.json({data:r.rows[0]});
 });
 operationsRouter.post('/inventory/stocktakes/:stocktakeId/approve',requirePermission('inventory:adjust'),async(req,res)=>{
+ if(Array.isArray(req.params.stocktakeId))return fail(res,'INVALID_STOCKTAKE_ID','Stocktake ID must be a single path value',400);
+ const stocktakeId=req.params.stocktakeId;
  const s=z.object({reason:z.string().trim().min(3).max(500)}).safeParse(req.body);if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
  const client=await pool.connect();try{await client.query('BEGIN');const c=await client.query("SELECT * FROM inventory_stocktakes WHERE id=$1 AND organisation_id=$2 FOR UPDATE",[req.params.stocktakeId,orgId(req)]);if(!c.rowCount){await client.query('ROLLBACK');return fail(res,'STOCKTAKE_NOT_FOUND','Stocktake not found',404);}if(c.rows[0].status!=='SUBMITTED'){await client.query('ROLLBACK');return fail(res,'INVALID_STOCKTAKE_STATE','Only submitted stocktakes can be approved',409);}
   const lines=await client.query('SELECT * FROM inventory_stocktake_lines WHERE stocktake_id=$1 ORDER BY product_id FOR UPDATE',[req.params.stocktakeId]);
   for(const l of lines.rows){const delta=Number(l.counted_units)-Number(l.expected_units);if(!delta)continue;const b=await client.query('SELECT quantity_units FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE',[orgId(req),c.rows[0].outlet_id,l.product_id]);const current=Number(b.rows[0]?.quantity_units??0);if(Math.abs(current-Number(l.expected_units))>0.0005){await client.query('ROLLBACK');return fail(res,'STOCK_CHANGED_DURING_COUNT','Stock changed after the count snapshot; create a fresh stocktake before approval',409);}if(current+delta<0){await client.query('ROLLBACK');return fail(res,'INVALID_STOCKTAKE_VARIANCE','Stocktake adjustment would create negative stock',409);}
    await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units) VALUES($1,$2,$3,$4) ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=EXCLUDED.quantity_units,updated_at=NOW() WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),c.rows[0].outlet_id,l.product_id,Number(l.counted_units)]);
-   await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:c.rows[0].outlet_id,productId:l.product_id,movementType:'ADJUSTMENT',quantityUnits:Math.abs(delta),adjustmentDirection:delta>0?'INCREASE':'DECREASE',referenceType:'STOCKTAKE',referenceId:req.params.stocktakeId,idempotencyKey:`stocktake:${req.params.stocktakeId}:line:${l.id}`,notes:s.data.reason,createdBy:req.auth!.userId});
+   await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:c.rows[0].outlet_id,productId:l.product_id,movementType:'ADJUSTMENT',quantityUnits:Math.abs(delta),adjustmentDirection:delta>0?'INCREASE':'DECREASE',referenceType:'STOCKTAKE',referenceId:stocktakeId,idempotencyKey:`stocktake:${stocktakeId}:line:${l.id}`,notes:s.data.reason,createdBy:req.auth!.userId});
   }
   const updated=await client.query("UPDATE inventory_stocktakes SET status='APPROVED',approved_by=$1,approved_at=NOW() WHERE id=$2 RETURNING *",[req.auth!.userId,req.params.stocktakeId]);await client.query('COMMIT');return res.json({data:updated.rows[0],adjustedLines:lines.rows.filter((l:any)=>Number(l.counted_units)!==Number(l.expected_units)).length});
  }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}

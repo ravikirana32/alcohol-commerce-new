@@ -7,7 +7,7 @@ describe('P531 bar measure and bottle rules', () => {
   });
 
   it('aggregates consumption for repeated measures and prevents fractional quantity', () => {
-    expect(pegConsumedMl(30, 3) + pegConsumedMl(60, 2)).toBe(240);
+    expect(pegConsumedMl(30, 3) + pegConsumedMl(60, 2)).toBe(210);
     expect(() => pegConsumedMl(30, 1.5)).toThrow();
   });
 

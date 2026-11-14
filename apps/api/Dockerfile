@@ -3,7 +3,7 @@ WORKDIR /workspace
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY apps/web/package*.json ./apps/web/
-RUN npm install
+RUN npm ci
 COPY apps/api ./apps/api
 COPY apps/web ./apps/web
 EXPOSE 8080

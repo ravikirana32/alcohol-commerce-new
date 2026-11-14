@@ -79,7 +79,7 @@ offlineAuthoritativeRouter.post('/offline/posting-intents/:intentId/authoritativ
         WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 AND channel=$4
         AND (($5::integer IS NULL AND volume_ml IS NULL) OR volume_ml=$5)
         AND effective_from<=NOW() AND (effective_until IS NULL OR effective_until>NOW())
-        ORDER BY effective_from DESC LIMIT 1`, [org(req), intent.outlet_id, line.productId, channel, Number.isInteger(volume) && volume > 0 ? volume : null]);
+        ORDER BY effective_from DESC LIMIT 1`, [org(req), intent.outlet_id, line.productId, channel, typeof volume === 'number' && Number.isInteger(volume) && volume > 0 ? volume : null]);
       const current = price.rows[0];
       const expectedMinor = Number.isSafeInteger(line.unitPriceMinor) ? line.unitPriceMinor : null;
       const matches = !!current && expectedMinor !== null && Math.round(Number(current.unit_price) * 100) === expectedMinor;

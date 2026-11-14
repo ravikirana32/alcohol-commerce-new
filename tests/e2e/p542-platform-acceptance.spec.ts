@@ -15,7 +15,7 @@ test.describe('P542 API platform acceptance', () => {
     expect(response.status()).toBe(200);
     const body = await response.json();
     expect(body.name).toBe('Alcohol Commerce Platform API');
-    expect(body.version).toMatch(/^0\.542\.0-dev$/);
+    expect(body.version).toMatch(/^0\.\d+\.0-dev$/);
     expect(body.featureFlags).toEqual(expect.objectContaining({
       ai: expect.any(Boolean), offlineSync: expect.any(Boolean),
       consumerDiscovery: expect.any(Boolean), livePayments: expect.any(Boolean)

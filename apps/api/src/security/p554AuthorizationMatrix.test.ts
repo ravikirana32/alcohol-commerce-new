@@ -13,7 +13,16 @@ function appForRole(role: string) {
   const permissions = matrix.roles[role] ?? [];
   app.use((req, _res, next) => {
     // Test-only identity injection. This does not exercise JWT/session authentication.
-    (req as express.Request & { auth?: { permissions: string[]; role: string } }).auth = { permissions, role };
+    (req as express.Request).auth = {
+      userId: 'test-user',
+      email: 'test@example.local',
+      displayName: 'Test User',
+      isPlatformAdmin: role === 'PLATFORM_ADMIN',
+      organisationId: 'test-organisation',
+      roleCode: role,
+      sessionId: 'test-session',
+      permissions
+    };
     next();
   });
   const all = [...new Set(Object.values(matrix.roles).flat())].sort();

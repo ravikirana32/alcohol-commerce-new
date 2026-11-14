@@ -12,6 +12,7 @@
     "dev:web": "npm run dev --workspace @acp/web",
     "build": "npm run build --workspace @acp/api && npm run build --workspace @acp/web",
     "test": "npm run test --workspace @acp/api",
+    "test:frontend": "npm run test:e2e --workspace @acp/web",
     "typecheck": "npm run typecheck --workspace @acp/api && npm run typecheck --workspace @acp/web",
     "db:migrate": "npm run db:migrate --workspace @acp/api",
     "db:status": "npm run db:status --workspace @acp/api",

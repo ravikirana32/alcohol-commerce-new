@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
-import path from 'node:path';
-const operations=fs.readFileSync(path.resolve(process.cwd(),'apps/api/src/routes/operations.ts'),'utf8');
-const bar=fs.readFileSync(path.resolve(process.cwd(),'apps/api/src/routes/barCheckout.ts'),'utf8');
+import { fileURLToPath } from 'node:url';
+const operations=fs.readFileSync(fileURLToPath(new URL('../src/routes/operations.ts',import.meta.url)),'utf8');
+const bar=fs.readFileSync(fileURLToPath(new URL('../src/routes/barCheckout.ts',import.meta.url)),'utf8');
 describe('checkout concurrency safeguards',()=>{
  it('locks retail stock balance rows before validating available units',()=>{expect(operations).toContain('FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE');});
  it('accounts for repeated retail product lines in the same sale',()=>{expect(operations).toContain('alreadyReserved=checked.filter');});
