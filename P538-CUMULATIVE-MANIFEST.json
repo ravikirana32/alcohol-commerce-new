@@ -1,0 +1,36 @@
+{
+  "phase": "P538",
+  "release": "0.538.0-dev",
+  "baseline": "P537 cumulative 0.537.0-dev",
+  "delivery_status": "BACKEND DEVELOPER PREVIEW; EXTERNAL AND RUNTIME ACCEPTANCE OPEN",
+  "production_approved": false,
+  "offline_alcohol_posting_enabled": false,
+  "migration": "240_p538_device_trust.sql",
+  "api_routes": [
+    "GET /api/v1/devices",
+    "POST /api/v1/devices",
+    "POST /api/v1/devices/:deviceId/challenge",
+    "POST /api/v1/devices/:deviceId/attest",
+    "POST /api/v1/devices/:deviceId/revoke"
+  ],
+  "checks": {
+    "p538_static": "14/14 PASS",
+    "p537_regression": "13/13 PASS",
+    "typescript_syntax": "259 files; 0 diagnostics",
+    "migration_static": "240 ordered SQL files PASS",
+    "postgres_runtime": "NOT RUN",
+    "crypto_integration": "NOT RUN",
+    "tenant_security": "NOT RUN",
+    "semantic_typecheck": "NOT RUN",
+    "browser_mobile_e2e": "NOT RUN"
+  },
+  "open_gates": [
+    "RSA/ECDSA PostgreSQL-backed runtime tests, expiry/replay/concurrency",
+    "Apple App Attest and Android Play Integrity integration",
+    "secure-time attestation and signed offline event chain",
+    "device management and mobile enrollment UI",
+    "device posture, key rotation and remote recovery policy",
+    "PostgreSQL migration execution/rollback and tenant IDOR testing",
+    "jurisdiction-specific legal/excise/finance approval"
+  ]
+}

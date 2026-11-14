@@ -1,0 +1,103 @@
+{
+  "checks": {
+    "syntax": {
+      "exit_code": 0,
+      "stdout": "TypeScript/TSX syntax transpilation: 209 files, 0 diagnostics",
+      "stderr_tail": ""
+    },
+    "p401_p450": {
+      "exit_code": 0,
+      "stdout": "Cumulative P401-P450 checks: 50/50 passed\n",
+      "stderr_tail": ""
+    },
+    "p451_p500": {
+      "exit_code": 0,
+      "stdout": "Cumulative P451-P500 invariant checks: 50/50 passed\n",
+      "stderr_tail": ""
+    },
+    "release_gate": {
+      "exit_code": 0,
+      "stdout": "Release gate policy checks passed: 2/2\n",
+      "stderr_tail": ""
+    },
+    "migration_static": {
+      "exit_code": 0,
+      "stdout": "MIGRATION STATIC CHECK PASSED: 210 ordered SQL files; duplicate historical numeric prefixes remain documented. PostgreSQL execution still required.",
+      "stderr_tail": "Non-fatal artifact-tool Python warmup warning emitted by environment."
+    },
+    "retail_checkout_static": {
+      "exit_code": 0,
+      "stdout": "Retail checkout integration checks: 10/10 passed",
+      "stderr_tail": ""
+    },
+    "retail_checkout_helper_runtime": {
+      "exit_code": 0,
+      "stdout": "Retail checkout integrity runtime assertions: 5/5 passed",
+      "stderr_tail": ""
+    }
+  },
+  "runtime_policy_smoke": {
+    "exit_code": 0,
+    "result": "6/6 passed"
+  },
+  "integration_audit": {
+    "version_consistent": true,
+    "api_routers_imported_and_mounted": 9,
+    "api_router_count": 9,
+    "service_module_count": 160,
+    "unreferenced_or_low_reference_service_modules": 160,
+    "migration_count": 210,
+    "duplicate_migration_prefixes": [
+      [
+        "150",
+        [
+          "150_p150_enterprise_platform_excellence.sql",
+          "150_z_phase_delivery_register.sql"
+        ]
+      ],
+      [
+        "151",
+        [
+          "151_p151_complete_implementation_gap_closure.sql",
+          "151_p151_p175_phase_delivery_register.sql"
+        ]
+      ],
+      [
+        "176",
+        [
+          "176_p176_complete_backend_implementation.sql",
+          "176_p176_p200_delivery_register.sql"
+        ]
+      ]
+    ],
+    "runtime_hardening": {
+      "requestCorrelationMiddleware": true,
+      "gracefulShutdown": true,
+      "environmentValidation": true
+    },
+    "release_status": "NOT_PRODUCTION_READY",
+    "service_reference_note": "Static heuristic: service modules referenced indirectly through imports, route composition or runtime registration may be classified as low-reference; manual workflow tracing is required."
+  },
+  "not_run": [
+    "npm install did not complete within the available execution window",
+    "Vitest suite not run because workspace dependencies are unavailable",
+    "Full TypeScript typecheck and production build; blocked by missing node_modules and type declarations",
+    "PostgreSQL migration execution, clean install, upgrade and rollback rehearsal",
+    "Live API integration, concurrent checkout/load tests and browser end-to-end tests",
+    "Payment/hardware provider certification, independent penetration test, Karnataka legal/excise approval and authorised outlet pilot"
+  ],
+  "version": "0.500.3-dev",
+  "retail_checkout_remediation": {
+    "fingerprint_migration": "211_p5002_retail_checkout_fingerprint.sql",
+    "helper_runtime_assertions": "5/5 passed",
+    "integration_static_checks": "10/10 passed",
+    "idempotency_payload_mismatch": "HTTP 409",
+    "server_side_price_resolution": true,
+    "integer_minor_unit_arithmetic": true,
+    "tenant_scoped_guarded_stock_deduction": true,
+    "audit_event": true,
+    "scoped_sale_detail_route": true,
+    "ui_exact_request_retry": true,
+    "retail_cart_ui": "multi-line cart and atomic cart checkout wired"
+  }
+}

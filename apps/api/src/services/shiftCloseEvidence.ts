@@ -1,0 +1,2 @@
+// P465: Shift close evidence checklist
+export const evaluateShiftCloseEvidence = (e:{cashCounted:boolean;paymentsMatched:boolean;stockVarianceReviewed:boolean;openTickets:number;managerApproved:boolean}) => { const missing:string[]=[]; if(!e.cashCounted)missing.push('CASH_COUNT'); if(!e.paymentsMatched)missing.push('PAYMENT_MATCH'); if(!e.stockVarianceReviewed)missing.push('STOCK_VARIANCE_REVIEW'); if(e.openTickets!==0)missing.push('OPEN_TICKETS'); if(!e.managerApproved)missing.push('MANAGER_APPROVAL'); return {closable:missing.length===0,missing}; };

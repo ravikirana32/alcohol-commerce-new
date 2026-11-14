@@ -1,0 +1,54 @@
+# P301–P350 cumulative implementation status
+
+All phases are developer-preview deliveries. No production readiness is claimed.
+
+- P301: Full source audit and architecture reconciliation — source-implemented; scripts/audit-source.py.
+- P302: Dependency and build baseline stabilisation — source-implemented; docs/P302-BUILD-BASELINE.md.
+- P303: Database migration preflight and ordering validation — source-implemented; scripts/preflight-migrations.py.
+- P304: Backup, restore and migration recovery runbook — source-implemented; scripts/db-backup.sh.
+- P305: CI quality gates — source-implemented; .github/workflows/ci.yml.
+- P306: Authentication session hardening — source-implemented; apps/api/src/auth/sessionPolicy.ts.
+- P307: Tenant and outlet authorization matrix — source-implemented; docs/P307-AUTHORIZATION-MATRIX.md.
+- P308: Catalogue and pricing API contracts — source-implemented; apps/api/src/contracts/catalogue.ts.
+- P309: Inventory and procurement invariants — source-implemented; apps/api/src/services/inventoryInvariants.ts.
+- P310: Sales, bar checkout and settlement contracts — source-implemented; apps/api/src/contracts/transactions.ts.
+- P311: Retail multi-line cart foundation — source-implemented; apps/web/src/pos/retailCart.ts.
+- P312: Barcode input handling — source-implemented; apps/web/src/pos/barcode.ts.
+- P313: Payment tender validation — source-implemented; apps/api/src/services/paymentTenders.ts.
+- P314: Receipt and invoice rendering contract — source-implemented; apps/api/src/services/receiptRenderer.ts.
+- P315: Returns, voids and approval policy — source-implemented; apps/api/src/services/returnPolicy.ts.
+- P316: Bar table and counter order model — source-implemented; apps/api/src/services/barOrderState.ts.
+- P317: Open-bottle measurement rules — source-implemented; apps/api/src/services/pegMeasures.ts.
+- P318: Wastage and complimentary controls — source-implemented; apps/api/src/services/stockLossPolicy.ts.
+- P319: Bar payment and split-bill balancing — source-implemented; apps/api/src/services/splitBill.ts.
+- P320: Shift close and cash reconciliation — source-implemented; apps/api/src/services/cashReconciliation.ts.
+- P321: Purchase order and goods receipt invariants — source-implemented; apps/api/src/services/goodsReceipt.ts.
+- P322: Stock transfer and physical count — source-implemented; apps/api/src/services/stockTransfer.ts.
+- P323: Supplier ledger and payable controls — source-implemented; apps/api/src/services/supplierLedger.ts.
+- P324: Tax and financial ledger primitives — source-implemented; apps/api/src/services/ledgerBalance.ts.
+- P325: Accounting export interface — source-implemented; apps/api/src/integrations/accounting.ts.
+- P326: Super Admin and tenant admin controls — source-implemented; docs/P326-ADMIN-BOUNDARIES.md.
+- P327: Brand portal campaign workflow — source-implemented; apps/api/src/services/brandCampaign.ts.
+- P328: Distributor order fulfilment — source-implemented; apps/api/src/services/distributorFulfilment.ts.
+- P329: Trade partner incentives — source-implemented; apps/api/src/services/tradeIncentives.ts.
+- P330: Multi-outlet consolidated reporting — source-implemented; docs/P330-REPORTING-SCOPE.md.
+- P331: Offline persistence foundation — source-implemented; apps/web/src/offline/offlineQueue.ts.
+- P332: Offline retail/bar sync envelope — source-implemented; apps/api/src/services/offlineSync.ts.
+- P333: Offline conflict resolution — source-implemented; apps/api/src/services/offlineConflict.ts.
+- P334: Mobile application architecture — source-implemented; docs/P334-MOBILE-ARCHITECTURE.md.
+- P335: Hardware and payment integration adapters — source-implemented; apps/api/src/integrations/hardware.ts.
+- P336: Karnataka licence validation mapping — documentation-and-readiness-artifact; docs/P336-KARNATAKA-LICENCE-REVIEW.md.
+- P337: Excise reporting controls — documentation-and-readiness-artifact; docs/P337-EXCISE-REPORTING.md.
+- P338: Security hardening baseline — documentation-and-readiness-artifact; docs/P338-SECURITY-BASELINE.md.
+- P339: Independent penetration testing readiness — documentation-and-readiness-artifact; docs/P339-PENTEST-PLAN.md.
+- P340: Legal, privacy and retention sign-off — documentation-and-readiness-artifact; docs/P340-LEGAL-PRIVACY-GATES.md.
+- P341: Unit and integration test expansion — documentation-and-readiness-artifact; docs/P341-TEST-STRATEGY.md.
+- P342: Browser end-to-end test plan — documentation-and-readiness-artifact; docs/P342-E2E-PLAN.md.
+- P343: Load, concurrency and recovery testing — documentation-and-readiness-artifact; docs/P343-LOAD-TEST-PLAN.md.
+- P344: Monitoring, alerting and disaster recovery — documentation-and-readiness-artifact; docs/P344-OPERATIONS-RUNBOOK.md.
+- P345: Production deployment readiness — documentation-and-readiness-artifact; docs/P345-DEPLOYMENT-GATES.md.
+- P346: Staging data verification — documentation-and-readiness-artifact; docs/P346-STAGING-VALIDATION.md.
+- P347: Controlled pilot readiness — documentation-and-readiness-artifact; docs/P347-PILOT-PLAN.md.
+- P348: Hardware/payment daily reconciliation — documentation-and-readiness-artifact; docs/P348-DAILY-RECONCILIATION.md.
+- P349: Pilot defect and training closure — documentation-and-readiness-artifact; docs/P349-PILOT-CLOSURE.md.
+- P350: General availability decision and handover — documentation-and-readiness-artifact; docs/P350-GA-DECISION.md.

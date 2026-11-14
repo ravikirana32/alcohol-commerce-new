@@ -1,0 +1,1 @@
+export function calculateTax(baseMinor:number,ratePercent:number){if(!Number.isSafeInteger(baseMinor)||baseMinor<0||!Number.isFinite(ratePercent)||ratePercent<0||ratePercent>100)throw new Error('Invalid tax input');const taxMinor=Math.round(baseMinor*ratePercent/100);return {baseMinor,taxMinor,totalMinor:baseMinor+taxMinor};}

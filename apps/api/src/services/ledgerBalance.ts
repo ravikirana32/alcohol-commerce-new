@@ -1,0 +1,1 @@
+export function assertLedgerBalanced(debits:number[],credits:number[]):void { const all=[...debits,...credits]; if(!all.length||all.some(x=>!Number.isSafeInteger(x)||x<0)) throw new Error('Ledger lines must be non-negative integer minor units'); const d=debits.reduce((a,b)=>a+b,0),c=credits.reduce((a,b)=>a+b,0); if(d!==c) throw new Error('Journal entry is not balanced'); }

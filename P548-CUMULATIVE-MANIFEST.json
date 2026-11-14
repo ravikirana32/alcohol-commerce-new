@@ -1,0 +1,29 @@
+{
+  "product": "Alcohol Commerce Platform",
+  "phase": "P548",
+  "version": "0.548.0-dev",
+  "baseline": "P547 cumulative",
+  "scope": "P513-P548 cumulative source",
+  "status": "developer-preview",
+  "productionGoLive": false,
+  "implemented": [
+    "permission-driven frontend navigation visibility",
+    "active workspace access guard",
+    "authenticated permission refresh",
+    "static permission policy verifier"
+  ],
+  "verification": {
+    "p548Static": "12/12 PASS",
+    "typescriptSyntax": "267 files, 0 diagnostics",
+    "migrationStatic": "242 ordered SQL files PASS",
+    "browserRuntime": "NOT RUN",
+    "webBuild": "NOT RUN",
+    "postgresRuntime": "NOT RUN"
+  },
+  "knownRestrictions": [
+    "Frontend visibility is not API authorization",
+    "Live payment capture disabled",
+    "Offline alcohol posting disabled",
+    "Outbound provider dispatch disabled"
+  ]
+}

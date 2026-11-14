@@ -1,0 +1,1 @@
+export function assertPlatformAction(actor:{isPlatformAdmin:boolean},action:string){const allowed=new Set(['TENANT_SUSPEND','TENANT_REACTIVATE','LICENCE_REVIEW','GLOBAL_CONFIGURATION']);if(!actor.isPlatformAdmin||!allowed.has(action))throw new Error('Platform administrator permission required');return true;}

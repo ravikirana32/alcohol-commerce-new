@@ -1,0 +1,26 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root = process.cwd();
+const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
+const checks = [];
+function check(name, condition) { checks.push({ name, pass: Boolean(condition) }); }
+const schema = read('apps/api/src/db/005_inventory_procurement.sql');
+const ops = read('apps/api/src/routes/operations.ts');
+const procurement = read('apps/api/src/routes/procurement.ts');
+const settlements = read('apps/api/src/routes/settlements.ts');
+const offline = read('apps/api/src/routes/offlineLedgerPosting.ts');
+const sql = read('scripts/p565-stock-ledger-reconciliation.sql');
+check('stock_movements persists organisation/outlet/product and typed reference fields', /CREATE TABLE IF NOT EXISTS stock_movements[\s\S]*?organisation_id UUID NOT NULL[\s\S]*?outlet_id UUID NOT NULL[\s\S]*?product_id UUID NOT NULL[\s\S]*?reference_type TEXT, reference_id UUID/.test(schema));
+check('stock balance unique key supports one balance per outlet/product', /UNIQUE\(outlet_id,product_id\)/.test(schema));
+check('operations receipt writes balance and append-once movement in one transaction', /inventory\/receipts[\s\S]*?BEGIN[\s\S]*?appendStockMovementOnce[\s\S]*?INSERT INTO stock_balances[\s\S]*?COMMIT/.test(ops));
+check('operations adjustment writes balance and append-once movement in one transaction', /inventory\/adjustments[\s\S]*?BEGIN[\s\S]*?appendStockMovementOnce[\s\S]*?INSERT INTO stock_balances[\s\S]*?COMMIT/.test(ops));
+check('goods receipt writes stock balance and movement within receipt transaction', /BEGIN[\s\S]*?INSERT INTO stock_balances[\s\S]*?appendStockMovementOnce[\s\S]*?GOODS_RECEIPT[\s\S]*?COMMIT/.test(procurement));
+check('retail refund return movement uses append-once helper in settlement transaction', /BEGIN[\s\S]*?INSERT INTO stock_balances[\s\S]*?appendStockMovementOnce[\s\S]*?RETAIL_REFUND/.test(settlements));
+check('offline ledger posting includes stock movement writes', /appendStockMovementOnce/.test(offline));
+check('reconciliation SQL checks movement outlet/product organisation consistency', /FROM stock_movements sm[\s\S]*?o\.organisation_id <> sm\.organisation_id[\s\S]*?p\.organisation_id <> sm\.organisation_id/.test(sql));
+check('reconciliation SQL checks balance outlet/product organisation consistency', /FROM stock_balances sb[\s\S]*?o\.organisation_id <> sb\.organisation_id[\s\S]*?p\.organisation_id <> sb\.organisation_id/.test(sql));
+check('reconciliation SQL flags repeated references without deleting or mutating data', /HAVING COUNT\(\*\) > 1/.test(sql) && !/^\s*(UPDATE|DELETE|INSERT|ALTER|DROP)\b/im.test(sql));
+check('reconciliation SQL documents opening-balance and adjustment limitations', /opening balances/i.test(sql) && /ADJUSTMENT/.test(sql));
+for (const c of checks) console.log(`${c.pass ? 'PASS' : 'FAIL'} ${c.name}`);
+console.log(`P565 ${checks.filter(c=>c.pass).length}/${checks.length} checks passed`);
+if (checks.some(c=>!c.pass)) process.exit(1);

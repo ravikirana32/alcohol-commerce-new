@@ -1,0 +1,2 @@
+// P464: Open bottle reconciliation
+export const reconcileBottleMl = (openingMl:number,dispensedMl:number,wasteMl:number,closingMl:number) => { const values=[openingMl,dispensedMl,wasteMl,closingMl]; if(values.some(v=>!Number.isSafeInteger(v)||v<0)) throw new Error('Invalid bottle quantities'); const expected=openingMl-dispensedMl-wasteMl; return {expectedClosingMl:expected,varianceMl:closingMl-expected,balanced:expected===closingMl}; };

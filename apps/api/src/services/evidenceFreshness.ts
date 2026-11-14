@@ -1,0 +1,1 @@
+export function isEvidenceFresh(executedAt:string,now:string,maxAgeDays:number) { const a=Date.parse(executedAt),b=Date.parse(now); if(!Number.isFinite(a)||!Number.isFinite(b)||!Number.isFinite(maxAgeDays)||maxAgeDays<0) throw new Error('Invalid evidence freshness input'); return a<=b && b-a<=maxAgeDays*86400000; }

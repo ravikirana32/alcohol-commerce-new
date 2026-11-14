@@ -1,0 +1,3 @@
+export type CampaignState='DRAFT'|'SUBMITTED_FOR_REVIEW'|'APPROVED'|'ACTIVE'|'PAUSED'|'COMPLETED'|'REJECTED';
+const transitions:Record<CampaignState,CampaignState[]>={DRAFT:['SUBMITTED_FOR_REVIEW'],SUBMITTED_FOR_REVIEW:['APPROVED','REJECTED'],APPROVED:['ACTIVE'],ACTIVE:['PAUSED','COMPLETED'],PAUSED:['ACTIVE','COMPLETED'],COMPLETED:[],REJECTED:[]};
+export function campaignTransition(from:CampaignState,to:CampaignState,legalApproval:boolean):CampaignState { if(to==='ACTIVE'&&!legalApproval) throw new Error('Legal/compliance approval required before activation'); if(!transitions[from].includes(to)) throw new Error('Invalid campaign transition'); return to; }

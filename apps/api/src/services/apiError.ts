@@ -1,0 +1,1 @@
+export function classifyApiError(code: string) { const known: Record<string, number> = { VALIDATION: 400, UNAUTHENTICATED: 401, FORBIDDEN: 403, NOT_FOUND: 404, CONFLICT: 409, RATE_LIMITED: 429 }; return { code: /^[A-Z_]{3,40}$/.test(code) ? code : 'INTERNAL_ERROR', status: known[code] ?? 500 }; }

@@ -1,0 +1,2 @@
+export type Tender={method:'CASH'|'UPI'|'CARD'|'OTHER';amountMinor:number;reference?:string};
+export function allocateTenders(totalMinor:number,tenders:Tender[]){ if(!Number.isSafeInteger(totalMinor)||totalMinor<0||!tenders.length) throw new Error('Invalid total or tenders'); let paid=0; for(const t of tenders){if(!Number.isSafeInteger(t.amountMinor)||t.amountMinor<=0)throw new Error('Tender must be positive'); paid+=t.amountMinor;} if(paid!==totalMinor)throw new Error('Tender allocation does not balance'); return {totalMinor,paidMinor:paid,changeMinor:0}; }

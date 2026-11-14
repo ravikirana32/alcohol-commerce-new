@@ -1,0 +1,1 @@
+export function convertMl(value: number, unit: 'ML'|'L'): number { if (!Number.isFinite(value) || value < 0) throw new Error('Invalid volume'); const ml = unit === 'L' ? value * 1000 : value; if (!Number.isSafeInteger(Math.round(ml)) || Math.abs(ml - Math.round(ml)) > 1e-8) throw new Error('Volume must resolve to whole millilitres'); return Math.round(ml); }

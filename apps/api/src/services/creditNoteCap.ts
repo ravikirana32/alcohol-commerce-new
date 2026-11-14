@@ -1,0 +1,2 @@
+// P474: Credit note amount cap
+export const validateCreditNoteAmount = (originalMinor:number,alreadyCreditedMinor:number,requestedMinor:number) => { const remaining=originalMinor-alreadyCreditedMinor; return {valid:[originalMinor,alreadyCreditedMinor,requestedMinor].every(Number.isSafeInteger)&&originalMinor>=0&&alreadyCreditedMinor>=0&&requestedMinor>0&&requestedMinor<=remaining,remainingMinor:Math.max(0,remaining)}; };

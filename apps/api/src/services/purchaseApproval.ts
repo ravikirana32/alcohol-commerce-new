@@ -1,0 +1,1 @@
+export function requiresPurchaseApproval(totalMinor:number,approvalLimitMinor:number) { if(!Number.isSafeInteger(totalMinor)||totalMinor<0||!Number.isSafeInteger(approvalLimitMinor)||approvalLimitMinor<0) throw new Error('Invalid purchase amount'); return totalMinor>approvalLimitMinor; }

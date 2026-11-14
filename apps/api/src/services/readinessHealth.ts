@@ -1,0 +1,1 @@
+export function aggregateReadiness(checks:Array<{name:string;ok:boolean;critical:boolean}>) { if(checks.some(c=>!c.name)) throw new Error('Health check name required'); const failed=checks.filter(c=>!c.ok); return {status:failed.some(c=>c.critical)?'UNHEALTHY':failed.length?'DEGRADED':'HEALTHY',total:checks.length,failed:failed.map(c=>c.name)}; }

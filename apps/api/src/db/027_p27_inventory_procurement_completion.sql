@@ -1,0 +1,6 @@
+-- P27: Inventory & procurement completion
+-- Review FK assumptions and execute in staging before production.
+CREATE TABLE IF NOT EXISTS purchase_orders (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organisation_id UUID NOT NULL REFERENCES organisations(id), outlet_id UUID NOT NULL REFERENCES outlets(id), supplier_id UUID NOT NULL, po_no TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'draft', ordered_at TIMESTAMPTZ, expected_at TIMESTAMPTZ, total NUMERIC(14,2) NOT NULL DEFAULT 0, UNIQUE(outlet_id, po_no));
+CREATE TABLE IF NOT EXISTS goods_receipts (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), purchase_order_id UUID REFERENCES purchase_orders(id), outlet_id UUID NOT NULL REFERENCES outlets(id), received_by UUID REFERENCES users(id), received_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), reference TEXT);
+CREATE TABLE IF NOT EXISTS stock_count_sessions (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), outlet_id UUID NOT NULL REFERENCES outlets(id), status TEXT NOT NULL DEFAULT 'open', opened_by UUID REFERENCES users(id), closed_at TIMESTAMPTZ);
+CREATE TABLE IF NOT EXISTS stock_count_lines (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), session_id UUID NOT NULL REFERENCES stock_count_sessions(id), product_id UUID NOT NULL, expected_qty NUMERIC(14,3), counted_qty NUMERIC(14,3), variance NUMERIC(14,3));

@@ -1,0 +1,29 @@
+{
+  "project": "Alcohol Commerce Platform",
+  "phase": "P566",
+  "version": "0.566.0-dev",
+  "baseline": "P565 cumulative v0.565.0-dev",
+  "deliverables": [
+    "apps/api/src/db/243_p566_stock_movement_idempotency.sql",
+    "apps/api/src/services/stockMovementIdempotency.ts",
+    "apps/api/src/services/stockMovementIdempotency.test.ts",
+    "scripts/verify-p566-stock-idempotency.mjs",
+    "P566-IMPLEMENTATION.md",
+    "P566-TEST-REPORT.md",
+    "P566-RUNBOOK.md",
+    "P566-STATUS.md",
+    "P566-RELEASE-NOTES.md",
+    "P513-P566-Cumulative-Gap-Register.md"
+  ],
+  "verification": {
+    "p566_static": "10/10 PASS",
+    "typescript_syntax": "274 files, 0 diagnostics",
+    "p565_stock_ledger": "11/11 PASS",
+    "p564_static": "14/14 PASS",
+    "migration_static": "243 ordered SQL files PASS",
+    "vitest": "NOT RUN: vitest permission denied",
+    "postgres_runtime": "NOT RUN"
+  },
+  "production_status": "NO-GO",
+  "important_limit": "Helper is available but existing stock posting workflows have not all adopted it."
+}

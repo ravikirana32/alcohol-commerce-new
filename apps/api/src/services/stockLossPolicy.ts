@@ -1,0 +1,2 @@
+export type StockLossReason='WASTAGE'|'COMPLIMENTARY'|'BREAKAGE'|'ADJUSTMENT';
+export function validateStockLoss(reason:StockLossReason,quantityMl:number,notes:string,actorId:string):void { if(!Number.isSafeInteger(quantityMl)||quantityMl<=0) throw new Error('Stock loss quantity must be positive'); if(!actorId.trim()||!notes.trim()) throw new Error('Stock loss requires actor and explanatory notes'); if(reason==='ADJUSTMENT'&&notes.trim().length<10) throw new Error('Adjustment requires detailed notes'); }

@@ -1,0 +1,1 @@
+export function stockCountVariance(systemQty:number,countedQty:number) { if (![systemQty,countedQty].every(Number.isSafeInteger)||systemQty<0||countedQty<0) throw new Error('Invalid stock count'); return { variance:countedQty-systemQty, direction:countedQty===systemQty?'MATCH':countedQty>systemQty?'SURPLUS':'SHORTAGE' }; }

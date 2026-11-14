@@ -1,0 +1,37 @@
+{
+  "product": "Alcohol Commerce Platform",
+  "version": "0.580.0-dev",
+  "cumulativeBaseline": "P513-P578",
+  "phasesIncluded": [
+    "P513-P578",
+    "P579",
+    "P580"
+  ],
+  "migrations": [
+    "apps/api/src/db/255_p579_regulatory_traceability.sql",
+    "apps/api/src/db/256_p580_pos_device_offline_health.sql"
+  ],
+  "routes": [
+    "apps/api/src/routes/regulatoryReports.ts",
+    "apps/api/src/routes/deviceOperations.ts"
+  ],
+  "staticVerification": {
+    "p579": "9/9 PASS",
+    "p580": "9/9 PASS",
+    "p575": "11/11 PASS",
+    "p576": "8/8 PASS",
+    "p577": "9/9 PASS",
+    "p578": "8/8 PASS",
+    "typescriptSyntax": "278 files, 0 diagnostics",
+    "migrations": "9/9 PASS; 256 ordered migration files"
+  },
+  "runtimeVerification": "NOT RUN",
+  "productionStatus": "NO-GO",
+  "safetyFlags": {
+    "livePaymentCapture": false,
+    "outboundProviderDispatch": false,
+    "offlineAlcoholFinancialPosting": false
+  },
+  "knownGaps": "P513-P580-Cumulative-Gap-Register.md",
+  "semanticTypecheck": "BLOCKED: dependencies/type packages not installed in extracted workspace"
+}

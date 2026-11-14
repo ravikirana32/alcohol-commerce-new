@@ -1,0 +1,41 @@
+{
+  "project": "Alcohol Commerce Platform",
+  "version": "0.583.0-dev",
+  "cumulative_from": "P513",
+  "through": "P583",
+  "baseline": "Alcohol-Commerce-Platform-P579-P580-Cumulative-v0.580.0-dev.zip",
+  "phases": [
+    "P581 Reporting and BI governance",
+    "P582 Provider adapters and certification",
+    "P583 Security and reliability hardening"
+  ],
+  "migrations": [
+    "257_p581_analytics_governance.sql",
+    "258_p582_provider_adapter_certification.sql",
+    "259_p583_shared_security_controls.sql"
+  ],
+  "new_routes": [
+    "/api/v1/reports/governance/*",
+    "/api/v1/enterprise-integrations/:integrationId/adapter-assess",
+    "/api/v1/enterprise-integrations/:integrationId/adapter-assessments"
+  ],
+  "safety": {
+    "live_payment_capture": false,
+    "outbound_provider_dispatch": false,
+    "offline_alcohol_financial_posting": false
+  },
+  "verification": {
+    "p579": "9/9 static pass",
+    "p580": "9/9 static pass",
+    "migration_order": "9/9 static pass",
+    "p581": "9/9 static pass",
+    "p582": "9/9 static pass",
+    "p583": "7/7 static pass",
+    "typescript_syntax": "280 files, 0 diagnostics",
+    "postgres_runtime": "not run",
+    "semantic_typecheck": "blocked by missing dependencies",
+    "e2e": "not run"
+  },
+  "production_status": "NO-GO",
+  "open_gaps_register": "P513-P583-Cumulative-Gap-Register.md"
+}

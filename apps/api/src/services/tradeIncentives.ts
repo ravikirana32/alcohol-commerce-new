@@ -1,0 +1,1 @@
+export function calculatePoints(eligibleUnits:number,pointsPerUnit:number,cap:number):number { for(const x of [eligibleUnits,pointsPerUnit,cap]) if(!Number.isSafeInteger(x)||x<0) throw new Error('Incentive inputs must be non-negative integers'); return Math.min(eligibleUnits*pointsPerUnit,cap); }

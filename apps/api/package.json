@@ -1,0 +1,50 @@
+{
+  "name": "@acp/api",
+  "version": "0.585.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:status": "tsx src/db/status.ts",
+    "db:seed:demo": "tsx src/db/seed-demo-users.ts",
+    "verify:p569:static": "node scripts/verify-p569-refund-idempotency.mjs",
+    "verify:p569": "npm run verify:p569:static && npm run verify:p568:static && npm run verify:p567:static && npm run verify:p566:static && npm run verify:p565:static",
+    "verify:p571:static": "node ../../scripts/verify-p571-stock-ledger-foundation.mjs",
+    "verify:p579:static": "node ../../scripts/verify-p579-regulatory-traceability.mjs",
+    "verify:p580:static": "node ../../scripts/verify-p580-device-offline-operations.mjs",
+    "verify:p580": "npm run verify:p580:static && npm run verify:p579:static && npm run verify:p578:financial-statements",
+    "verify:p579-p580:migrations": "node ../../scripts/verify-p579-p580-migrations.mjs"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.0.1",
+    "helmet": "^8.0.0",
+    "zod": "^3.24.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "supertest": "^7.0.0",
+    "@types/supertest": "^6.0.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/pg": "^8.11.10"
+  },
+  "engines": {
+    "node": ">=20.18.0",
+    "npm": ">=10.8.0"
+  }
+}

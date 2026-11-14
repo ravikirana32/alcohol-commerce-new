@@ -1,0 +1,2 @@
+export type OfflineEvent={id:string;createdAt:string;sequence:number};
+export function orderOfflineEvents<T extends OfflineEvent>(events:T[]){const ids=new Set<string>();for(const e of events){if(!e.id||ids.has(e.id)||!Number.isSafeInteger(e.sequence)||e.sequence<0||!Number.isFinite(Date.parse(e.createdAt)))throw new Error('Invalid or duplicate offline event');ids.add(e.id);}return [...events].sort((a,b)=>a.sequence-b.sequence||a.createdAt.localeCompare(b.createdAt));}

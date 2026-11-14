@@ -1,0 +1,20 @@
+{
+  "phase": "P556",
+  "version": "0.556.0-dev",
+  "baseline": "P555 cumulative",
+  "scope": "Multi-tenant, outlet and resource-level IDOR security testing",
+  "added": [
+    "apps/api/src/services/tenantBoundary.test.ts",
+    "apps/api/src/services/permissionScope.p556.test.ts",
+    "scripts/run-p556-tenant-isolation.mjs",
+    "scripts/verify-p556-static.mjs"
+  ],
+  "runtimeExecuted": false,
+  "productionGo": false,
+  "openGates": [
+    "Live cross-organisation and cross-outlet API denial tests",
+    "Nested resource, report, export and transaction IDOR coverage",
+    "PostgreSQL runtime and migration execution",
+    "Browser, penetration and formal security acceptance"
+  ]
+}

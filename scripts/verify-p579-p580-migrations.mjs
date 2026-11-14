@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+const root=new URL('../',import.meta.url).pathname;
+const files=fs.readdirSync(root+'apps/api/src/db').filter(x=>/^\d+_.*\.sql$/.test(x)).sort();
+const nums=files.map(x=>Number(x.split('_')[0]));
+const p579=files.find(x=>x.startsWith('255_'));
+const p580=files.find(x=>x.startsWith('256_'));
+const a=p579?fs.readFileSync(root+'apps/api/src/db/'+p579,'utf8'):'';
+const b=p580?fs.readFileSync(root+'apps/api/src/db/'+p580,'utf8'):'';
+const checks={orderedMigrations:nums.every((n,i)=>i===0||n>=nums[i-1]) && nums.at(-5)===255 && nums.at(-4)===256 && nums.at(-3)===257 && nums.at(-2)===258 && nums.at(-1)===259,p579MigrationPresent:!!p579,p580MigrationPresent:!!p580,p579ReportTables:/p579_regulatory_report_runs/.test(a)&&/p579_product_traceability_links/.test(a),p579AppendOnly:/BEFORE UPDATE OR DELETE/.test(a),p580HealthTable:/p580_device_health_events/.test(b),p580CheckpointTable:/p580_offline_sync_checkpoints/.test(b),p580CompositeDeviceScope:/FOREIGN KEY\(device_id,organisation_id,outlet_id\)/.test(b),p580CompositeBatchScope:/FOREIGN KEY\(last_batch_id,organisation_id,device_id\)/.test(b)};
+for(const [k,v] of Object.entries(checks))console.log(`${v?'PASS':'FAIL'} ${k}`);
+if(Object.values(checks).some(v=>!v))process.exit(1);
+console.log(`P579–P583 migration static verification: ${Object.values(checks).filter(Boolean).length}/${Object.keys(checks).length} PASS; ${files.length} ordered SQL migrations present`);

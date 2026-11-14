@@ -1,0 +1,1 @@
+export function validateSyncCursor(cursor:string|null) { if(cursor===null) return null; if(cursor.length>256||!/^[A-Za-z0-9._:-]+$/.test(cursor)) throw new Error('Invalid sync cursor'); return cursor; }

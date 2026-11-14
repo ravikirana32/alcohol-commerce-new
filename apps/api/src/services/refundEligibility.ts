@@ -1,0 +1,2 @@
+// P459: Refund eligibility policy
+export const evaluateRefundEligibility = (sale:{status:string;ageHours:number;refundableMinor:number},requestedMinor:number,windowHours:number) => { const reasons:string[]=[]; if(sale.status!=='COMPLETED') reasons.push('SALE_NOT_COMPLETED'); if(sale.ageHours<0||sale.ageHours>windowHours) reasons.push('REFUND_WINDOW_EXPIRED'); if(!Number.isSafeInteger(requestedMinor)||requestedMinor<=0||requestedMinor>sale.refundableMinor) reasons.push('INVALID_REFUND_AMOUNT'); return {eligible:reasons.length===0,reasons}; };

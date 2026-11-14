@@ -1,0 +1,24 @@
+{
+  "phase": "P512",
+  "version": "0.512.0-dev",
+  "release_status": "NOT_APPROVED",
+  "production_enabled": false,
+  "live_payments_enabled": false,
+  "offline_sync_enabled": false,
+  "consumer_discovery_enabled": false,
+  "mandatory_external_approvals": [
+    "Karnataka excise and legal review",
+    "Independent security assessment",
+    "Authorised outlet pilot"
+  ],
+  "evidence_required": [
+    "PostgreSQL clean install and upgrade tests",
+    "API and web typecheck/build",
+    "API integration and concurrency tests",
+    "Playwright critical user journeys",
+    "Tenant isolation and permission tests",
+    "Backup restore and disaster recovery drill",
+    "Performance and monitoring evidence",
+    "Legal, security and pilot sign-offs"
+  ]
+}

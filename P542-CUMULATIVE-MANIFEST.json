@@ -1,0 +1,27 @@
+{
+  "phase": "P542",
+  "release": "0.542.0-dev",
+  "baseline": "P541",
+  "delivery_status": "E2E ACCEPTANCE SUITE ADDED; RUNTIME AND UAT NOT RUN",
+  "production_approved": false,
+  "live_payments_enabled": false,
+  "offline_alcohol_posting_enabled": false,
+  "static_verifier": {
+    "checks": 10,
+    "passed": 10
+  },
+  "runtime_tests": "NOT_RUN",
+  "open_gates": [
+    "Playwright runtime",
+    "PostgreSQL migration execution",
+    "authenticated business journey E2E",
+    "tenant/role negative tests",
+    "legal/excise UAT",
+    "finance reconciliation",
+    "device attestation and secure time",
+    "provider certification",
+    "performance and restore drills",
+    "pilot sign-off"
+  ],
+  "archive_entries_excluding_directory_entries": 1450
+}

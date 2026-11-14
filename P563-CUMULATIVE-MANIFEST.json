@@ -1,0 +1,53 @@
+{
+  "phase": "P563",
+  "version": "0.563.0-dev",
+  "baseline": "P561 cumulative v0.561.0-dev",
+  "scope": "Tenant-scoped shift reconciliation reads",
+  "sqlReadStatementsUpdated": 8,
+  "filesChanged": [
+    "apps/api/src/routes/operations.ts",
+    "scripts/verify-p562-tenant-scoped-reads.mjs",
+    "package.json",
+    "apps/api/package.json",
+    "apps/web/package.json",
+    "VERSION",
+    "P562-IMPLEMENTATION.md",
+    "P562-TEST-REPORT.md",
+    "P562-RUNBOOK.md",
+    "P562-STATUS.md",
+    "P562-RELEASE-NOTES.md",
+    "P513-P562-Cumulative-Gap-Register.md"
+  ],
+  "verification": {
+    "p563SourceAssertions": "10/10 PASS",
+    "p562ShiftReadAssertions": "8/8 PASS",
+    "p561UpdateAssertions": "5/5 PASS",
+    "p560Static": "10/10 PASS",
+    "typescriptSyntax": "272 files, 0 diagnostics",
+    "sqlMigrationStatic": "242 files PASS; PostgreSQL execution not run"
+  },
+  "runtimeTests": "NOT RUN",
+  "productionStatus": "NO-GO",
+  "limitations": [
+    "PostgreSQL runtime not executed",
+    "Authenticated cross-organisation/outlet tests not executed",
+    "P560 review queues remain open: 188 tenant-bearing-table candidates and 71 schema-unresolved candidates",
+    "Playwright and penetration testing not executed"
+  ],
+  "previousPhase": "P562",
+  "changes": [
+    "Inventory balance and batch product joins constrained to matching organisation.",
+    "Stock transfer outlet joins constrained to transfer organisation.",
+    "Stock transfer detail lines joined through organisation-scoped transfer and same-organisation products.",
+    "Procurement supplier, approval, purchase-order line and goods receipt queries constrained through organisation-owned parent records.",
+    "Added P563 tenant inventory/procurement static verifier."
+  ],
+  "releaseStatus": "NO-GO",
+  "runtimeAcceptancePending": [
+    "PostgreSQL clean install and upgrade",
+    "Authenticated cross-organisation/outlet API tests",
+    "Concurrent receipt/transfer posting",
+    "Playwright",
+    "Penetration test"
+  ]
+}

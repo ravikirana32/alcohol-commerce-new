@@ -1,0 +1,2 @@
+// P473: Bank reconciliation matching tolerance
+export const isBankLineMatch = (a:{amountMinor:number;date:string;reference:string},b:{amountMinor:number;date:string;reference:string},toleranceMinor=0,days=0) => { const delta=Math.abs(a.amountMinor-b.amountMinor),dayDelta=Math.abs(Date.parse(a.date)-Date.parse(b.date))/86400000; return delta<=toleranceMinor && dayDelta<=days && a.reference.trim().toLowerCase()===b.reference.trim().toLowerCase(); };

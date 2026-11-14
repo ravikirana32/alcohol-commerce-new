@@ -1,0 +1,2 @@
+// P467: Goods receipt over-delivery guard
+export const evaluateGoodsReceiptOverage = (ordered:number,received:number,toleranceBps=0) => { if([ordered,received,toleranceBps].some(v=>!Number.isFinite(v)||v<0)||ordered<=0||toleranceBps>10000) throw new Error('Invalid receipt quantities'); const max=ordered*(1+toleranceBps/10000); return {accepted:received<=max,overage:Math.max(0,received-ordered),maximumAccepted:max}; };

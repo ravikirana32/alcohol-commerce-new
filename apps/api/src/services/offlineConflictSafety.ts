@@ -1,0 +1,2 @@
+// P483: Offline conflict resolution safety
+export const resolveOfflineConflictPolicy = (x:{entity:string;serverVersion:number;clientVersion:number;financial:boolean}) => { if(!Number.isInteger(x.serverVersion)||!Number.isInteger(x.clientVersion)||x.serverVersion<0||x.clientVersion<0)throw new Error('Invalid versions'); if(x.financial&&x.serverVersion!==x.clientVersion)return 'MANUAL_REVIEW'; if(x.clientVersion>x.serverVersion)return 'CLIENT_CANDIDATE'; if(x.serverVersion>x.clientVersion)return 'SERVER_WINS'; return 'NO_CONFLICT'; };

@@ -1,0 +1,1 @@
+export function validateReceiptSnapshot(s:{saleId:string;outletId:string;currency:string;totalMinor:number;lines:number}) { if (!s.saleId||!s.outletId||!/^[A-Z]{3}$/.test(s.currency)||!Number.isSafeInteger(s.totalMinor)||s.totalMinor<0||!Number.isInteger(s.lines)||s.lines<1) throw new Error('Invalid receipt snapshot'); return Object.freeze({...s}); }

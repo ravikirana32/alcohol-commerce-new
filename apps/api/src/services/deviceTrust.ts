@@ -1,0 +1,1 @@
+export function isDeviceTrusted(d:{status:'ACTIVE'|'REVOKED';expiresAt:string;now:string}) { const expiry=Date.parse(d.expiresAt),now=Date.parse(d.now); if(!Number.isFinite(expiry)||!Number.isFinite(now)) throw new Error('Invalid device trust date'); return d.status==='ACTIVE'&&expiry>now; }

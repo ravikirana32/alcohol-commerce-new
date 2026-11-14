@@ -1,0 +1,51 @@
+{
+  "phase": "P551",
+  "version": "0.551.0-dev",
+  "baseline": "P550 cumulative",
+  "status": "developer-preview",
+  "scope": "remaining workspace action authorization",
+  "workspaces": [
+    "CatalogueWorkspace",
+    "OrganisationWorkspace",
+    "ExciseComplianceWorkspace",
+    "TaxPricingWorkspace",
+    "OfflineDeviceWorkspace",
+    "OfflineReconciliationWorkspace",
+    "OfflineRecoveryWorkspace",
+    "TradePortalWorkspace",
+    "ReportsWorkspace",
+    "BarServiceWorkspace",
+    "ShiftWorkspace"
+  ],
+  "guardBindingsInspected": 70,
+  "verifiers": {
+    "p551": "43/43 PASS",
+    "p550": "17/17 PASS",
+    "p549": "11/11 PASS",
+    "p548": "12/12 PASS",
+    "p547": "11/11 PASS"
+  },
+  "typescriptSyntax": {
+    "files": 269,
+    "diagnostics": 0
+  },
+  "sqlMigrationStatic": {
+    "files": 242,
+    "status": "PASS_STATIC_ONLY"
+  },
+  "notRun": [
+    "semantic typecheck",
+    "production build",
+    "Vitest",
+    "Playwright",
+    "PostgreSQL runtime role matrix",
+    "API permission parity",
+    "cross-tenant/outlet IDOR"
+  ],
+  "productionDecision": "NO-GO",
+  "safetyControls": {
+    "livePaymentCapture": false,
+    "offlineAlcoholPosting": false,
+    "outboundProviderDispatch": false
+  }
+}

@@ -1,0 +1,1 @@
+export function deploymentGate(c:{buildPassed:boolean;testsPassed:boolean;migrationsVerified:boolean;secretsConfigured:boolean;rollbackTested:boolean;monitoringReady:boolean}){const blockers=Object.entries(c).filter(([,v])=>!v).map(([k])=>k);return {ready:blockers.length===0,blockers};}

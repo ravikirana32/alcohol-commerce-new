@@ -1,0 +1,30 @@
+{
+  "phase": "P544",
+  "version": "0.544.0-dev",
+  "baseline": "P543 cumulative",
+  "status": "DEVELOPER_PREVIEW_RUNTIME_NOT_VALIDATED",
+  "delivered": [
+    "environment preflight and production configuration validation",
+    "API liveness/readiness/metadata and web-root smoke probe",
+    "deterministic configuration and Compose verifier",
+    "environment and runtime validation runbooks"
+  ],
+  "verified": {
+    "deterministic_checks": "13/13 PASS",
+    "typescript_syntax": "263 files, 0 diagnostics",
+    "migration_static": "242 files PASS (static only)",
+    "development_env_example": "PASS"
+  },
+  "not_passed_or_not_run": [
+    "local runtime smoke: 0/4; API 404, web unreachable",
+    "Docker build and container startup",
+    "clean dependency install, build and semantic typecheck",
+    "PostgreSQL migration execution",
+    "production secret/TLS/access review",
+    "all P543 legal, finance, security, provider, resilience and UAT gates"
+  ],
+  "production_approved": false,
+  "live_payments_enabled": false,
+  "offline_alcohol_posting_enabled": false,
+  "outbound_provider_dispatch_enabled": false
+}

@@ -1,0 +1,1 @@
+export function availableToPromise(onHand:number,reserved:number,quarantined=0) { for(const n of [onHand,reserved,quarantined]) if(!Number.isSafeInteger(n)||n<0) throw new Error('Invalid stock quantity'); const available=onHand-reserved-quarantined; if(reserved+quarantined>onHand) throw new Error('Stock commitments exceed on-hand'); return available; }

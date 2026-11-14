@@ -1,0 +1,28 @@
+{
+  "phase": "P554",
+  "version": "0.554.0-dev",
+  "baseline": "P553 cumulative",
+  "status": "developer-preview",
+  "scope": "automated role-by-permission API authorization matrix",
+  "authorizationMatrix": {
+    "roles": 13,
+    "permissionCodes": 100,
+    "rolePermissionPairs": 304,
+    "testHarness": "apps/api/src/security/p554AuthorizationMatrix.test.ts",
+    "identityMode": "test-only injected identity; real JWT/session auth not exercised"
+  },
+  "verifiers": {
+    "p554Static": "10/10 PASS",
+    "p553Static": "10/10 PASS",
+    "p552RouteParity": "8/8 PASS",
+    "p551WorkspaceGuards": "43/43 PASS"
+  },
+  "typescriptSyntax": { "files": 270, "diagnostics": 0 },
+  "sqlMigrationStatic": { "files": 242, "status": "PASS_STATIC_ONLY" },
+  "runtime": {
+    "vitest": "NOT_RUN_DEPENDENCIES_UNAVAILABLE",
+    "livePostgres": "NOT_RUN_DATABASE_URL_UNAVAILABLE",
+    "authenticatedApiAndTenantIdor": "OPEN"
+  },
+  "productionDecision": "NO-GO"
+}

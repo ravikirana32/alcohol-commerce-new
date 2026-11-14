@@ -1,0 +1,28 @@
+{
+  "phase": "P537",
+  "release": "0.537.0-dev",
+  "baseline": "P536 cumulative 0.536.0-dev",
+  "delivery_status": "DEVELOPER_PREVIEW; RUNTIME_AND_EXTERNAL_ACCEPTANCE_OPEN",
+  "production_approved": false,
+  "migration_count_static": 239,
+  "verification": {
+    "p537_static": "13/13 PASS",
+    "typescript_syntax": "258 files; 0 diagnostics",
+    "migration_static": "239 ordered SQL files PASS",
+    "postgresql_runtime": "NOT RUN",
+    "api_integration": "NOT RUN",
+    "browser_e2e": "NOT RUN",
+    "semantic_typecheck_and_build": "NOT RUN"
+  },
+  "open_gaps": [
+    "Supplier/buyer role E2E and tenant IDOR tests",
+    "Inventory availability, allocation and reservation",
+    "Partial shipment, backorder, shortage and return workflows",
+    "Carrier integration and secure proof-of-delivery storage",
+    "GRN, invoice, settlement and accounting integration",
+    "Credit terms, price approvals and order amendment controls",
+    "PostgreSQL migration execution, rollback and trigger tests",
+    "Accessibility, responsive browser testing and operational UAT",
+    "All P533-P536 legal, tax, payment and accounting gates remain open as previously documented"
+  ]
+}

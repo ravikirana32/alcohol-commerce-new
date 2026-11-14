@@ -1,0 +1,103 @@
+{
+  "phase": "P585",
+  "release": "0.585.0-dev",
+  "decision": "NO_GO",
+  "production_approved": false,
+  "live_payments_enabled": false,
+  "offline_alcohol_posting_enabled": false,
+  "outbound_provider_dispatch_enabled": false,
+  "decision_rule": "GO is permitted only when every mandatory gate is PASS with current, independently reviewable evidence and accountable approval.",
+  "gates": [
+    {
+      "id": "G01",
+      "name": "Reproducible production build and semantic typecheck",
+      "owner": "Engineering",
+      "status": "NOT_RUN",
+      "evidence": "CI build log, lockfile, typecheck report and artifact digest"
+    },
+    {
+      "id": "G02",
+      "name": "PostgreSQL clean install and forward migration validation",
+      "owner": "Database Engineering",
+      "status": "NOT_RUN",
+      "evidence": "Clean bootstrap, migration checksums, schema diff and rollback/forward recovery evidence"
+    },
+    {
+      "id": "G03",
+      "name": "Authenticated API and browser/mobile E2E",
+      "owner": "QA",
+      "status": "NOT_RUN",
+      "evidence": "P584 runtime execution records and retained reports"
+    },
+    {
+      "id": "G04",
+      "name": "Tenant, outlet, role and IDOR security acceptance",
+      "owner": "Security",
+      "status": "NOT_RUN",
+      "evidence": "Positive/negative authorization matrix and independent review"
+    },
+    {
+      "id": "G05",
+      "name": "Legal, excise, GST and statutory invoice approval",
+      "owner": "Legal and Tax",
+      "status": "NOT_RUN",
+      "evidence": "Jurisdiction-specific official rules, approved tax packs and signed legal/CA acceptance"
+    },
+    {
+      "id": "G06",
+      "name": "Finance and accounting reconciliation",
+      "owner": "Finance Controller",
+      "status": "NOT_RUN",
+      "evidence": "Sales-to-GL, inventory valuation, settlement, refund, chargeback and period-close reconciliation"
+    },
+    {
+      "id": "G07",
+      "name": "Payment provider certification",
+      "owner": "Payments",
+      "status": "NOT_RUN",
+      "evidence": "Provider sandbox sign-off, webhook replay, refunds, chargebacks and settlement evidence"
+    },
+    {
+      "id": "G08",
+      "name": "Integration provider and egress certification",
+      "owner": "Integration Engineering",
+      "status": "NOT_RUN",
+      "evidence": "SSRF-safe egress review, signed payloads, retry/DLQ tests and provider sandbox acceptance"
+    },
+    {
+      "id": "G09",
+      "name": "Backup, restore, disaster recovery and rollback",
+      "owner": "SRE",
+      "status": "NOT_RUN",
+      "evidence": "Timed restore drill, RPO/RTO evidence, failover and rollback logs"
+    },
+    {
+      "id": "G10",
+      "name": "Performance, load, concurrency and observability",
+      "owner": "SRE",
+      "status": "NOT_RUN",
+      "evidence": "Approved workload results, SLO dashboards, alerts and capacity report"
+    },
+    {
+      "id": "G11",
+      "name": "Device, offline and alcohol posting safety",
+      "owner": "Product and Compliance",
+      "status": "NOT_RUN",
+      "evidence": "Hardware/device acceptance, sync conflict tests and explicit statutory approval for any posting mode"
+    },
+    {
+      "id": "G12",
+      "name": "Pilot, training, support and operational readiness",
+      "owner": "Business Operations",
+      "status": "NOT_RUN",
+      "evidence": "Signed pilot acceptance, training records, support rota, incident playbooks and outlet sign-off"
+    },
+    {
+      "id": "G13",
+      "name": "Release approvals and rollback rehearsal",
+      "owner": "Release Manager",
+      "status": "NOT_RUN",
+      "evidence": "Named accountable approvals, change record, deployment and rollback rehearsal"
+    }
+  ]
+}

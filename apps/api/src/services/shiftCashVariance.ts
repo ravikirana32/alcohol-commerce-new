@@ -1,0 +1,1 @@
+export function calculateCashVariance(expectedMinor:number,countedMinor:number) { if(![expectedMinor,countedMinor].every(Number.isSafeInteger)||expectedMinor<0||countedMinor<0) throw new Error('Invalid cash totals'); return { expectedMinor,countedMinor,varianceMinor:countedMinor-expectedMinor,balanced:countedMinor===expectedMinor }; }

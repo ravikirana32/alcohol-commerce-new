@@ -1,0 +1,2 @@
+// P470: Inventory valuation arithmetic
+export const valueInventoryMinor = (layers:{quantity:number;unitCostMinor:number}[]) => { let total=0; for(const l of layers){if(!Number.isSafeInteger(l.quantity)||l.quantity<0||!Number.isSafeInteger(l.unitCostMinor)||l.unitCostMinor<0)throw new Error('Invalid inventory layer'); total+=l.quantity*l.unitCostMinor;} if(!Number.isSafeInteger(total))throw new Error('Valuation overflow'); return total; };

@@ -1,0 +1,1 @@
+export function retryDelayMs(attempt:number,baseMs=500,maxMs=30000) { if(!Number.isInteger(attempt)||attempt<0||!Number.isFinite(baseMs)||baseMs<1||!Number.isFinite(maxMs)||maxMs<baseMs) throw new Error('Invalid retry policy'); return Math.min(maxMs,baseMs*2**Math.min(attempt,30)); }

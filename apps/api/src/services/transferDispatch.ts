@@ -1,0 +1,1 @@
+export function canDispatchTransfer(s:{status:string;lines:Array<{quantity:number;picked:number}>;fromOutlet:string;toOutlet:string}) { if(s.fromOutlet===s.toOutlet||!s.fromOutlet||!s.toOutlet||s.status!=='APPROVED'||!s.lines.length) return false; return s.lines.every(l=>Number.isSafeInteger(l.quantity)&&l.quantity>0&&l.picked===l.quantity); }

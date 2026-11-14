@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const root=new URL('../',import.meta.url).pathname;
+const migration=fs.readFileSync(root+'apps/api/src/db/256_p580_pos_device_offline_health.sql','utf8');
+const route=fs.readFileSync(root+'apps/api/src/routes/deviceOperations.ts','utf8');
+const sync=fs.readFileSync(root+'apps/api/src/routes/offlineSync.ts','utf8');
+const app=fs.readFileSync(root+'apps/api/src/app.ts','utf8');
+const checks={healthEvidence:/CREATE TABLE IF NOT EXISTS p580_device_health_events/.test(migration),checkpointTable:/CREATE TABLE IF NOT EXISTS p580_offline_sync_checkpoints/.test(migration),trustedDeviceRequired:/status!=='TRUSTED'/.test(route),organisationScopedHealth:/organisation_id=\$1/.test(route),healthPermission:/device:health:read/.test(route)&&/offline:checkpoint:read/.test(route),checkpointUpdatedTransactionally:/p580_offline_sync_checkpoints/.test(sync),checkpointMonotonic:/GREATEST\(p580_offline_sync_checkpoints\.max_seen_sequence/.test(sync),financialPostingStillDisabled:/financialPosting: 'DISABLED'/.test(sync),routeMounted:/deviceOperationsRouter/.test(app)};
+for(const [k,v] of Object.entries(checks))console.log(`${v?'PASS':'FAIL'} ${k}`);
+if(Object.values(checks).some(v=>!v))process.exit(1);
+console.log(`P580 static verification: ${Object.values(checks).filter(Boolean).length}/${Object.keys(checks).length} PASS`);

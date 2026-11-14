@@ -1,0 +1,51 @@
+phase,title,artifact,status
+P451,Canonical release version validation,apps/api/src/services/releaseVersion.ts,source-and-cumulative-smoke-test-delivered
+P452,Environment configuration validation,apps/api/src/services/environmentConfig.ts,source-and-cumulative-smoke-test-delivered
+P453,Typed configuration parsing,apps/api/src/services/configParsing.ts,source-and-cumulative-smoke-test-delivered
+P454,Request correlation identifier policy,apps/api/src/services/correlationId.ts,source-and-cumulative-smoke-test-delivered
+P455,Graceful shutdown state policy,apps/api/src/services/shutdownState.ts,source-and-cumulative-smoke-test-delivered
+P456,Retail cart line validation,apps/api/src/services/retailCartLine.ts,source-and-cumulative-smoke-test-delivered
+P457,Tender allocation exactness,apps/api/src/services/tenderAllocationExact.ts,source-and-cumulative-smoke-test-delivered
+P458,Receipt sequence allocation guard,apps/api/src/services/receiptSequence.ts,source-and-cumulative-smoke-test-delivered
+P459,Refund eligibility policy,apps/api/src/services/refundEligibility.ts,source-and-cumulative-smoke-test-delivered
+P460,Barcode input normalisation,apps/api/src/services/barcodeNormalisation.ts,source-and-cumulative-smoke-test-delivered
+P461,Bar ticket lifecycle transitions,apps/api/src/services/barTicketLifecycle.ts,source-and-cumulative-smoke-test-delivered
+P462,Split bill allocation completeness,apps/api/src/services/splitBillCompleteness.ts,source-and-cumulative-smoke-test-delivered
+P463,Peg measure conversion controls,apps/api/src/services/pegMeasure.ts,source-and-cumulative-smoke-test-delivered
+P464,Open bottle reconciliation,apps/api/src/services/bottleReconciliation.ts,source-and-cumulative-smoke-test-delivered
+P465,Shift close evidence checklist,apps/api/src/services/shiftCloseEvidence.ts,source-and-cumulative-smoke-test-delivered
+P466,Purchase order line validation,apps/api/src/services/purchaseOrderLine.ts,source-and-cumulative-smoke-test-delivered
+P467,Goods receipt over-delivery guard,apps/api/src/services/goodsReceiptOverage.ts,source-and-cumulative-smoke-test-delivered
+P468,Stock transfer receipt variance,apps/api/src/services/transferReceiptVariance.ts,source-and-cumulative-smoke-test-delivered
+P469,Batch expiry sale block,apps/api/src/services/batchExpiryPolicy.ts,source-and-cumulative-smoke-test-delivered
+P470,Inventory valuation arithmetic,apps/api/src/services/inventoryValuation.ts,source-and-cumulative-smoke-test-delivered
+P471,Journal idempotency fingerprint,apps/api/src/services/journalFingerprint.ts,source-and-cumulative-smoke-test-delivered
+P472,India tax invoice minimum fields,apps/api/src/services/taxInvoiceFields.ts,source-and-cumulative-smoke-test-delivered
+P473,Bank reconciliation matching tolerance,apps/api/src/services/bankMatchTolerance.ts,source-and-cumulative-smoke-test-delivered
+P474,Credit note amount cap,apps/api/src/services/creditNoteCap.ts,source-and-cumulative-smoke-test-delivered
+P475,Accounting period close prerequisites,apps/api/src/services/periodClosePrerequisites.ts,source-and-cumulative-smoke-test-delivered
+P476,Portal role capability matrix,apps/api/src/services/portalRoleMatrix.ts,source-and-cumulative-smoke-test-delivered
+P477,Partner onboarding state machine,apps/api/src/services/partnerOnboarding.ts,source-and-cumulative-smoke-test-delivered
+P478,Trade incentive accrual validation,apps/api/src/services/incentiveAccrual.ts,source-and-cumulative-smoke-test-delivered
+P479,Campaign budget guard,apps/api/src/services/campaignBudget.ts,source-and-cumulative-smoke-test-delivered
+P480,Customer consent purpose gate,apps/api/src/services/consentPurpose.ts,source-and-cumulative-smoke-test-delivered
+P481,Offline transaction eligibility policy,apps/api/src/services/offlineEligibility.ts,source-and-cumulative-smoke-test-delivered
+P482,Offline event deduplication key,apps/api/src/services/offlineDedupe.ts,source-and-cumulative-smoke-test-delivered
+P483,Offline conflict resolution safety,apps/api/src/services/offlineConflictSafety.ts,source-and-cumulative-smoke-test-delivered
+P484,Device enrollment challenge validation,apps/api/src/services/deviceEnrollment.ts,source-and-cumulative-smoke-test-delivered
+P485,Offline sync batch validation,apps/api/src/services/syncBatch.ts,source-and-cumulative-smoke-test-delivered
+P486,Payment webhook signature decision,apps/api/src/services/webhookSignature.ts,source-and-cumulative-smoke-test-delivered
+P487,Webhook replay window guard,apps/api/src/services/webhookReplayWindow.ts,source-and-cumulative-smoke-test-delivered
+P488,Provider circuit breaker policy,apps/api/src/services/providerCircuitBreaker.ts,source-and-cumulative-smoke-test-delivered
+P489,Printer job retry scheduling,apps/api/src/services/printerRetry.ts,source-and-cumulative-smoke-test-delivered
+P490,Large report export page guard,apps/api/src/services/exportPageGuard.ts,source-and-cumulative-smoke-test-delivered
+P491,Security response header policy,apps/api/src/services/securityHeaders.ts,source-and-cumulative-smoke-test-delivered
+P492,Secret rotation overlap policy,apps/api/src/services/secretRotation.ts,source-and-cumulative-smoke-test-delivered
+P493,Audit retention eligibility,apps/api/src/services/auditRetention.ts,source-and-cumulative-smoke-test-delivered
+P494,Licence evidence expiry policy,apps/api/src/services/licenceEvidenceExpiry.ts,source-and-cumulative-smoke-test-delivered
+P495,Release evidence matrix completeness,apps/api/src/services/releaseEvidenceMatrix.ts,source-and-cumulative-smoke-test-delivered
+P496,Migration checksum manifest validation,apps/api/src/services/migrationManifest.ts,source-and-cumulative-smoke-test-delivered
+P497,Backup restore drill acceptance,apps/api/src/services/restoreDrill.ts,source-and-cumulative-smoke-test-delivered
+P498,Service-level objective evaluation,apps/api/src/services/sloEvaluation.ts,source-and-cumulative-smoke-test-delivered
+P499,Pilot operational acceptance,apps/api/src/services/pilotOperations.ts,source-and-cumulative-smoke-test-delivered
+P500,Final commercial release evidence gate,apps/api/src/services/finalReleaseEvidence.ts,source-and-cumulative-smoke-test-delivered

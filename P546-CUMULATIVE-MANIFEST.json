@@ -1,0 +1,31 @@
+{
+  "phase": "P546",
+  "version": "0.546.0-dev",
+  "baseline": "P545",
+  "title": "Database Integrity & Role-Based Demo User Seeder",
+  "status": "developer-preview-runtime-evidence-pending",
+  "artifacts": [
+    "apps/api/src/db/seed-demo-users.ts",
+    "scripts/verify-p546.mjs",
+    "P546-DB-INTEGRITY-CHECK.sql",
+    "P546-RUNBOOK.md",
+    "P546-IMPLEMENTATION.md",
+    "P546-TEST-REPORT.md",
+    "P546-STATUS.md",
+    "P546-RELEASE-NOTES.md",
+    "P546-CUMULATIVE-MANIFEST.json",
+    "P513-P545-Cumulative-Gap-Register.md"
+  ],
+  "demo_seeder": {
+    "enabled_by_default": false,
+    "production_allowed": false,
+    "role_source": "role_permissions distinct role_code",
+    "password_hash": "bcrypt cost 12",
+    "password_source": "DEMO_SEED_PASSWORD environment variable; 14-128 characters",
+    "platform_admin_has_tenant_membership": false
+  },
+  "production_go_live": false,
+  "live_payment_capture_enabled": false,
+  "offline_alcohol_posting_enabled": false,
+  "outbound_provider_dispatch_enabled": false
+}

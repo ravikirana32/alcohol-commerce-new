@@ -1,0 +1,27 @@
+{
+  "release": "0.535.0-dev",
+  "phase": "P535",
+  "baseline": "P534 0.534.0-dev",
+  "archive": "Alcohol-Commerce-Platform-P535-Cumulative-v0.535.0-dev.zip",
+  "delivery_status": "BACKEND DEVELOPER PREVIEW IMPLEMENTED; RUNTIME AND EXTERNAL ACCEPTANCE OPEN",
+  "production_approved": false,
+  "live_payment_capture_enabled": false,
+  "acceptance": [
+    "P535 static invariants 14/14 PASS",
+    "TypeScript syntax transpilation: 255 files, zero syntax diagnostics",
+    "237 ordered SQL migration files pass static validation",
+    "HMAC SHA-256 known-path primitive self-test PASS"
+  ],
+  "blocked": [
+    "PostgreSQL clean install, P534 upgrade, migration 237 execution and rollback/reapply",
+    "Provider-specific webhook certification, replay protection and event-to-payment mapping",
+    "Retail/bar checkout automatic tender allocation integration",
+    "Cash shift close variance workflow and approval",
+    "Refund/split-tender routing, chargebacks, MDR and automated bank statement ingestion",
+    "Admin UI and browser acceptance",
+    "Tenant IDOR, concurrency, permissions, API integration, semantic typecheck and Playwright",
+    "P534 legal/tax and runtime blockers",
+    "P536 automatic double-entry accounting journals"
+  ],
+  "archive_entries": 1372
+}

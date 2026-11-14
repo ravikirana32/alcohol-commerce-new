@@ -1,0 +1,1 @@
+export function isRateLimited(input:{count:number;limit:number;windowResetAt:number;now:number}) { if(![input.count,input.limit,input.windowResetAt,input.now].every(Number.isFinite)||input.count<0||input.limit<1) throw new Error('Invalid rate limit state'); return input.now<input.windowResetAt && input.count>=input.limit; }

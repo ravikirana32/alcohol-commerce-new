@@ -1,0 +1,2 @@
+export type SyncEnvelope={operationId:string;outletId:string;createdAt:string;kind:'RETAIL_SALE'|'BAR_CHECKOUT';payload:unknown};
+export function validateSyncEnvelope(x:SyncEnvelope):void { if(!x.operationId||x.operationId.length>128||!x.outletId||!Number.isFinite(Date.parse(x.createdAt))) throw new Error('Invalid sync envelope identity'); if(!['RETAIL_SALE','BAR_CHECKOUT'].includes(x.kind)) throw new Error('Unsupported sync operation'); }

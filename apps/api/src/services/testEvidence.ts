@@ -1,0 +1,1 @@
+export function evaluateTestEvidence(items:{journey:string;status:'PASS'|'FAIL'|'NOT_RUN';evidenceUri?:string}[]){if(!items.length)throw new Error('Test evidence is empty');const missing=items.filter(x=>x.status!=='PASS'||!x.evidenceUri);return {passed:items.length-missing.length,total:items.length,complete:missing.length===0,missing:missing.map(x=>x.journey)};}

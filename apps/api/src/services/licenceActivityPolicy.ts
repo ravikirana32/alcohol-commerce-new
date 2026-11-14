@@ -1,0 +1,3 @@
+export type LicenceReview='PENDING'|'VERIFIED'|'REJECTED'|'SUSPENDED';
+export function mayOperate(input:{review:LicenceReview;validFrom:string;validUntil:string;activity:string;permittedActivities:string[];at:string}){const at=Date.parse(input.at),from=Date.parse(input.validFrom),until=Date.parse(input.validUntil);if(![at,from,until].every(Number.isFinite))throw new Error('Invalid licence dates');return input.review==='VERIFIED'&&at>=from&&at<=until&&input.permittedActivities.includes(input.activity);}
+// This is a software gate only; it does not interpret or certify statutory licence classes.

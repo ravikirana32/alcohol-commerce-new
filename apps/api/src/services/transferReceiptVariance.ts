@@ -1,0 +1,2 @@
+// P468: Stock transfer receipt variance
+export const calculateTransferReceiptVariance = (dispatched:number,received:number) => { if(!Number.isSafeInteger(dispatched)||!Number.isSafeInteger(received)||dispatched<0||received<0) throw new Error('Invalid transfer quantity'); return {variance:received-dispatched,short:Math.max(0,dispatched-received),over:Math.max(0,received-dispatched),matched:received===dispatched}; };

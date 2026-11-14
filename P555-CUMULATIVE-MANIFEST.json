@@ -1,0 +1,34 @@
+{
+  "phase": "P555",
+  "version": "0.555.0-dev",
+  "baseline": "P554 cumulative",
+  "status": "developer-preview",
+  "scope": "real JWT/session-backed API authorization test harness",
+  "harness": {
+    "script": "scripts/run-p555-authenticated-api-matrix.mjs",
+    "routeMethods": ["GET", "HEAD"],
+    "authentication": "real API login and bearer JWT",
+    "sessionRevocation": "logout followed by /api/auth/me 401",
+    "credentials": "runtime environment only; never stored in source"
+  },
+  "verifiers": {
+    "p555Static": "10/10 PASS",
+    "p554Static": "10/10 PASS",
+    "p553Static": "10/10 PASS",
+    "p552RouteParity": "8/8 PASS",
+    "p551WorkspaceGuards": "43/43 PASS",
+    "p550ActionAuthorization": "17/17 PASS",
+    "p549PermissionMatrix": "11/11 PASS",
+    "p548NavigationAuthorization": "12/12 PASS",
+    "p547Rbac": "11/11 PASS"
+  },
+  "typescriptSyntax": { "files": 270, "diagnostics": 0 },
+  "sqlMigrationStatic": { "files": 242, "status": "PASS_STATIC_ONLY" },
+  "runtime": {
+    "authenticatedApiMatrix": "NOT_RUN_CONFIGURATION_NOT_SUPPLIED",
+    "livePostgres": "OPEN",
+    "vitestAndPlaywright": "NOT_RUN",
+    "tenantOutletIdor": "OPEN"
+  },
+  "productionDecision": "NO-GO"
+}

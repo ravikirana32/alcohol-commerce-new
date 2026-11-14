@@ -1,0 +1,1 @@
+export function splitBill(totalMinor:number,parts:number[]){if(!Number.isSafeInteger(totalMinor)||totalMinor<0||!parts.length||parts.some(x=>!Number.isSafeInteger(x)||x<0))throw new Error('Invalid split');if(parts.reduce((a,b)=>a+b,0)!==totalMinor)throw new Error('Split does not equal bill total');return parts.map((amountMinor,index)=>({index,amountMinor}));}

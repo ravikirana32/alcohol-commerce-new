@@ -1,0 +1,1 @@
+export function requiresWastageApproval(input:{quantityMl:number;reason:string;thresholdMl:number;approvedBy?:string}) { if(!Number.isSafeInteger(input.quantityMl)||input.quantityMl<=0||!input.reason.trim()||!Number.isSafeInteger(input.thresholdMl)||input.thresholdMl<0) throw new Error('Invalid wastage record'); return input.quantityMl>input.thresholdMl && !input.approvedBy; }

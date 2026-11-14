@@ -1,0 +1,1 @@
+export function agePayable(dueDate:string,asOf:string) { const due=Date.parse(dueDate), at=Date.parse(asOf); if(!Number.isFinite(due)||!Number.isFinite(at)) throw new Error('Invalid aging date'); return Math.max(0,Math.floor((at-due)/86400000)); }

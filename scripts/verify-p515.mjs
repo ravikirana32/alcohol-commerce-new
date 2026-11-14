@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const read=(p)=>fs.readFileSync(p,'utf8');
+const version=read('VERSION').trim();assert.match(version,/^0\.\d+\.0-dev$/);
+for(const f of ['package.json','apps/api/package.json','apps/web/package.json'])assert.equal(JSON.parse(read(f)).version,version);
+const route=read('apps/api/src/routes/catalogue.ts'),app=read('apps/api/src/app.ts'),migration=read('apps/api/src/db/218_p515_catalogue_pricing.sql'),ui=read('apps/web/src/components/CatalogueWorkspace.tsx'),shell=read('apps/web/src/App.tsx');
+for(const endpoint of ["'/catalogue/categories'","'/catalogue/brands'","'/catalogue/products'","'/catalogue/products/export'","'/catalogue/products/import'","'/catalogue/products/:productId/variants'","'/catalogue/variants/:variantId'","'/outlets/:outletId/prices/history'"])assert.ok(route.includes(endpoint),`missing ${endpoint}`);
+for(const guard of ["authenticate","requireOrgScope","requirePermission('catalogue:manage')","requirePermission('catalogue:read')"])assert.ok(route.includes(guard),`missing access guard ${guard}`);
+for(const invariant of ['product_brands','product_variants','uq_products_org_barcode','uq_product_variants_org_barcode','fk_products_brand_org','fk_products_category_org','idx_outlet_prices_history'])assert.ok(migration.includes(invariant),`missing migration invariant ${invariant}`);
+for(const flow of ['createProduct','editProduct','createNamed','exportProducts','importProducts','toggleStatus','showVariants','addVariant','archiveVariant','savePrice','showPriceHistory'])assert.ok(ui.includes(flow),`missing UI workflow ${flow}`);
+assert.ok(shell.includes('CatalogueWorkspace'));assert.ok(app.indexOf("app.use('/api/v1', catalogueRouter)")<app.indexOf("app.use('/api/v1', operationsRouter)"),'catalogue routes must precede legacy routes');
+console.log('P515 static acceptance: PASS');
+console.log('Verified: categories, brands, product lifecycle, org-scoped uniqueness, variants, JSON import/export, outlet price history and catalogue UI wiring.');
+console.log('Not represented: live PostgreSQL migration, dependency-backed typecheck/build, API integration or browser E2E.');

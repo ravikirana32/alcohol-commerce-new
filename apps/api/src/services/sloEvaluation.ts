@@ -1,0 +1,2 @@
+// P498: Service-level objective evaluation
+export const evaluateServiceLevelObjective = (x:{goodEvents:number;totalEvents:number;targetPercent:number}) => { if(!Number.isSafeInteger(x.goodEvents)||!Number.isSafeInteger(x.totalEvents)||x.totalEvents<=0||x.goodEvents<0||x.goodEvents>x.totalEvents||x.targetPercent<0||x.targetPercent>100)throw new Error('Invalid SLO sample'); const actual=x.goodEvents/x.totalEvents*100; return {actualPercent:actual,met:actual>=x.targetPercent,errorBudgetEvents:Math.floor(x.totalEvents*(1-x.targetPercent/100))}; };

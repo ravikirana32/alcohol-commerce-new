@@ -1,0 +1,1 @@
+export function maskSensitiveValue(value:string,visible=4) { if(!Number.isInteger(visible)||visible<0||visible>value.length) throw new Error('Invalid mask visibility'); if(value.length<=visible) return '*'.repeat(value.length); return '*'.repeat(value.length-visible)+value.slice(-visible); }

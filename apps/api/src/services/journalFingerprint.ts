@@ -1,0 +1,2 @@
+// P471: Journal idempotency fingerprint
+export const journalFingerprint = (lines:{accountId:string;debitMinor:number;creditMinor:number}[]) => { if(!lines.length||lines.some(l=>!l.accountId.trim()||!Number.isSafeInteger(l.debitMinor)||!Number.isSafeInteger(l.creditMinor)||l.debitMinor<0||l.creditMinor<0||(l.debitMinor>0&&l.creditMinor>0))) throw new Error('Invalid journal lines'); return lines.map(l=>`${l.accountId}:${l.debitMinor}:${l.creditMinor}`).sort().join('|'); };

@@ -1,0 +1,2 @@
+export type ReturnRequest={reason:string;actorId:string;amountMinor:number;requiresApproval:boolean;approvedBy?:string};
+export function assertReturnAllowed(r:ReturnRequest):void { if(!r.reason.trim()||!r.actorId.trim()||!Number.isSafeInteger(r.amountMinor)||r.amountMinor<=0) throw new Error('Return requires actor, reason and positive amount'); if(r.requiresApproval&&!r.approvedBy) throw new Error('Return requires an approver'); if(r.approvedBy===r.actorId&&r.requiresApproval) throw new Error('Requester cannot approve own return'); }

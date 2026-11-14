@@ -1,0 +1,28 @@
+{
+  "release": "0.536.0-dev",
+  "phase": "P536",
+  "baseline": "P535 0.535.0-dev",
+  "archive": "Alcohol-Commerce-Platform-P536-Cumulative-v0.536.0-dev.zip",
+  "delivery_status": "DEVELOPER PREVIEW; PRODUCTION ACCEPTANCE NOT ESTABLISHED",
+  "production_approved": false,
+  "statutory_rates_seeded": false,
+  "live_payment_capture_enabled": false,
+  "migration_count": 238,
+  "verification": {
+    "p536_static": "15/15 PASS",
+    "p535_regression_static": "14/14 PASS",
+    "typescript_syntax": "257 files; 0 diagnostics",
+    "migration_static": "238 ordered SQL files PASS; PostgreSQL execution not run"
+  },
+  "open_gates": [
+    "Trusted source adapters from checkout, refund, GRN, inventory and P535 settlement",
+    "PostgreSQL clean install/upgrade/rollback and runtime constraints",
+    "API integration, tenant isolation, permissions, concurrency and failure injection",
+    "Dependency-backed semantic typecheck, unit tests and browser E2E",
+    "Inventory valuation and cost-layer engine",
+    "Reversal approval and reversal journal generation",
+    "General ledger, P&L, balance sheet, cash flow and tax reports",
+    "Qualified accountant/CA and legal approval",
+    "Carry-forward P534/P535/P538 external and runtime blockers"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "phase": "P543",
+  "release": "0.543.0-dev",
+  "baseline": "P542",
+  "delivery_status": "RELEASE GOVERNANCE AND FAIL-CLOSED STATIC GATE EVALUATOR ADDED; PRODUCTION NO-GO",
+  "production_approved": false,
+  "live_payments_enabled": false,
+  "offline_alcohol_posting_enabled": false,
+  "outbound_provider_dispatch_enabled": false,
+  "release_gate_count": 14,
+  "release_gate_pass_count": 0,
+  "release_decision": "NO_GO",
+  "static_verifier": "scripts/verify-p543-release-readiness.mjs",
+  "runtime_tests": "NOT_RUN",
+  "open_gates": [
+    "build/dependency/semantic typecheck",
+    "PostgreSQL migration install/upgrade/rollback",
+    "Playwright runtime and authenticated business journeys",
+    "tenant isolation and penetration testing",
+    "Karnataka excise/GST legal approval",
+    "payment provider certification and reconciliation",
+    "accounting and inventory valuation reconciliation",
+    "hardware attestation and secure time",
+    "integration egress/adapters/retry",
+    "backup restore/disaster recovery/resilience",
+    "observability and incident response",
+    "business UAT/training/pilot acceptance",
+    "production environment/secrets readiness",
+    "release rollback rehearsal/change approval"
+  ],
+  "archive_entries_excluding_directory_entries": 1461
+}

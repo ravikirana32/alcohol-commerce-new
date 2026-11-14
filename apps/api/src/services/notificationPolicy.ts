@@ -1,0 +1,1 @@
+export function shouldNotify(p:{enabled:boolean;channel:'PUSH'|'SMS'|'EMAIL';quietStart?:string;quietEnd?:string},localTime:string){if(!p.enabled)return false;if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(localTime))throw new Error('Invalid local time');if(!p.quietStart||!p.quietEnd)return true;const n=localTime.slice(0,5),s=p.quietStart,e=p.quietEnd;return s<e?!(n>=s&&n<e):!(n>=s||n<e);}

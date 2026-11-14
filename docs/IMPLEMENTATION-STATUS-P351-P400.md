@@ -1,0 +1,54 @@
+# P351–P400 Implementation Status
+
+All 50 phases deliver source-level domain components and release-gate helpers. They do not by themselves prove full UI/API/database/provider integration or production readiness.
+
+- P351: Retail cart validation — source component delivered: `apps/web/src/pos/retailCartRules.ts`.
+- P352: Barcode input normalisation — source component delivered: `apps/web/src/pos/barcodeRules.ts`.
+- P353: Tender allocation and balance — source component delivered: `apps/api/src/services/tenderAllocation.ts`.
+- P354: Receipt rendering safety — source component delivered: `apps/api/src/services/receiptSafety.ts`.
+- P355: Return and refund policy — source component delivered: `apps/api/src/services/returnWorkflow.ts`.
+- P356: Bar order state machine — source component delivered: `apps/api/src/services/barOrderWorkflow.ts`.
+- P357: Peg measure controls — source component delivered: `apps/api/src/services/pegMeasurePolicy.ts`.
+- P358: Wastage and complimentary approval — source component delivered: `apps/api/src/services/stockLossApproval.ts`.
+- P359: Split bill allocation — source component delivered: `apps/api/src/services/splitBillAllocation.ts`.
+- P360: Shift closing reconciliation — source component delivered: `apps/api/src/services/shiftClosePolicy.ts`.
+- P361: Purchase order lifecycle — source component delivered: `apps/api/src/services/purchaseOrderPolicy.ts`.
+- P362: Supplier invoice validation — source component delivered: `apps/api/src/services/supplierInvoicePolicy.ts`.
+- P363: Stock transfer state and quantities — source component delivered: `apps/api/src/services/stockTransferPolicy.ts`.
+- P364: Batch and expiry controls — source component delivered: `apps/api/src/services/batchExpiryPolicy.ts`.
+- P365: Inventory valuation — source component delivered: `apps/api/src/services/inventoryValuation.ts`.
+- P366: Chart of accounts validation — source component delivered: `apps/api/src/services/chartOfAccounts.ts`.
+- P367: Tax calculation rounding — source component delivered: `apps/api/src/services/taxCalculation.ts`.
+- P368: Payables and receivables balance — source component delivered: `apps/api/src/services/openBalances.ts`.
+- P369: Accounting export validation — source component delivered: `apps/api/src/integrations/accountingExport.ts`.
+- P370: Accounting period close guard — source component delivered: `apps/api/src/services/periodClosePolicy.ts`.
+- P371: Platform administration boundary — source component delivered: `apps/api/src/services/platformAdminPolicy.ts`.
+- P372: Brand campaign eligibility — source component delivered: `apps/api/src/services/campaignEligibility.ts`.
+- P373: Distributor fulfilment quantities — source component delivered: `apps/api/src/services/distributorFulfilmentPolicy.ts`.
+- P374: Trade incentive accrual — source component delivered: `apps/api/src/services/tradeIncentiveAccrual.ts`.
+- P375: Multi-outlet report aggregation — source component delivered: `apps/api/src/services/outletAggregation.ts`.
+- P376: Offline queue ordering — source component delivered: `apps/web/src/offline/queueOrdering.ts`.
+- P377: Offline sync envelope validation — source component delivered: `apps/api/src/services/offlineEnvelope.ts`.
+- P378: Offline conflict resolution policy — source component delivered: `apps/api/src/services/offlineResolution.ts`.
+- P379: Mobile device registration policy — source component delivered: `apps/api/src/services/deviceRegistration.ts`.
+- P380: Notification preference enforcement — source component delivered: `apps/api/src/services/notificationPolicy.ts`.
+- P381: Payment adapter contract — source component delivered: `apps/api/src/integrations/paymentAdapter.ts`.
+- P382: Hardware adapter capability contract — source component delivered: `apps/api/src/integrations/hardwareCapabilities.ts`.
+- P383: Sales dashboard metric aggregation — source component delivered: `apps/api/src/services/salesMetrics.ts`.
+- P384: Partner performance analytics — source component delivered: `apps/api/src/services/partnerMetrics.ts`.
+- P385: Report export safety — source component delivered: `apps/api/src/services/reportExport.ts`.
+- P386: Licence activity policy mapping — source component delivered: `apps/api/src/services/licenceActivityPolicy.ts`.
+- P387: Excise reporting record validation — source component delivered: `apps/api/src/services/exciseRecord.ts`.
+- P388: Security policy baseline — source component delivered: `apps/api/src/services/securityPolicy.ts`.
+- P389: Penetration finding release gate — source component delivered: `apps/api/src/services/securityFindings.ts`.
+- P390: Privacy retention policy — source component delivered: `apps/api/src/services/retentionPolicy.ts`.
+- P391: Test evidence completeness — source component delivered: `apps/api/src/services/testEvidence.ts`.
+- P392: Critical journey coverage — source component delivered: `apps/api/src/services/journeyCoverage.ts`.
+- P393: Load test threshold evaluation — source component delivered: `apps/api/src/services/loadTestGate.ts`.
+- P394: Backup restore evidence gate — source component delivered: `apps/api/src/services/backupEvidence.ts`.
+- P395: Deployment readiness gate — source component delivered: `apps/api/src/services/deploymentGate.ts`.
+- P396: Staging data quality validation — source component delivered: `apps/api/src/services/stagingData.ts`.
+- P397: Pilot outlet eligibility — source component delivered: `apps/api/src/services/pilotEligibility.ts`.
+- P398: Daily payment and stock reconciliation — source component delivered: `apps/api/src/services/dailyReconciliation.ts`.
+- P399: Pilot closure and training gate — source component delivered: `apps/api/src/services/pilotClosure.ts`.
+- P400: General availability release gate — source component delivered: `apps/api/src/services/generalAvailabilityGate.ts`.

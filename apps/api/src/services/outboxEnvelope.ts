@@ -1,0 +1,1 @@
+export function validateOutboxEnvelope(e:{eventId:string;eventType:string;aggregateId:string;occurredAt:string;payload:unknown}) { if(!e.eventId||!e.aggregateId||!/^[A-Z][A-Z0-9_.]{2,79}$/.test(e.eventType)||!Number.isFinite(Date.parse(e.occurredAt))||e.payload===undefined) throw new Error('Invalid outbox envelope'); return {...e,schemaVersion:1 as const}; }

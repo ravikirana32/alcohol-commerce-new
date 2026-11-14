@@ -1,0 +1,1 @@
+export function assertPostableAccount(a:{active:boolean;postable:boolean;type:string}) { if(!a.active||!a.postable||!['ASSET','LIABILITY','EQUITY','INCOME','EXPENSE'].includes(a.type)) throw new Error('Account is not postable'); return true; }

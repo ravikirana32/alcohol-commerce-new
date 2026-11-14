@@ -1,0 +1,1 @@
+export function validateBackupArtifact(b:{createdAt:string;sizeBytes:number;sha256:string;database:string}) { if(!Number.isFinite(Date.parse(b.createdAt))||!Number.isSafeInteger(b.sizeBytes)||b.sizeBytes<1||!/^[a-f0-9]{64}$/i.test(b.sha256)||!b.database) throw new Error('Invalid backup artifact'); return true; }

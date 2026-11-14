@@ -1,0 +1,1 @@
+export function assertPeriodOpen(p:{start:string;end:string;status:'OPEN'|'CLOSED'|'LOCKED'},transactionDate:string) { const d=Date.parse(transactionDate),s=Date.parse(p.start),e=Date.parse(p.end); if(![d,s,e].every(Number.isFinite)||s>e||d<s||d>e||p.status!=='OPEN') throw new Error('Accounting period is not open'); return true; }

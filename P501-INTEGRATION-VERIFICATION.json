@@ -1,0 +1,69 @@
+{
+  "version": "0.504.0-dev",
+  "commands": 10,
+  "passed": 10,
+  "failed": 0,
+  "results": [
+    {
+      "command": "node scripts/verify-retail-checkout.mjs",
+      "ok": true,
+      "stdout": "PASS fingerprint migration\nPASS canonical SHA-256 fingerprint\nPASS idempotency conflict response\nPASS legacy request fingerprint reconstruction\nPASS server-side price resolution\nPASS tenant-scoped stock update\nPASS retail audit event\nPASS scoped sale detail route\nPASS UI retries exact pending request\nPASS retail multi-line cart submitted\nPASS split tenders submitted and balanced\nPASS printable receipt preview\nPASS bar multi-line ticket UI\nPASS bar checkout request fingerprint\nPASS bar idempotency mismatch conflict\nPASS definitive 4xx clears pending retry while uncertain failures retain it\nRetail checkout integration checks: 16/16 passed",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/verify-shift-workspace.mjs",
+      "ok": true,
+      "stdout": "PASS current open shift endpoint\nPASS shift scoped by organisation and outlet\nPASS cash expected includes opening and cash tenders\nPASS cash movement create endpoint\nPASS cash movement list endpoint\nPASS shift UI opens shift\nPASS shift UI records cash movements\nPASS shift UI closes and displays variance\nPASS shift management navigation\nShift integration checks: 9/9 passed",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/verify-retail-sales-refunds.mjs",
+      "ok": true,
+      "stdout": "PASS sales list endpoint\nPASS sale detail endpoint includes refunds\nPASS refund endpoint locks sale row\nPASS refund capped at remaining sale value\nPASS refund creates audit event\nPASS sales UI loads list and details\nPASS refund UI submits reason and method\nPASS restock requires explicit checkbox\nPASS navigation exposes sales refunds\nRetail sales/refund UI checks: 9/9 passed",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/verify-bar-ticket-refunds.mjs",
+      "ok": true,
+      "stdout": "PASS bar ticket list scoped by organisation\nPASS bar ticket detail scoped by organisation\nPASS ticket detail includes refunds\nPASS bar refund API locks ticket\nPASS bar refund capped at remaining amount\nPASS bar read permission seeded\nPASS bar tickets UI lists and loads detail\nPASS bar refund UI submits refund request\nPASS navigation exposes bar ticket refunds\nBar ticket/refund checks: 9/9 passed",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/verify-inventory-workspace.mjs",
+      "ok": true,
+      "stdout": "PASS stock receipt endpoint is transaction-scoped\nPASS stock balance endpoint organisation-scoped\nPASS stock adjustment prevents negative balance\nPASS inventory UI loads outlet balances\nPASS inventory UI loads catalogue products\nPASS inventory UI posts receipts\nPASS inventory UI posts adjustments\nPASS inventory navigation exposed\nInventory integration checks: 8/8 passed",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/check-typescript-syntax.mjs",
+      "ok": true,
+      "stdout": "TypeScript syntax transpilation: 217 files, 0 diagnostics",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/verify-p401-p450-invariants.cjs",
+      "ok": true,
+      "stdout": "Cumulative P401-P450 checks: 50/50 passed",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/verify-p451-p500-invariants.cjs",
+      "ok": true,
+      "stdout": "Cumulative P451-P500 invariant checks: 50/50 passed",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/verify-release-gate.mjs",
+      "ok": true,
+      "stdout": "Release gate policy checks passed: 2/2",
+      "stderr": ""
+    },
+    {
+      "command": "python3 scripts/verify-migrations.py",
+      "ok": true,
+      "stdout": "MIGRATION STATIC CHECK PASSED: 214 ordered SQL files; early phase register precedes P151/P176 seed migrations\nNOTE: static-only; PostgreSQL clean-install/upgrade execution is still required.",
+      "stderr": ""
+    }
+  ],
+  "productionReady": false
+}

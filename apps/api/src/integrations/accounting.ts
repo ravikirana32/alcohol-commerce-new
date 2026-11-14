@@ -1,0 +1,3 @@
+export type AccountingJournalLine={date:string;accountCode:string;debitMinor:number;creditMinor:number;reference:string};
+const csv=(s:string)=>`"${s.replace(/"/g,'""')}"`;
+export function accountingCsv(lines:AccountingJournalLine[]):string { for(const l of lines) if(!/^\d{4}-\d{2}-\d{2}$/.test(l.date)||!l.accountCode||!l.reference||!Number.isSafeInteger(l.debitMinor)||!Number.isSafeInteger(l.creditMinor)||l.debitMinor<0||l.creditMinor<0||((l.debitMinor===0)===(l.creditMinor===0))) throw new Error('Invalid accounting journal line'); return ['date,account_code,debit_minor,credit_minor,reference',...lines.map(l=>[l.date,l.accountCode,l.debitMinor,l.creditMinor,l.reference].map(x=>csv(String(x))).join(','))].join('\n'); }

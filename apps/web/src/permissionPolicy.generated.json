@@ -1,0 +1,107 @@
+{
+  "navigation": {
+    "Retail POS": [
+      "retail:billing",
+      "retail:sell",
+      "retail:manage"
+    ],
+    "Bar POS": [
+      "bar:billing",
+      "bar:sell",
+      "bar:manage"
+    ],
+    "Shift Management": [
+      "shift:read",
+      "shift:manage"
+    ],
+    "Sales & Refunds": [
+      "retail:read",
+      "retail:billing",
+      "retail:refund"
+    ],
+    "Bar Tickets & Refunds": [
+      "bar:read",
+      "bar:billing",
+      "bar:refund"
+    ],
+    "Tables & KOT": [
+      "bar:read",
+      "bar:sell",
+      "bar:manage"
+    ],
+    "Inventory Control": [
+      "inventory:read",
+      "inventory:manage",
+      "inventory:adjust"
+    ],
+    "Organisation & Team": [
+      "organisation:read",
+      "organisation:manage",
+      "user:read",
+      "user:manage"
+    ],
+    "Products": [
+      "catalogue:read",
+      "catalogue:manage"
+    ],
+    "Inventory": [
+      "inventory:read",
+      "inventory:manage"
+    ],
+    "Procurement": [
+      "procurement:read",
+      "procurement:manage"
+    ],
+    "Offline & Devices": [
+      "device:read",
+      "device:manage"
+    ],
+    "Offline Reconciliation": [
+      "offline:read",
+      "offline:review",
+      "offline:manage",
+      "offline:ledger-read"
+    ],
+    "Brands": [
+      "brand:read",
+      "brand:manage"
+    ],
+    "Distributors": [
+      "distributor:read",
+      "distributor:manage",
+      "distribution:manage"
+    ],
+    "Trade Partners": [
+      "trade:read",
+      "trade:manage",
+      "trade:visit"
+    ],
+    "Reports": [
+      "reports:read",
+      "analytics:read",
+      "brand:analytics:read"
+    ],
+    "Compliance": [
+      "excise:read",
+      "excise:evaluate",
+      "licence:read",
+      "licence:manage"
+    ],
+    "Tax & Pricing": [
+      "tax:read",
+      "tax:manage-prices",
+      "tax:manage-products"
+    ],
+    "Finance & Accounting": [
+      "finance:read",
+      "finance:view",
+      "finance:manage"
+    ],
+    "Settings": [
+      "platform:manage",
+      "organisation:manage",
+      "user:manage",
+      "ops:manage"
+    ]
+  }
+}

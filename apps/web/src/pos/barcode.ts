@@ -1,0 +1,1 @@
+export function normalizeBarcode(raw:string):string { const value=raw.trim().replace(/[\r\n\t]/g,''); if(!/^[0-9A-Za-z-]{4,64}$/.test(value)) throw new Error('Invalid barcode format'); return value; }

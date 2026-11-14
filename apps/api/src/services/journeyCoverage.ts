@@ -1,0 +1,1 @@
+export function criticalJourneyCoverage(required:string[],executed:string[]){const done=new Set(executed);const missing=required.filter(x=>!done.has(x));return {required:required.length,executed:required.length-missing.length,percent:required.length?Math.round((required.length-missing.length)/required.length*100):100,missing};}

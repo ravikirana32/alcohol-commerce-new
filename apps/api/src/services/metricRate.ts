@@ -1,0 +1,1 @@
+export function calculateRate(numerator:number,denominator:number,precision=2) { if(!Number.isFinite(numerator)||!Number.isFinite(denominator)||denominator<0||!Number.isInteger(precision)||precision<0||precision>6) throw new Error('Invalid metric inputs'); if(denominator===0) return null; return Number((numerator/denominator*100).toFixed(precision)); }

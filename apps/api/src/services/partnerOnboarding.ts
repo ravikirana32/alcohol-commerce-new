@@ -1,0 +1,2 @@
+// P477: Partner onboarding state machine
+export const canAdvancePartnerOnboarding = (from:string,to:string) => { const transitions:Record<string,string[]>={DRAFT:['SUBMITTED'],SUBMITTED:['DOCUMENT_REVIEW','REJECTED'],DOCUMENT_REVIEW:['VERIFIED','REJECTED','MORE_INFO'],MORE_INFO:['SUBMITTED'],VERIFIED:['ACTIVE','SUSPENDED'],ACTIVE:['SUSPENDED'],SUSPENDED:['ACTIVE']}; return (transitions[from]??[]).includes(to); };

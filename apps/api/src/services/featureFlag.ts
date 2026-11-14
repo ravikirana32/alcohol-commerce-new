@@ -1,0 +1,1 @@
+export function isFeatureEnabled(flags:Record<string,boolean>,name:string,defaultValue=false) { if(!/^[a-z][a-z0-9_.-]{1,63}$/.test(name)) throw new Error('Invalid feature flag name'); return Object.prototype.hasOwnProperty.call(flags,name)?flags[name]===true:defaultValue===true; }

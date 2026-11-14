@@ -1,0 +1,2 @@
+export type PaymentIntent={id:string;amountMinor:number;currency:'INR';status:'CREATED'|'PENDING'|'SUCCEEDED'|'FAILED'};
+export function validatePaymentCallback(p:{intentId:string;amountMinor:number;currency:string;providerReference:string;signatureValid:boolean}){if(!p.signatureValid)throw new Error('Payment callback signature invalid');if(!p.intentId||!p.providerReference||p.currency!=='INR'||!Number.isSafeInteger(p.amountMinor)||p.amountMinor<=0)throw new Error('Invalid payment callback');return true;}

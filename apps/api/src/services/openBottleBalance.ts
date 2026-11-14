@@ -1,0 +1,1 @@
+export function applyBottleConsumption(openingMl:number,consumedMl:number,addedMl=0) { if (![openingMl,consumedMl,addedMl].every(Number.isSafeInteger)||openingMl<0||consumedMl<0||addedMl<0) throw new Error('Invalid bottle balance'); const remaining=openingMl+addedMl-consumedMl; if(remaining<0) throw new Error('Open bottle balance cannot be negative'); return remaining; }

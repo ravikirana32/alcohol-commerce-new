@@ -1,0 +1,54 @@
+/** UI action visibility policy. The API must enforce the same permission independently. */
+export const actionPermissions = {
+  'retail.checkout': ['retail:billing', 'retail:sell'],
+  'retail.refund': ['retail:refund'],
+  'retail.manage': ['retail:manage'],
+  'bar.checkout': ['bar:billing', 'bar:sell'],
+  'bar.refund': ['bar:refund'],
+  'bar.manage': ['bar:manage'],
+  'shift.read': ['shift:read', 'shift:manage'],
+  'shift.manage': ['shift:manage'],
+  'inventory.read': ['inventory:read', 'inventory:manage'],
+  'inventory.receive': ['inventory:receive', 'inventory:manage'],
+  'inventory.adjust': ['inventory:adjust', 'inventory:manage'],
+  'procurement.read': ['procurement:read', 'procurement:manage'],
+  'procurement.manage': ['procurement:manage'],
+  'procurement.approve': ['procurement:approve'],
+  'finance.read': ['finance:read', 'finance:view', 'finance:manage'],
+  'finance.manage': ['finance:manage'],
+  'finance.period.close': ['finance:period:close'],
+  'reports.read': ['reports:read', 'analytics:read'],
+  'compliance.read': ['excise:read', 'licence:read'],
+  'compliance.manage': ['excise:manage-rules', 'licence:manage'],
+  'tax.read': ['tax:read'],
+  'tax.manage': ['tax:manage-rules', 'tax:manage-prices', 'tax:manage-products'],
+  'devices.manage': ['device:manage'],
+  'offline.review': ['offline:review', 'offline:manage'],
+  'organisation.manage': ['organisation:manage'],
+  'users.manage': ['user:manage'],
+  'audit.read': ['audit:read', 'security:audit:read'],
+  'catalogue.manage': ['catalogue:manage'],
+  'compliance.review': ['excise:review-rules', 'excise:review-conditions', 'excise:review-dry-days', 'licence:review'],
+  'compliance.conditions.manage': ['excise:manage-conditions'],
+  'compliance.drydays.manage': ['excise:manage-dry-days'],
+  'compliance.activate': ['excise:activate-rules'],
+  'outlet.manage': ['outlet:manage'],
+  'tax.review': ['tax:review-rules'],
+  'tax.activate': ['tax:activate-rules'],
+  'offline.authoritative': ['offline:authoritative-check'],
+  'offline.validate': ['offline:validate'],
+  'offline.posting.approve': ['offline:posting-approve'],
+  'offline.ledger.post': ['offline:ledger-post'],
+  'offline.recovery.manage': ['offline:recovery-manage'],
+  'offline.recovery.compensate': ['offline:recovery-compensate'],
+  'trade.manage': ['trade:manage'],
+  'reports.export': ['reports:read', 'analytics:read'],
+  'integrations.manage': ['integration:manage'],
+} as const;
+
+export type ActionKey = keyof typeof actionPermissions;
+export type ActionAccessProfile = { permissions?: string[] | null };
+export function canPerformAction(profile: ActionAccessProfile, action: ActionKey): boolean {
+  const granted = new Set(profile.permissions ?? []);
+  return actionPermissions[action].some((permission) => granted.has(permission));
+}

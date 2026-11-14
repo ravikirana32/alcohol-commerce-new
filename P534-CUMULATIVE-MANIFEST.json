@@ -1,0 +1,24 @@
+{
+  "release": "0.534.0-dev",
+  "phase": "P534",
+  "baseline": "P533 0.533.0-dev",
+  "archive": "Alcohol-Commerce-Platform-P534-Cumulative-v0.534.0-dev.zip",
+  "archive_entries": 1394,
+  "delivery_status": "TECHNICAL IMPLEMENTATION COMPLETE FOR DEVELOPER PREVIEW; EXTERNAL ACCEPTANCE BLOCKED",
+  "production_approved": false,
+  "statutory_rates_seeded": false,
+  "acceptance": [
+    "P534 static 36/36 PASS",
+    "Retail checkout 17/17 PASS",
+    "Bar ticket/refund 9/9 PASS",
+    "236 migration files pass static validation",
+    "253 TypeScript files transpile with zero syntax diagnostics"
+  ],
+  "blocked": [
+    "PostgreSQL clean install/upgrade/rollback and trigger concurrency",
+    "Dependency-backed semantic typecheck and Vitest",
+    "API/browser E2E, IDOR, permission, race and performance tests",
+    "Finance-approved invoice rounding and tax-to-ledger reconciliation",
+    "Official statutory rates and legal/accounting sign-off"
+  ]
+}

@@ -1,0 +1,1 @@
+export function resolveUnitPrice(rows: Array<{productId:string;outletId:string;priceMinor:number;active:boolean}>, productId:string, outletId:string) { const row = rows.find(x => x.productId===productId && x.outletId===outletId && x.active); if (!row || !Number.isSafeInteger(row.priceMinor) || row.priceMinor < 0) throw new Error('No valid outlet price'); return row.priceMinor; }

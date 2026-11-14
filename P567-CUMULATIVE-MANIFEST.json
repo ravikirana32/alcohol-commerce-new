@@ -1,0 +1,32 @@
+{
+  "project": "Alcohol Commerce Platform",
+  "phase": "P567",
+  "version": "0.567.0-dev",
+  "baseline": "P566 cumulative v0.566.0-dev",
+  "integrated_workflows": [
+    "retail checkout",
+    "bar checkout",
+    "offline retail posting",
+    "offline bar posting",
+    "stock transfer dispatch",
+    "stock transfer receipt",
+    "stocktake approval",
+    "inventory batch receipt",
+    "goods receipt movement append"
+  ],
+  "open_workflows": [
+    "manual stock receipt",
+    "manual stock adjustment",
+    "open-bottle movement",
+    "goods receipt request-level replay"
+  ],
+  "verification": {
+    "p567_static": "10 assertions; pending execution",
+    "p566_static": "10/10 PASS inherited",
+    "p565_stock_ledger": "11/11 PASS inherited",
+    "p564_static": "14/14 PASS inherited",
+    "vitest": "not passed; prior permission denied",
+    "postgres_runtime": "not run"
+  },
+  "production_status": "NO-GO"
+}

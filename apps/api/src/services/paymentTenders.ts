@@ -1,0 +1,2 @@
+export type TenderLine={method:'CASH'|'UPI'|'CARD'|'OTHER';amountMinor:number};
+export function validateTenders(totalMinor:number, lines:TenderLine[]):void { if(!Number.isSafeInteger(totalMinor)||totalMinor<0||lines.length===0) throw new Error('Invalid payment total'); for(const x of lines) if(!Number.isSafeInteger(x.amountMinor)||x.amountMinor<0) throw new Error('Invalid tender amount'); if(lines.reduce((a,x)=>a+x.amountMinor,0)!==totalMinor) throw new Error('Payment tender total mismatch'); }

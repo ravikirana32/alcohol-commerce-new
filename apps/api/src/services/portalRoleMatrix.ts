@@ -1,0 +1,2 @@
+// P476: Portal role capability matrix
+export const hasPortalCapability = (role:string,capability:string) => { const matrix:Record<string,string[]>={PLATFORM_ADMIN:['TENANT_READ','TENANT_WRITE','LICENCE_REVIEW'],RETAILER_ADMIN:['OUTLET_READ','OUTLET_WRITE','RETAIL_REPORTS'],BAR_MANAGER:['BAR_ORDERS','SHIFT_CLOSE','BAR_REPORTS'],BRAND_MANAGER:['CAMPAIGN_READ','CAMPAIGN_WRITE'],DISTRIBUTOR:['ALLOCATIONS_READ','DELIVERY_UPDATE'],TRADE_PARTNER:['VISIT_SUBMIT','INCENTIVE_READ']}; return (matrix[role]??[]).includes(capability); };

@@ -1,0 +1,1 @@
+export function hasPermissionScope(grants:Array<{permission:string;outletId?:string}>,permission:string,outletId?:string) { return grants.some(g=>g.permission===permission&&(g.outletId===undefined||g.outletId===outletId)); }

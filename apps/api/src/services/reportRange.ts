@@ -1,0 +1,1 @@
+export function validateReportRange(from:string,to:string,maxDays=366) { const a=Date.parse(from),b=Date.parse(to); if(!Number.isFinite(a)||!Number.isFinite(b)||a>b||b-a>maxDays*86400000) throw new Error('Invalid report date range'); return {from:new Date(a).toISOString(),to:new Date(b).toISOString()}; }

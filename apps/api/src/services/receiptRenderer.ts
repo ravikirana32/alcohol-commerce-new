@@ -1,0 +1,3 @@
+export type ReceiptModel={outletName:string;receiptNo:string;lines:Array<{label:string;quantity:number;lineTotalMinor:number}>;totalMinor:number};
+const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
+export function renderReceiptHtml(r:ReceiptModel):string { if(!r.receiptNo||!Number.isSafeInteger(r.totalMinor)||r.totalMinor<0) throw new Error('Invalid receipt'); const rows=r.lines.map(x=>`<tr><td>${esc(x.label)}</td><td>${x.quantity}</td><td>${x.lineTotalMinor}</td></tr>`).join(''); return `<!doctype html><html><meta charset="utf-8"><title>Receipt ${esc(r.receiptNo)}</title><body><h1>${esc(r.outletName)}</h1><p>${esc(r.receiptNo)}</p><table>${rows}</table><strong>${r.totalMinor}</strong></body></html>`; }

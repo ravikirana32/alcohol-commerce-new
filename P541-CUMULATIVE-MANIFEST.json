@@ -1,0 +1,39 @@
+{
+  "phase": "P541",
+  "release": "0.541.0-dev",
+  "baseline": "P540 cumulative 0.540.0-dev",
+  "delivery_status": "DEVELOPER_PREVIEW_IMPLEMENTATION; PRODUCTION_ACCEPTANCE_NOT_ESTABLISHED",
+  "production_approved": false,
+  "migration": "242_p541_security_reliability.sql",
+  "implemented": [
+    "append-only organisation-scoped security audit events",
+    "audit query API with permission and tenant scope",
+    "enterprise integration lifecycle audit events",
+    "process-local authentication endpoint rate limiting",
+    "operational backup/restore evidence registry"
+  ],
+  "verification": {
+    "p541_static": "12/12 PASS",
+    "p540_regression": "13/13 PASS",
+    "p539_regression": "10/10 PASS",
+    "p538_regression": "14/14 PASS",
+    "p537_regression": "13/13 PASS",
+    "typescript_syntax": "263 files; 0 diagnostics",
+    "migration_static": "242 ordered SQL files PASS",
+    "postgres_runtime": "NOT RUN",
+    "api_integration": "NOT RUN",
+    "browser_e2e": "NOT RUN",
+    "backup_restore_drill": "NOT RUN",
+    "load_and_penetration_tests": "NOT RUN"
+  },
+  "open_gates": [
+    "distributed rate limiting and proxy trust validation",
+    "broader audit coverage and transactional audit atomicity",
+    "actual backup/restore drills and measured RPO/RTO",
+    "tenant IDOR/permission matrix",
+    "load/soak and failover tests",
+    "independent penetration testing and security sign-off",
+    "PostgreSQL upgrade/rollback, API integration and browser E2E"
+  ],
+  "carried_forward": "All unresolved P513-P540 gaps remain open."
+}

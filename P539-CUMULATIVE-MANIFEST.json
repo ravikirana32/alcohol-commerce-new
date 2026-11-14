@@ -1,0 +1,27 @@
+{
+  "phase":"P539",
+  "release":"0.539.0-dev",
+  "baseline":"P538 cumulative 0.538.0-dev",
+  "delivery_status":"REPORTING WORKSPACE DEVELOPER PREVIEW; RUNTIME AND FINANCE ACCEPTANCE OPEN",
+  "production_approved":false,
+  "migration_count":240,
+  "checks":{
+    "p539_static":"10/10 PASS",
+    "p538_static_regression":"14/14 PASS",
+    "p537_static_regression":"13/13 PASS",
+    "typescript_syntax":"260 files; 0 diagnostics",
+    "migration_static":"240 ordered SQL files PASS",
+    "postgres_api_runtime":"NOT RUN",
+    "semantic_typecheck":"NOT RUN",
+    "browser_accessibility_finance_uat":"NOT RUN"
+  },
+  "open_gates":[
+    "Outlet/category/payment/discount/refund/margin dimensions and metric definitions",
+    "Scheduled reports, saved filters, role-based sharing and server-side exports",
+    "Outlet-local timezone-aware business day",
+    "P535/P536 ledger reconciliation and finance approval",
+    "Large data query plans, indexes, pagination and load tests",
+    "Semantic build, API/browser/mobile/accessibility and finance UAT",
+    "Statutory report definition and legal/CA review"
+  ]
+}

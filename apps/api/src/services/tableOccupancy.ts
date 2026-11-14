@@ -1,0 +1,1 @@
+export function transitionTable(state:'AVAILABLE'|'OCCUPIED'|'BILL_REQUESTED', action:'SEAT'|'REQUEST_BILL'|'CLEAR') { const map={AVAILABLE:{SEAT:'OCCUPIED'},OCCUPIED:{REQUEST_BILL:'BILL_REQUESTED'},BILL_REQUESTED:{CLEAR:'AVAILABLE'}} as const; const next=(map as any)[state]?.[action]; if(!next) throw new Error('Invalid table transition'); return next as string; }

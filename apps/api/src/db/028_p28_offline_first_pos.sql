@@ -1,0 +1,4 @@
+-- P28: Offline-first POS
+-- Review FK assumptions and execute in staging before production.
+CREATE TABLE IF NOT EXISTS offline_command_journal (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organisation_id UUID NOT NULL REFERENCES organisations(id), outlet_id UUID NOT NULL REFERENCES outlets(id), device_id UUID NOT NULL, command_id TEXT NOT NULL, command_type TEXT NOT NULL, payload JSONB NOT NULL, payload_hash TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'queued', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), UNIQUE(device_id, command_id));
+CREATE TABLE IF NOT EXISTS offline_sync_conflicts (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), journal_id UUID NOT NULL REFERENCES offline_command_journal(id), conflict_type TEXT NOT NULL, server_state JSONB, client_state JSONB, resolution TEXT, resolved_by UUID REFERENCES users(id), resolved_at TIMESTAMPTZ);

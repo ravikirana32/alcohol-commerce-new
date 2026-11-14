@@ -1,0 +1,1 @@
+export function validateSecurityPosture(s:{mfaRequired:boolean;sessionTtlMinutes:number;passwordMinLength:number;rateLimitPerMinute:number}){if(!s.mfaRequired||s.sessionTtlMinutes<5||s.sessionTtlMinutes>720||s.passwordMinLength<12||s.rateLimitPerMinute<1)throw new Error('Security posture below minimum policy');return true;}

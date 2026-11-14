@@ -1,0 +1,1 @@
+export function applySettlement(openMinor:number,paymentMinor:number){if(!Number.isSafeInteger(openMinor)||!Number.isSafeInteger(paymentMinor)||openMinor<0||paymentMinor<=0||paymentMinor>openMinor)throw new Error('Settlement exceeds open balance');return {settledMinor:paymentMinor,remainingMinor:openMinor-paymentMinor,closed:paymentMinor===openMinor};}

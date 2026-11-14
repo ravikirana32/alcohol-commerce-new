@@ -1,0 +1,28 @@
+{
+  "phase": "P543",
+  "release": "0.543.0-dev",
+  "decision": "NO_GO",
+  "production_approved": false,
+  "live_payments_enabled": false,
+  "offline_alcohol_posting_enabled": false,
+  "outbound_provider_dispatch_enabled": false,
+  "gates": [
+    {"id":"G01","name":"Build, dependency and semantic typecheck","status":"NOT_RUN","owner":"Engineering","evidence":"Clean CI install, production build and semantic typecheck logs"},
+    {"id":"G02","name":"PostgreSQL migration install, upgrade and rollback","status":"NOT_RUN","owner":"Engineering / DBA","evidence":"Clean-database and upgrade execution reports; rollback rehearsal"},
+    {"id":"G03","name":"Playwright runtime and authenticated business journeys","status":"NOT_RUN","owner":"QA","evidence":"CI report for retail, bar, shift, inventory, procurement, refund and finance journeys"},
+    {"id":"G04","name":"Tenant isolation, authorization and penetration testing","status":"OPEN","owner":"Security","evidence":"Tenant/role negative matrix, IDOR tests and independent penetration report"},
+    {"id":"G05","name":"Karnataka excise, GST and statutory tax approval","status":"OPEN","owner":"Legal / Excise / CA","evidence":"Current official notifications, approved tax fixtures and signed compliance review"},
+    {"id":"G06","name":"Payments, refunds, chargebacks and provider certification","status":"OPEN","owner":"Payments / Finance","evidence":"Provider sandbox certification and end-to-end settlement reconciliation"},
+    {"id":"G07","name":"Accounting and inventory valuation reconciliation","status":"OPEN","owner":"Finance","evidence":"Approved journals, COGS/cost-layer validation, trial balance, P&L and balance-sheet tie-out"},
+    {"id":"G08","name":"Device attestation and offline alcohol controls","status":"OPEN","owner":"Security / Mobile","evidence":"Hardware-backed attestation and secure-time test evidence; offline alcohol posting must remain disabled until approved"},
+    {"id":"G09","name":"Integration egress, signing, retry and provider adapters","status":"OPEN","owner":"Platform / Security","evidence":"SSRF-safe egress controls, signed delivery, retry/dead-letter tests and provider certification"},
+    {"id":"G10","name":"Backup restore, disaster recovery and resilience","status":"OPEN","owner":"SRE / DBA","evidence":"Observed restore drill, measured RPO/RTO, failover and load/soak reports"},
+    {"id":"G11","name":"Observability, alert routing and incident response","status":"OPEN","owner":"SRE / Operations","evidence":"Validated dashboards, actionable alerts, on-call ownership and incident rehearsal"},
+    {"id":"G12","name":"Business UAT, training and pilot acceptance","status":"OPEN","owner":"Business / Operations","evidence":"Signed UAT, training completion, defect disposition and named pilot approval"},
+    {"id":"G13","name":"Production environment and secret readiness","status":"NOT_RUN","owner":"Platform / Security","evidence":"Environment-specific secret injection, TLS, access review and configuration validation"},
+    {"id":"G14","name":"Release rollback rehearsal and change approval","status":"NOT_RUN","owner":"Release Manager","evidence":"Timed rollback rehearsal, database compatibility plan and approved change record"}
+  ],
+  "decision_rule": "GO only when every gate is PASS with linked evidence and accountable owner approval. OPEN, NOT_RUN, WAIVED without documented authority, or missing evidence means NO_GO.",
+  "evaluated_by": "scripts/verify-p543-release-readiness.mjs",
+  "note": "This manifest intentionally records current evidence gaps. Do not change a gate to PASS without retaining its evidence."
+}

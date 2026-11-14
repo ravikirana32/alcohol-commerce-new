@@ -1,0 +1,2 @@
+// P472: India tax invoice minimum fields
+export const validateTaxInvoiceFields = (x:{invoiceNo:string;date:string;supplierGstin?:string;buyerGstin?:string;placeOfSupply:string;taxableMinor:number}) => { const missing:string[]=[]; if(!x.invoiceNo.trim())missing.push('INVOICE_NUMBER'); if(!/^\d{4}-\d{2}-\d{2}$/.test(x.date))missing.push('INVOICE_DATE'); if(!x.placeOfSupply.trim())missing.push('PLACE_OF_SUPPLY'); if(!Number.isSafeInteger(x.taxableMinor)||x.taxableMinor<0)missing.push('TAXABLE_VALUE'); return {valid:missing.length===0,missing}; };

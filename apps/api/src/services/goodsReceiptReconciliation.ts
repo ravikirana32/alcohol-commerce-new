@@ -1,0 +1,1 @@
+export function reconcileGoodsReceipt(ordered:number,received:number,accepted:number) { if(![ordered,received,accepted].every(Number.isSafeInteger)||ordered<0||received<0||accepted<0||accepted>received) throw new Error('Invalid goods receipt quantities'); return { short:Math.max(0,ordered-received), excess:Math.max(0,received-ordered), rejected:received-accepted, accepted }; }

@@ -1,0 +1,2 @@
+export function validatePegMeasure(ml:number,allowed:number[]=[30,60,90]){if(!Number.isSafeInteger(ml)||!allowed.includes(ml))throw new Error('Peg measure is not configured');return ml;}
+export function pegConsumption(ml:number,qty:number,availableMl:number){if(!Number.isSafeInteger(qty)||qty<1||!Number.isSafeInteger(availableMl)||availableMl<0)throw new Error('Invalid peg quantity or stock');const used=ml*qty;if(!Number.isSafeInteger(used)||used>availableMl)throw new Error('Insufficient open bottle');return availableMl-used;}

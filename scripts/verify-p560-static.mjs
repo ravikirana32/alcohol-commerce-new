@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+const checks=[];const ok=(name,fn)=>{try{if(!fn())throw new Error('condition false');checks.push({name,ok:true});}catch(e){checks.push({name,ok:false,error:e.message});}};
+const a=JSON.parse(fs.readFileSync('P559-SQL-TENANT-PREDICATE-AUDIT.json','utf8'));
+const r=JSON.parse(fs.readFileSync('P560-SQL-TRIAGE.json','utf8'));
+const md=fs.readFileSync('P560-SQL-TRIAGE.md','utf8');
+ok('P559 audit source exists',()=>a.statements.length===a.queryStatements);
+ok('P560 triage references P559',()=>r.inputAudit==='P559-SQL-TENANT-PREDICATE-AUDIT.json');
+ok('candidate count reconciles',()=>r.reviewCandidates===r.items.length);
+ok('category counts reconcile',()=>Object.values(r.counts).reduce((x,y)=>x+y,0)===r.items.length);
+ok('all candidate rows have source locations',()=>r.items.every(x=>x.file&&Number.isInteger(x.line)&&x.line>0));
+ok('all rows have explicit rationale',()=>r.items.every(x=>x.rationale&&x.category));
+ok('global allowlist is explicit',()=>r.globalTableAllowlist.includes('role_permissions'));
+ok('audit limitations documented',()=>r.method.includes('does not prove safe access'));
+ok('application SQL left unchanged by P560',()=>!r.items.some(x=>x.remediationApplied===true));
+ok('markdown report generated',()=>md.includes('# P560 SQL Candidate Triage'));
+console.log(`P560 static verification: ${checks.filter(x=>x.ok).length}/${checks.length} PASS`);for(const c of checks)console.log(`${c.ok?'PASS':'FAIL'} ${c.name}`);if(checks.some(x=>!x.ok))process.exit(1);

@@ -1,0 +1,30 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import { pool } from '../db/pool.js';
+import { authenticate } from '../middleware/authenticate.js';
+import { requirePermission } from '../middleware/requirePermission.js';
+import { requireOrgScope } from '../middleware/requireOrgScope.js';
+
+export const paymentReconciliationRouter = Router();
+paymentReconciliationRouter.use(authenticate, requireOrgScope);
+const uuid=z.string().uuid();
+const importSchema=z.object({outletId:uuid,provider:z.string().trim().min(2).max(60),statementReference:z.string().trim().min(2).max(120),periodStart:z.string().date().optional(),periodEnd:z.string().date().optional(),lines:z.array(z.object({providerTransactionId:z.string().trim().min(1).max(160),transactionReference:z.string().trim().max(160).optional(),method:z.enum(['UPI','CARD','WALLET','OTHER']),amount:z.number().positive(),transactionAt:z.string().datetime().optional()})).min(1).max(2000)});
+
+paymentReconciliationRouter.post('/payments/reconciliation/import',requirePermission('payments:reconcile'),async(req,res)=>{
+ const s=importSchema.safeParse(req.body);if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
+ const org=req.auth!.organisationId!,actor=req.auth!.userId, c=await pool.connect();
+ try{await c.query('BEGIN');const outlet=await c.query('SELECT id FROM outlets WHERE id=$1 AND organisation_id=$2',[s.data.outletId,org]);if(!outlet.rowCount){await c.query('ROLLBACK');return res.status(404).json({error:{code:'OUTLET_NOT_FOUND'}});}
+ const b=await c.query(`INSERT INTO payment_reconciliation_batches(organisation_id,outlet_id,provider,statement_reference,period_start,period_end,imported_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *`,[org,s.data.outletId,s.data.provider,s.data.statementReference,s.data.periodStart??null,s.data.periodEnd??null,actor]);
+ for(const l of s.data.lines){const duplicate=await c.query(`SELECT id FROM payment_reconciliation_lines WHERE provider_transaction_id=$1 AND batch_id IN (SELECT id FROM payment_reconciliation_batches WHERE organisation_id=$2 AND provider=$3) LIMIT 1`,[l.providerTransactionId,org,s.data.provider]);await c.query(`INSERT INTO payment_reconciliation_lines(batch_id,provider_transaction_id,transaction_reference,method,amount,transaction_at,status,notes) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,[b.rows[0].id,l.providerTransactionId,l.transactionReference??null,l.method,l.amount,l.transactionAt??null,duplicate.rowCount?'DUPLICATE':'UNMATCHED',duplicate.rowCount?'Provider transaction already imported':'' ]);}
+ await c.query('COMMIT');return res.status(201).json({data:b.rows[0],lineCount:s.data.lines.length});
+ }catch(e:any){await c.query('ROLLBACK');if(e.code==='23505')return res.status(409).json({error:{code:'STATEMENT_ALREADY_IMPORTED'}});throw e;}finally{c.release();}
+});
+
+paymentReconciliationRouter.post('/payments/reconciliation/:batchId/match',requirePermission('payments:reconcile'),async(req,res)=>{
+ const c=await pool.connect(),org=req.auth!.organisationId!;try{await c.query('BEGIN');const b=await c.query(`SELECT * FROM payment_reconciliation_batches WHERE id=$1 AND organisation_id=$2 FOR UPDATE`,[req.params.batchId,org]);if(!b.rowCount){await c.query('ROLLBACK');return res.status(404).json({error:{code:'BATCH_NOT_FOUND'}});}if(b.rows[0].status!=='OPEN'){await c.query('ROLLBACK');return res.status(409).json({error:{code:'BATCH_NOT_OPEN'}});}
+ const lines=await c.query(`SELECT * FROM payment_reconciliation_lines WHERE batch_id=$1 AND status='UNMATCHED' ORDER BY created_at FOR UPDATE`,[req.params.batchId]);let matched=0,unmatched=0;
+ for(const l of lines.rows){const ref=l.transaction_reference;if(!ref){unmatched++;continue;}const retail=await c.query(`SELECT p.id,p.amount FROM sale_payments p JOIN retail_sales s ON s.id=p.sale_id WHERE p.organisation_id=$1 AND s.outlet_id=$2 AND p.reference=$3 AND p.method=$4 AND p.status='CAPTURED' AND ABS(p.amount-$5)<0.005 LIMIT 2`,[org,b.rows[0].outlet_id,ref,l.method,l.amount]);const bar=await c.query(`SELECT p.id,p.amount FROM bar_payments p JOIN bar_tickets t ON t.id=p.ticket_id WHERE p.organisation_id=$1 AND t.outlet_id=$2 AND p.reference=$3 AND p.method=$4 AND ABS(p.amount-$5)<0.005 LIMIT 2`,[org,b.rows[0].outlet_id,ref,l.method,l.amount]);const candidates=[...retail.rows.map((x:any)=>({id:x.id,source:'RETAIL'})),...bar.rows.map((x:any)=>({id:x.id,source:'BAR'}))];if(candidates.length===1){await c.query(`UPDATE payment_reconciliation_lines SET status='MATCHED',matched_source=$1,matched_payment_id=$2 WHERE id=$3`,[candidates[0].source,candidates[0].id,l.id]);matched++;}else{if(candidates.length>1)await c.query(`UPDATE payment_reconciliation_lines SET status='MISMATCH',notes='Multiple matching captured payments' WHERE id=$1`,[l.id]);unmatched++;}}
+ const counts=await c.query(`SELECT COUNT(*) FILTER(WHERE status='UNMATCHED')::int unmatched,COUNT(*) FILTER(WHERE status='MATCHED')::int matched,COUNT(*) FILTER(WHERE status IN ('DUPLICATE','MISMATCH'))::int exceptions FROM payment_reconciliation_lines WHERE batch_id=$1`,[req.params.batchId]);if(counts.rows[0].unmatched===0&&counts.rows[0].exceptions===0)await c.query(`UPDATE payment_reconciliation_batches SET status='RECONCILED' WHERE id=$1`,[req.params.batchId]);await c.query('COMMIT');return res.json({data:counts.rows[0],matchedThisRun:matched,unmatchedThisRun:unmatched});
+ }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
+});
+paymentReconciliationRouter.get('/payments/reconciliation/:batchId',requirePermission('payments:reconcile'),async(req,res)=>{const r=await pool.query(`SELECT b.*,COALESCE(json_agg(l ORDER BY l.created_at) FILTER(WHERE l.id IS NOT NULL),'[]') lines FROM payment_reconciliation_batches b LEFT JOIN payment_reconciliation_lines l ON l.batch_id=b.id WHERE b.id=$1 AND b.organisation_id=$2 GROUP BY b.id`,[req.params.batchId,req.auth!.organisationId]);if(!r.rowCount)return res.status(404).json({error:{code:'BATCH_NOT_FOUND'}});return res.json({data:r.rows[0]});});

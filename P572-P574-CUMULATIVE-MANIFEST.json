@@ -1,0 +1,55 @@
+{
+  "phase": "P572-P574",
+  "version": "0.574.0-dev",
+  "baseline": "P571 cumulative",
+  "scope": "Stock snapshot serialization, reconciliation cutoff integrity, maker-checker variance corrections",
+  "migrations": [
+    "apps/api/src/db/248_p572_stock_snapshot_serialization.sql",
+    "apps/api/src/db/249_p573_stock_integrity_constraints.sql",
+    "apps/api/src/db/250_p574_stock_variance_corrections.sql"
+  ],
+  "added_scripts": [
+    "scripts/verify-p572-stock-runtime-readiness.mjs",
+    "scripts/verify-p573-stock-integrity.mjs",
+    "scripts/verify-p574-variance-corrections.mjs",
+    "scripts/verify-p572-p574-postgres.sql",
+    "scripts/run-p572-p574-postgres-validation.sh"
+  ],
+  "verification": {
+    "p572_static": "8/8 PASS",
+    "p573_static": "7/7 PASS",
+    "p574_static": "10/10 PASS",
+    "p571_static": "12/12 PASS",
+    "p570_static": "10/10 PASS",
+    "p569_static": "10/10 PASS",
+    "p568_static": "10/10 PASS",
+    "p567_static": "10/10 PASS",
+    "p566_static": "10/10 PASS",
+    "p565_static": "11/11 PASS",
+    "typescript_syntax": "275 files; 0 diagnostics",
+    "migration_static": "250 ordered SQL files PASS"
+  },
+  "runtime_status": "NOT RUN: psql and Docker unavailable; Vitest, semantic typecheck, API/browser E2E and concurrency acceptance not run",
+  "release_decision": "NO-GO",
+  "known_gaps": [
+    "historical unsigned adjustments require evidence-based remediation",
+    "opening baseline correction/re-baseline governance",
+    "exception event history append-only expansion",
+    "business UI and dedicated approval permission",
+    "live PostgreSQL/concurrency/security/UAT acceptance"
+  ],
+  "added_files": [
+    "P572-P574-IMPLEMENTATION.md",
+    "P572-P574-TEST-REPORT.md",
+    "P572-P574-RUNBOOK.md",
+    "P572-P574-STATUS.md",
+    "P572-P574-RELEASE-NOTES.md",
+    "P513-P574-Cumulative-Gap-Register.md",
+    "P572-P574-CUMULATIVE-MANIFEST.json",
+    "scripts/verify-p572-stock-runtime-readiness.mjs",
+    "scripts/verify-p573-stock-integrity.mjs",
+    "scripts/verify-p574-variance-corrections.mjs",
+    "scripts/verify-p572-p574-postgres.sql",
+    "scripts/run-p572-p574-postgres-validation.sh"
+  ]
+}

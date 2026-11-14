@@ -1,0 +1,1 @@
+export function validateSupplier(s:{name:string;gstin?:string;phone?:string}) { if(s.name.trim().length<2) throw new Error('Supplier name is required'); if(s.gstin && !/^[0-9A-Z]{15}$/.test(s.gstin)) throw new Error('Invalid GSTIN format'); if(s.phone && !/^\+?[0-9]{10,15}$/.test(s.phone)) throw new Error('Invalid supplier phone'); return true; }

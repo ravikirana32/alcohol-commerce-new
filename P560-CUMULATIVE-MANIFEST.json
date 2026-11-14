@@ -1,0 +1,24 @@
+{
+  "phase": "P560",
+  "version": "0.560.0-dev",
+  "baseline": "P559 cumulative v0.559.0-dev",
+  "triageCandidates": 260,
+  "triageCategories": {
+    "global-reference-or-auth": 1,
+    "schema-unresolved": 71,
+    "tenant-bearing-table-review": 188
+  },
+  "files": [
+    "P560-IMPLEMENTATION.md",
+    "P560-TEST-REPORT.md",
+    "P560-STATUS.md",
+    "P560-RUNBOOK.md",
+    "P560-RELEASE-NOTES.md",
+    "P560-SQL-TRIAGE.json",
+    "P560-SQL-TRIAGE.md",
+    "P513-P560-Cumulative-Gap-Register.docx",
+    "P513-P560-Cumulative-Gap-Register.md"
+  ],
+  "runtimeAcceptance": "OPEN",
+  "productionRelease": "NO-GO"
+}

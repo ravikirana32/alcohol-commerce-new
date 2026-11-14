@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "release": "0.585.0-dev",
+  "environment": null,
+  "buildSha": null,
+  "migrationChecksum": null,
+  "executedAt": null,
+  "executor": null,
+  "workstream": null,
+  "testId": null,
+  "actorRole": null,
+  "organisationFixture": null,
+  "outletFixture": null,
+  "expected": null,
+  "actual": null,
+  "result": "NOT_RUN",
+  "evidenceUri": null,
+  "defectIds": [],
+  "notes": "Replace fields only with evidence from an actual execution."
+}

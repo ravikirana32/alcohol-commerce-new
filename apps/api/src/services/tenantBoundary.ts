@@ -1,0 +1,1 @@
+export function assertSameTenant(actorTenantId:string,resourceTenantId:string) { if(!actorTenantId||!resourceTenantId||actorTenantId!==resourceTenantId) throw new Error('Tenant boundary violation'); return true; }

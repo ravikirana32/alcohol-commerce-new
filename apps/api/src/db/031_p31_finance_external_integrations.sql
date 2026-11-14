@@ -1,0 +1,6 @@
+-- P31: Finance & external integrations
+-- Review FK assumptions and execute in staging before production.
+CREATE TABLE IF NOT EXISTS accounting_mappings (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organisation_id UUID NOT NULL REFERENCES organisations(id), source_code TEXT NOT NULL, target_ledger TEXT NOT NULL, tax_code TEXT, active BOOLEAN NOT NULL DEFAULT TRUE, UNIQUE(organisation_id, source_code));
+CREATE TABLE IF NOT EXISTS finance_export_batches (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organisation_id UUID NOT NULL REFERENCES organisations(id), provider TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'queued', period_start DATE, period_end DATE, payload_uri TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS settlement_statements (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organisation_id UUID NOT NULL REFERENCES organisations(id), provider TEXT NOT NULL, statement_ref TEXT NOT NULL, amount NUMERIC(14,2) NOT NULL, statement_date DATE NOT NULL);
+CREATE TABLE IF NOT EXISTS settlement_items (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), statement_id UUID NOT NULL REFERENCES settlement_statements(id), transaction_ref TEXT, amount NUMERIC(14,2) NOT NULL, matched BOOLEAN NOT NULL DEFAULT FALSE);

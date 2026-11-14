@@ -1,0 +1,29 @@
+{
+  "phase": "P561",
+  "version": "0.561.0-dev",
+  "baseline": "P560 cumulative v0.560.0-dev",
+  "tenantScopedUpdatesChanged": 5,
+  "filesChanged": [
+    "apps/api/src/routes/barCheckout.ts",
+    "apps/api/src/routes/offlineRecovery.ts",
+    "apps/api/src/routes/finance.ts",
+    "apps/api/src/routes/settlements.ts",
+    "apps/api/src/routes/operations.ts",
+    "scripts/verify-p561-tenant-updates.mjs",
+    "package.json",
+    "VERSION"
+  ],
+  "verification": {
+    "p561SourceAssertions": "5/5 PASS",
+    "inheritedStaticChain": "PASS through P552",
+    "typescriptSyntax": "272 files, 0 diagnostics",
+    "sqlMigrationStatic": "242 ordered files PASS"
+  },
+  "runtimeTests": "NOT RUN",
+  "productionStatus": "NO-GO",
+  "limitations": [
+    "188 P560 tenant-bearing-table candidates remain review items",
+    "71 P560 schema-unresolved candidates remain open",
+    "No live PostgreSQL, authenticated IDOR, Playwright or penetration tests executed"
+  ]
+}

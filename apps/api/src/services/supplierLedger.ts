@@ -1,0 +1,1 @@
+export function supplierBalance(opening:number,charges:number,payments:number,credits:number):number { const xs=[opening,charges,payments,credits]; if(xs.some(x=>!Number.isSafeInteger(x)||x<0)) throw new Error('Ledger amounts must be non-negative minor units'); return opening+charges-payments-credits; }

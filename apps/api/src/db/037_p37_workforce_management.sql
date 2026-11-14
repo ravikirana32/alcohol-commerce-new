@@ -1,0 +1,6 @@
+-- P37: Workforce management
+-- Review FK assumptions and execute in staging before production.
+CREATE TABLE IF NOT EXISTS staff_profiles (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organisation_id UUID NOT NULL REFERENCES organisations(id), user_id UUID REFERENCES users(id), employee_code TEXT NOT NULL, active BOOLEAN NOT NULL DEFAULT TRUE, UNIQUE(organisation_id, employee_code));
+CREATE TABLE IF NOT EXISTS staff_rosters (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), outlet_id UUID NOT NULL REFERENCES outlets(id), staff_id UUID NOT NULL REFERENCES staff_profiles(id), starts_at TIMESTAMPTZ NOT NULL, ends_at TIMESTAMPTZ NOT NULL, role_code TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS attendance_events (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), staff_id UUID NOT NULL REFERENCES staff_profiles(id), event_type TEXT NOT NULL, occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), source TEXT NOT NULL DEFAULT 'manual');
+CREATE TABLE IF NOT EXISTS approval_requests (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organisation_id UUID NOT NULL REFERENCES organisations(id), requested_by UUID REFERENCES users(id), approval_type TEXT NOT NULL, payload JSONB NOT NULL DEFAULT '{}'::jsonb, status TEXT NOT NULL DEFAULT 'pending');

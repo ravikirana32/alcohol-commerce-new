@@ -1,0 +1,1 @@
+export function validateIdempotencyKey(key: string): string { const value = key.trim(); if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{15,127}$/.test(value)) throw new Error('Invalid idempotency key'); return value; }

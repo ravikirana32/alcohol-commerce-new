@@ -1,0 +1,1 @@
+export function calculateReorderPoint(avgDailyUse:number,leadDays:number,safetyStock:number) { if (![avgDailyUse,leadDays,safetyStock].every(Number.isFinite)||avgDailyUse<0||leadDays<0||safetyStock<0) throw new Error('Invalid reorder inputs'); return Math.ceil(avgDailyUse*leadDays+safetyStock); }

@@ -1,0 +1,1 @@
+export function backupRestoreGate(e:{backupCreated:boolean;checksumVerified:boolean;restoreCompleted:boolean;restoreDurationMinutes:number;rpoMinutes:number;rtoMinutes:number}){const passed=e.backupCreated&&e.checksumVerified&&e.restoreCompleted&&e.restoreDurationMinutes<=e.rtoMinutes&&e.rpoMinutes>=0;return {passed,restoreWithinRto:e.restoreDurationMinutes<=e.rtoMinutes};}

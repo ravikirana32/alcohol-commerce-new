@@ -1,0 +1,1 @@
+export function validateFulfilment(ordered:number,packed:number,dispatched:number){for(const n of [ordered,packed,dispatched])if(!Number.isSafeInteger(n)||n<0)throw new Error('Invalid fulfilment quantity');if(packed>ordered||dispatched>packed)throw new Error('Fulfilment quantity exceeds prior stage');return {backorder:ordered-dispatched};}

@@ -1,0 +1,29 @@
+{
+  "name": "@acp/web",
+  "version": "0.585.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --pretty false",
+    "verify:p569:static": "node scripts/verify-p569-refund-idempotency.mjs",
+    "verify:p569": "npm run verify:p569:static && npm run verify:p568:static && npm run verify:p567:static && npm run verify:p566:static && npm run verify:p565:static"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.5",
+    "typescript": "^5.7.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "lucide-react": "^0.468.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5"
+  },
+  "engines": {
+    "node": ">=20.18.0",
+    "npm": ">=10.8.0"
+  }
+}

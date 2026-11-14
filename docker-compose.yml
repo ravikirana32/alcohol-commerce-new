@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: acp
+      POSTGRES_USER: acp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    # No host port is published: the API and migration containers use postgres:5432.
+    # This avoids conflicts with locally installed PostgreSQL on the developer machine.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U acp -d acp"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # No host port is published: application containers use redis:6379 internally.
+    # This avoids conflicts with locally installed Redis on the developer machine.
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: "no"
+    command: ["npm", "run", "db:migrate", "--workspace", "@acp/api"]
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://acp:${POSTGRES_PASSWORD}@postgres:5432/acp
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      API_PORT: 8080
+      DATABASE_URL: postgresql://acp:${POSTGRES_PASSWORD}@postgres:5432/acp
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      BOOTSTRAP_SECRET: ${BOOTSTRAP_SECRET:?Set BOOTSTRAP_SECRET in .env}
+      WEB_ORIGIN: http://localhost:${WEB_PORT:-5174}
+      AI_FEATURES_ENABLED: "false"
+      OFFLINE_SYNC_ENABLED: "false"
+      CONSUMER_DISCOVERY_ENABLED: "false"
+      PAYMENT_LIVE_MODE: "false"
+      NOTIFICATIONS_LIVE_MODE: "false"
+    ports:
+      - "127.0.0.1:${API_PORT:-8081}:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/api/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:${API_PORT:-8081}
+    ports:
+      - "127.0.0.1:${WEB_PORT:-5174}:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5173/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  postgres_data:

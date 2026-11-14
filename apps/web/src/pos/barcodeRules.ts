@@ -1,0 +1,2 @@
+export function normaliseBarcode(raw:string):string { const value=raw.trim().replace(/[\s-]/g,''); if(!/^[0-9]{8,14}$/.test(value)) throw new Error('Unsupported barcode format'); return value; }
+export function isValidEan13(value:string):boolean { if(!/^\d{13}$/.test(value)) return false; const sum=[...value.slice(0,12)].reduce((a,d,i)=>a+Number(d)*(i%2?3:1),0); return (10-sum%10)%10===Number(value[12]); }

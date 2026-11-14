@@ -1,0 +1,2 @@
+// P453: Typed configuration parsing
+export const parsePositiveInteger = (value:string|undefined,fallback:number,min=1,max=100000) => { if(value===undefined || value.trim()==='') return fallback; if(!/^\d+$/.test(value.trim())) throw new Error('Expected a positive integer'); const n=Number(value); if(!Number.isSafeInteger(n)||n<min||n>max) throw new Error('Integer outside allowed range'); return n; };

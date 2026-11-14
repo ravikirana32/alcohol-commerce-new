@@ -1,0 +1,1 @@
+export function canClosePeriod(checks:{unpostedCount:number;unsettledCount:number;unreconciledCount:number;varianceCount:number}){if(Object.values(checks).some(n=>!Number.isSafeInteger(n)||n<0))throw new Error('Invalid close checks');const blockers=Object.entries(checks).filter(([,n])=>n>0).map(([k])=>k);return {closable:blockers.length===0,blockers};}

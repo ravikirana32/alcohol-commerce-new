@@ -1,0 +1,5 @@
+-- P24: Licence & excise compliance engine
+-- Review FK assumptions and execute in staging before production.
+CREATE TABLE IF NOT EXISTS compliance_jurisdictions (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, rules JSONB NOT NULL DEFAULT '{}'::jsonb, active BOOLEAN NOT NULL DEFAULT TRUE);
+CREATE TABLE IF NOT EXISTS licence_evidence (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), outlet_id UUID NOT NULL REFERENCES outlets(id), evidence_type TEXT NOT NULL, reference_no TEXT, document_uri TEXT, valid_from DATE, valid_to DATE, verification_status TEXT NOT NULL DEFAULT 'pending', reviewed_by UUID REFERENCES users(id), reviewed_at TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS compliance_decisions (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), organisation_id UUID NOT NULL REFERENCES organisations(id), outlet_id UUID NOT NULL REFERENCES outlets(id), activity TEXT NOT NULL, decision TEXT NOT NULL CHECK (decision IN ('allow','deny','review')), reason TEXT NOT NULL, context JSONB NOT NULL DEFAULT '{}'::jsonb, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
