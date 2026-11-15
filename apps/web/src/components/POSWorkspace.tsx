@@ -25,6 +25,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
   const [bottles, setBottles] = useState<OpenBottle[]>([]);
   const [tableSessions, setTableSessions] = useState<TableSession[]>([]);
   const [tableSessionId, setTableSessionId] = useState('');
+  const [addToTab, setAddToTab] = useState(false);
   const [priceId, setPriceId] = useState('');
   const [productSearch, setProductSearch] = useState('');
   const [bottleId, setBottleId] = useState('');
@@ -125,6 +126,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
   const checkoutTotal = mode === 'RETAIL' ? Math.round((retailCartTotal + Number.EPSILON) * 100) / 100 : barCart.length ? Math.round((barCartTotal+Number.EPSILON)*100)/100 : total;
 
   const tenderTotal = Math.round((tenders.reduce((sum, tender) => sum + Number(tender.amount || 0), 0) + Number.EPSILON) * 100) / 100;
+  const deferBarPayment = mode === 'BAR' && Boolean(tableSessionId) && addToTab;
   function addTender() {
     if (pendingCheckout) return;
     setTenders((rows) => [...rows, { id: crypto.randomUUID(), method: 'UPI', amount: 0, reference: '' }]);
@@ -169,7 +171,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
       setError(mode === 'RETAIL' ? 'Add at least one product to the cart.' : 'Select an outlet and a configured price.'); return;
     }
     if (!ageVerified || !notIntoxicated || !noRestrictedCustomer || (mode === 'BAR' && !mealProvided)) { setError('Complete all required excise compliance attestations before checkout.'); return; }
-    if (Math.abs(tenderTotal - checkoutTotal) > 0.001) { setError(`Tender total ${money(tenderTotal)} must equal checkout total ${money(checkoutTotal)}.`); return; }
+    if (!deferBarPayment && Math.abs(tenderTotal - checkoutTotal) > 0.001) { setError(`Tender total ${money(tenderTotal)} must equal checkout total ${money(checkoutTotal)}.`); return; }
     setBusy(true);
     try {
       let attempt = pendingCheckout;
@@ -195,7 +197,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
                 ...(line.lineType==='PEG'?{volumeMl:line.volumeMl,openBottleId:line.openBottleId}:{})
               })),
               complianceAttestations: { ageVerified, notIntoxicated, noRestrictedCustomer, mealProvided, consumptionOnPremises: true },
-              payments: tenders.filter((tender) => tender.amount > 0).map((tender) => ({ method: tender.method, amount: Number(tender.amount), ...(tender.reference.trim() ? { reference: tender.reference.trim() } : {}) }))
+              payments: deferBarPayment ? [] : tenders.filter((tender) => tender.amount > 0).map((tender) => ({ method: tender.method, amount: Number(tender.amount), ...(tender.reference.trim() ? { reference: tender.reference.trim() } : {}) }))
             }
           };
         }
@@ -209,23 +211,31 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
         : barCart.map((line) => ({ name: `${line.name} ${line.lineType==='PEG'?`${line.volumeMl} ml`:''}`, quantity:line.quantity, amount:line.quantity*line.unitPrice*(1+line.taxRate/100) }));
       setLastReceipt({
         receiptNumber: String(payload.data.receipt_number ?? payload.data.ticket_number ?? payload.data.id),
-        total: Number(payload.totals?.grandTotal ?? payload.data.grand_total ?? checkoutTotal), lines: receiptLines, tenders: tenders.filter((tender) => tender.amount > 0), createdAt: new Date().toISOString()
+        total: Number(payload.totals?.grandTotal ?? payload.data.grand_total ?? checkoutTotal), lines: receiptLines, tenders: deferBarPayment ? [] : tenders.filter((tender) => tender.amount > 0), createdAt: new Date().toISOString()
       });
       if (mode === 'RETAIL') {
         setMessage(`Retail sale completed: ${payload.data.receipt_number ?? payload.data.id}. Total ${money(Number(payload.data.grand_total ?? checkoutTotal))}.`);
       } else {
-        setMessage(`Bar ticket completed: ${payload.data.ticket_number ?? payload.data.id}. Total ${money(Number(payload.data.grand_total ?? checkoutTotal))}.`);
-        const [bottlesPayload, sessionsPayload] = await Promise.all([
-          request(`/api/v1/bar/open-bottles?outletId=${outletId}`),
-          request(`/api/v1/bar/table-sessions?outletId=${outletId}`)
-        ]);
-        setBottles(bottlesPayload.data ?? []);
-        setTableSessions(sessionsPayload.data ?? []);
+        setMessage(deferBarPayment
+          ? `Round added to ${tableSessions.find((session) => session.id === tableSessionId)?.table_label ?? 'the table tab'}: ${payload.data.ticket_number ?? payload.data.id}. Balance ${money(Number(payload.data.grand_total ?? checkoutTotal))}.`
+          : `Bar ticket completed: ${payload.data.ticket_number ?? payload.data.id}. Total ${money(Number(payload.data.grand_total ?? checkoutTotal))}.`);
       }
       setQuantity(1);
       if (mode === 'RETAIL') setCart([]); else setBarCart([]);
       setTenders([{ id: crypto.randomUUID(), method: 'CASH', amount: 0, reference: '' }]);
       setAgeVerified(false); setNotIntoxicated(false); setNoRestrictedCustomer(false); setMealProvided(false);
+      if (mode === 'BAR') {
+        try {
+          const [bottlesPayload, sessionsPayload] = await Promise.all([
+            request(`/api/v1/bar/open-bottles?outletId=${outletId}`),
+            request(`/api/v1/bar/table-sessions?outletId=${outletId}`)
+          ]);
+          setBottles(bottlesPayload.data ?? []);
+          setTableSessions(sessionsPayload.data ?? []);
+        } catch (refreshError) {
+          setError(`Ticket was recorded, but bar data could not refresh: ${refreshError instanceof Error ? refreshError.message : 'refresh failed'}`);
+        }
+      }
     } catch (err) {
       const status = err && typeof err === 'object' && 'status' in err ? Number((err as {status?:number}).status) : 0;
       if (status >= 400 && status < 500) setPendingCheckout(null);
@@ -258,6 +268,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
             {tableSessions.map((session)=><option key={session.id} value={session.id}>{session.table_label} · {session.covers} guests</option>)}
           </select>
         </label>
+        {tableSessionId && <label><input type="checkbox" checked={addToTab} disabled={busy || Boolean(pendingCheckout)} onChange={(e)=>setAddToTab(e.target.checked)}/> Add this order as an unpaid tab round</label>}
         {!tableSessionId && <label>Table / service reference
           <input disabled={busy || Boolean(pendingCheckout)} value={tableLabel} onChange={(e) => setTableLabel(e.target.value)} placeholder="Optional table number"/>
         </label>}
@@ -271,7 +282,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
         </select>
       </label>
       {isPeg && <label>Open bottle
-        <select required disabled={busy || Boolean(pendingCheckout)} value={bottleId} onChange={(e) => setBottleId(e.target.value)}>
+        <select required={!barCart.some((line)=>line.lineType==='PEG')} disabled={busy || Boolean(pendingCheckout)} value={bottleId} onChange={(e) => setBottleId(e.target.value)}>
           <option value="">Select matching open bottle</option>
           {bottles.filter((b) => b.product_id === selected?.product_id && Number(b.remaining_ml) >= Number(selected?.volume_ml) * quantity)
             .map((b) => <option key={b.id} value={b.id}>{b.name} · {b.remaining_ml} ml remaining</option>)}
@@ -280,6 +291,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
       <label>Quantity
         <input disabled={busy || Boolean(pendingCheckout)} type="number" min="1" step="1" value={quantity} onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}/>
       </label>
+      {deferBarPayment && <div className="tender-panel"><strong>Payment deferred</strong><small>This order will be sent to the table tab and KOT now. Take payment from the table service workspace before closing the session.</small></div>}
       <div className="tender-panel">
         <strong>Excise compliance checks</strong>
         <label><input type="checkbox" checked={ageVerified} disabled={busy || Boolean(pendingCheckout)} onChange={e=>setAgeVerified(e.target.checked)}/> I have checked acceptable proof of age and confirmed the customer is at least 21 years old.</label>
@@ -288,7 +300,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
         {mode === 'BAR' && <label><input type="checkbox" checked={mealProvided} disabled={busy || Boolean(pendingCheckout)} onChange={e=>setMealProvided(e.target.checked)}/> Meals or eatables are being supplied as required by this bar licence.</label>}
         <small>Attestations are recorded with the sale decision. The server separately checks the active legal rule pack, verified licence class, licence hours and dry-day orders.</small>
       </div>
-      <div className="tender-panel">
+      {!deferBarPayment && <div className="tender-panel">
         <strong>Payment split</strong>
         {tenders.map((tender) => <div className="tender-row" key={tender.id}>
           <select disabled={busy || Boolean(pendingCheckout)} value={tender.method} onChange={(e) => updateTender(tender.id, { method: e.target.value })}>
@@ -300,7 +312,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
         </div>)}
         <button type="button" className="secondary-button" disabled={busy || Boolean(pendingCheckout)} onClick={addTender}>Add payment method</button>
         <small>Allocated {money(tenderTotal)} of {money(checkoutTotal)}</small>
-      </div>
+      </div>}
       {mode === 'BAR' && <>
         <button className="secondary-button" type="button" disabled={busy||Boolean(pendingCheckout)||!selected||(isPeg&&!selectedBottle)} onClick={addBarToCart}>Add selected bar item to ticket</button>
         <div className="retail-cart">
@@ -336,7 +348,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
         </div>
       </>}
       <div className="pos-total"><span>Subtotal + tax</span><strong>{money(checkoutTotal)}</strong><small>Price and tax are resolved by the server from the active outlet price list.</small></div>
-      <ActionGuard action={mode === 'RETAIL' ? 'retail.checkout' : 'bar.checkout'}><button className="primary-button" type="submit" disabled={busy || !outletId || (mode === 'RETAIL' ? cart.length === 0 : barCart.length === 0)}>{busy ? 'Processing…' : pendingCheckout ? 'Retry same checkout' : mode === 'RETAIL' ? 'Complete retail sale' : 'Complete bar checkout'}</button></ActionGuard>
+      <ActionGuard action={mode === 'RETAIL' ? 'retail.checkout' : 'bar.checkout'}><button className="primary-button" type="submit" disabled={busy || !outletId || (mode === 'RETAIL' ? cart.length === 0 : barCart.length === 0)}>{busy ? 'Processing…' : pendingCheckout ? 'Retry same checkout' : mode === 'RETAIL' ? 'Complete retail sale' : deferBarPayment ? 'Send round to table tab' : 'Complete bar checkout'}</button></ActionGuard>
     </form>
     {pendingCheckout && <div className="pos-alert" role="status">A checkout attempt is awaiting confirmation. Retry sends the exact same request and idempotency key; edit the cart only after the server confirms the result.</div>}
     {error && <div className="pos-alert error" role="alert">{error}</div>}

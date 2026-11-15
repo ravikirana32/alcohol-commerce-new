@@ -12,8 +12,12 @@ export const settlementsRouter = Router();
 settlementsRouter.use(authenticate, requireOrgScope);
 const uuid = z.string().uuid();
 const refundSchema = z.object({ amount: z.number().positive(), reason: z.string().trim().min(3).max(1000), method: z.enum(['CASH','UPI','CARD','WALLET','OTHER']), reference: z.string().max(160).optional(), restock: z.boolean().default(false), restockAllocations: z.array(z.object({ saleLineId: uuid, quantity: z.number().positive() })).default([]) });
-const barRefundSchema = refundSchema.omit({restock:true,restockAllocations:true}).extend({ pegRestorations: z.array(z.object({ ticketLineId: uuid, volumeMl: z.number().int().positive() })).default([]) });
-const refundKey=(req:any)=>{const value=req.get('Idempotency-Key');return typeof value==='string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{15,120}$/.test(value)?value:null;};
+const barRefundSchema = refundSchema.omit({restock:true,restockAllocations:true}).extend({
+ approvalRequestId:uuid,
+ idempotencyKey:z.string().trim().min(16).max(160).optional(),
+ pegRestorations: z.array(z.object({ ticketLineId: uuid, volumeMl: z.number().int().positive() })).default([])
+});
+const refundKey=(req:any)=>{const value=req.get('Idempotency-Key')??req.body?.idempotencyKey;return typeof value==='string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{15,120}$/.test(value)?value:null;};
 const refundFingerprint=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 // P577: bank statement import and deterministic settlement matching evidence.
@@ -129,7 +133,13 @@ settlementsRouter.post('/bar/tickets/:ticketId/refunds', requirePermission('bar:
   const parsed=barRefundSchema.safeParse(req.body);
   if(!parsed.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:parsed.error.flatten()}});
   const key=refundKey(req); if(!key)return res.status(400).json({error:{code:'IDEMPOTENCY_KEY_REQUIRED',message:'Supply a 16-160 character Idempotency-Key and reuse it for retries.'}});
-  const fingerprint=refundFingerprint({ticketId:req.params.ticketId,...parsed.data});
+  if(parsed.data.idempotencyKey&&parsed.data.idempotencyKey!==key)return res.status(400).json({error:{code:'IDEMPOTENCY_KEY_MISMATCH'}});
+  const {approvalRequestId}=parsed.data;
+  const refundPayload={
+    amount:parsed.data.amount,reason:parsed.data.reason,method:parsed.data.method,
+    reference:parsed.data.reference,idempotencyKey:key,pegRestorations:parsed.data.pegRestorations
+  };
+  const fingerprint=refundFingerprint({ticketId:req.params.ticketId,...refundPayload});
   const client=await pool.connect(); const org=req.auth!.organisationId!;
   try{await client.query('BEGIN');
     const ticket=await client.query('SELECT * FROM bar_tickets WHERE id=$1 AND organisation_id=$2 FOR UPDATE',[req.params.ticketId,org]);
@@ -137,6 +147,29 @@ settlementsRouter.post('/bar/tickets/:ticketId/refunds', requirePermission('bar:
     const replay=await client.query('SELECT * FROM bar_refunds WHERE organisation_id=$1 AND outlet_id=$2 AND idempotency_key=$3',[org,ticket.rows[0].outlet_id,key]);
     if(replay.rowCount){if(replay.rows[0].request_fingerprint!==fingerprint){await client.query('ROLLBACK');return res.status(409).json({error:{code:'IDEMPOTENCY_KEY_CONFLICT',message:'This key was already used with a different refund payload.'}});} const sums=await client.query('SELECT COALESCE(SUM(amount),0) amount FROM bar_refunds WHERE ticket_id=$1',[req.params.ticketId]); await client.query('COMMIT'); return res.status(200).json({data:replay.rows[0],remainingRefundable:Math.max(0,Number(ticket.rows[0].grand_total)-Number(sums.rows[0].amount)),inventoryRestored:false,replayed:true});}
     if(ticket.rows[0].status!=='PAID'){await client.query('ROLLBACK');return res.status(409).json({error:{code:'TICKET_NOT_REFUNDABLE',message:'Only paid tickets can be refunded'}});}
+    const approval=await client.query(
+      `SELECT * FROM bar_ticket_approval_requests
+       WHERE id=$1 AND ticket_id=$2 AND organisation_id=$3 AND request_type='REFUND' AND status='APPROVED'
+       FOR UPDATE`,
+      [approvalRequestId,req.params.ticketId,org]
+    );
+    if(!approval.rowCount||approval.rows[0].requested_by===approval.rows[0].decided_by){
+      await client.query('ROLLBACK');
+      return res.status(409).json({error:{code:'REFUND_APPROVAL_REQUIRED',message:'A different manager must approve this refund before it can be executed'}});
+    }
+    const approvedPayload=approval.rows[0].request_payload as {
+      amount:number;reason:string;method:string;reference?:string;idempotencyKey:string;
+      pegRestorations:Array<{ticketLineId:string;volumeMl:number}>
+    };
+    const approvedFingerprint=refundFingerprint({
+      ticketId:req.params.ticketId,amount:approvedPayload.amount,reason:approvedPayload.reason,
+      method:approvedPayload.method,reference:approvedPayload.reference,idempotencyKey:approvedPayload.idempotencyKey,
+      pegRestorations:approvedPayload.pegRestorations??[]
+    });
+    if(approvedFingerprint!==fingerprint){
+      await client.query('ROLLBACK');
+      return res.status(409).json({error:{code:'REFUND_APPROVAL_PAYLOAD_MISMATCH'}});
+    }
     const prior=await client.query('SELECT COALESCE(SUM(amount),0) amount FROM bar_refunds WHERE ticket_id=$1',[req.params.ticketId]);
     const remaining=Number(ticket.rows[0].grand_total)-Number(prior.rows[0].amount);
     if(parsed.data.amount>remaining+0.001){await client.query('ROLLBACK');return res.status(409).json({error:{code:'REFUND_EXCEEDS_REMAINING',remainingAmount:remaining}});}
@@ -157,6 +190,11 @@ settlementsRouter.post('/bar/tickets/:ticketId/refunds', requirePermission('bar:
     const refunded=Number(prior.rows[0].amount)+parsed.data.amount;
     if(refunded>=Number(ticket.rows[0].grand_total)-0.001) await client.query(`UPDATE bar_tickets SET status='VOIDED' WHERE id=$1`,[req.params.ticketId]);
     await client.query(`INSERT INTO audit_events(organisation_id,outlet_id,actor_user_id,event_type,entity_type,entity_id,reason,metadata) VALUES($1,$2,$3,'BAR_REFUND_CREATED','BAR_TICKET',$4,$5,$6)`,[org,ticket.rows[0].outlet_id,req.auth!.userId,req.params.ticketId,parsed.data.reason,{amount:parsed.data.amount,pegRestorations:parsed.data.pegRestorations}]);
+    await client.query(
+      `UPDATE bar_ticket_approval_requests SET status='EXECUTED',executed_at=NOW()
+       WHERE id=$1 AND organisation_id=$2`,
+      [approval.rows[0].id,org]
+    );
     await client.query('COMMIT');return res.status(201).json({data:refund.rows[0],remainingRefundable:Math.max(0,remaining-parsed.data.amount),inventoryRestored:false,pegVolumeQuarantined:parsed.data.pegRestorations.length>0,quarantinedPegVolumeMl:parsed.data.pegRestorations.reduce((sum,item)=>sum+item.volumeMl,0)});
   }catch(e:any){await client.query('ROLLBACK');if(e?.code==='23505')return res.status(409).json({error:{code:'IDEMPOTENCY_KEY_CONFLICT',message:'This Idempotency-Key is already in use for another refund request.'}});throw e;}finally{client.release();}
 });

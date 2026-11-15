@@ -5,6 +5,7 @@ export const actionPermissions = {
   'retail.manage': ['retail:manage'],
   'bar.checkout': ['bar:billing', 'bar:sell'],
   'bar.refund': ['bar:refund'],
+  'bar.approve': ['bar:approve'],
   'bar.manage': ['bar:manage'],
   'shift.read': ['shift:read', 'shift:manage'],
   'shift.manage': ['shift:manage'],

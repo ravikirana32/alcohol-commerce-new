@@ -765,9 +765,6 @@ operationsRouter.get('/bar/bottle-reservations',requirePermission('peg:read'),as
 operationsRouter.post('/bar/tickets',requirePermission('bar:sell'),async(_req,res)=>{
   return res.status(410).json({error:{code:'ATOMIC_CHECKOUT_REQUIRED',message:'Use POST /api/v1/bar/checkout so ticket, payment and peg stock changes commit atomically'}});
 });
-operationsRouter.post('/bar/tickets/:ticketId/payments',requirePermission('bar:take_payment'),async(_req,res)=>{
-  return res.status(410).json({error:{code:'ATOMIC_CHECKOUT_REQUIRED',message:'Separate bar payments are disabled; use POST /api/v1/bar/checkout'}});
-});
 
 // P10 shift opening, close preview and close with tender variance.
 operationsRouter.post('/shifts/open',requirePermission('shift:manage'),async(req,res)=>{
