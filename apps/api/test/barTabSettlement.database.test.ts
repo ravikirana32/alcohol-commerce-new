@@ -1,9 +1,9 @@
-import { randomUUID } from 'node:crypto';
+import { createHmac, randomUUID } from 'node:crypto';
 import type { Express } from 'express';
 import jwt from 'jsonwebtoken';
 import pg from 'pg';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 const databaseUrl = process.env.BAR_TAB_TEST_DATABASE_URL;
 const parsedTestDatabaseUrl = databaseUrl ? new URL(databaseUrl) : null;
@@ -128,6 +128,8 @@ describe.skipIf(!parsedTestDatabaseUrl)('bar tab settlement database integration
   afterAll(async () => {
     if (!pool) return;
     await pool.query('DELETE FROM audit_events WHERE organisation_id=$1',[organisationId]);
+    await pool.query('DELETE FROM p597_razorpay_bar_tab_orders WHERE organisation_id=$1',[organisationId]);
+    await pool.query('DELETE FROM p535_tender_allocations WHERE organisation_id=$1',[organisationId]);
     await pool.query('DELETE FROM bar_payment_requests WHERE organisation_id=$1',[organisationId]);
     await pool.query('DELETE FROM bar_payments WHERE organisation_id=$1',[organisationId]);
     await pool.query('DELETE FROM bar_kot_orders WHERE organisation_id=$1',[organisationId]);
@@ -140,6 +142,87 @@ describe.skipIf(!parsedTestDatabaseUrl)('bar tab settlement database integration
     await pool.query('DELETE FROM organisations WHERE id=$1',[organisationId]);
     await pool.query('DELETE FROM users WHERE id=$1',[userId]);
     await pool.end();
+  });
+
+  it('creates and verifies one captured Razorpay bar-tab payment before recording a pending-settlement tender', async () => {
+    const razorpayTicketId = randomUUID();
+    const idempotencyKey = randomUUID();
+    await pool.query(
+      `INSERT INTO bar_tickets(id,organisation_id,outlet_id,ticket_number,table_label,table_session_id,status,grand_total,opened_by)
+       VALUES($1,$2,$3,$4,'Razorpay test tab',$5,'SENT',25.50,$6)`,
+      [razorpayTicketId,organisationId,outletId,`B-RZP-${razorpayTicketId.slice(0,8)}`,sessionId,userId]
+    );
+    const originalKeyId = process.env.RAZORPAY_KEY_ID;
+    const originalKeySecret = process.env.RAZORPAY_KEY_SECRET;
+    process.env.RAZORPAY_KEY_ID = 'rzp_test_integration';
+    process.env.RAZORPAY_KEY_SECRET = 'razorpay-test-secret';
+    const fetch = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        id:'order_test123',amount:2550,currency:'INR',status:'created'
+      }),{status:200,headers:{'Content-Type':'application/json'}}))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        id:'pay_test123',order_id:'order_test123',amount:2550,currency:'INR',
+        status:'captured',method:'upi',captured:true
+      }),{status:200,headers:{'Content-Type':'application/json'}}));
+    vi.stubGlobal('fetch',fetch);
+    try {
+      const created = await request(app)
+        .post(`/api/v1/bar/tickets/${razorpayTicketId}/razorpay-order`)
+        .set('Authorization',`Bearer ${token}`)
+        .send({idempotencyKey});
+      expect(created.status).toBe(201);
+      expect(created.body.data).toMatchObject({
+        orderId:'order_test123',amount:2550,currency:'INR',keyId:'rzp_test_integration'
+      });
+
+      const blockedCash = await request(app)
+        .post(`/api/v1/bar/tickets/${razorpayTicketId}/payments`)
+        .set('Authorization',`Bearer ${token}`)
+        .send({idempotencyKey:randomUUID(),payments:[{method:'CASH',amount:25.5}]});
+      expect(blockedCash.status).toBe(409);
+      expect(blockedCash.body.error.code).toBe('RAZORPAY_PAYMENT_IN_PROGRESS');
+
+      const signature = createHmac('sha256','razorpay-test-secret')
+        .update('order_test123|pay_test123').digest('hex');
+      const verificationPayload = {
+        localOrderId:created.body.data.localOrderId,
+        razorpayOrderId:'order_test123',
+        razorpayPaymentId:'pay_test123',
+        razorpaySignature:signature
+      };
+      const verified = await request(app)
+        .post(`/api/v1/bar/tickets/${razorpayTicketId}/razorpay-verify`)
+        .set('Authorization',`Bearer ${token}`)
+        .send(verificationPayload);
+      expect(verified.status).toBe(200);
+      expect(verified.body.data).toMatchObject({ticketId:razorpayTicketId,status:'PAID',remainingDue:0});
+
+      const replay = await request(app)
+        .post(`/api/v1/bar/tickets/${razorpayTicketId}/razorpay-verify`)
+        .set('Authorization',`Bearer ${token}`)
+        .send(verificationPayload);
+      expect(replay.status).toBe(200);
+      expect(replay.body.idempotentReplay).toBe(true);
+
+      const rows = await pool.query(
+        `SELECT p.method,p.amount,p.reference,p.settlement_status,a.provider,a.provider_transaction_id,a.lifecycle_status
+           FROM bar_payments p
+           JOIN p535_tender_allocations a ON a.source_id=p.ticket_id AND a.provider_transaction_id=p.reference
+          WHERE p.ticket_id=$1`,
+        [razorpayTicketId]
+      );
+      expect(rows.rows).toEqual([{
+        method:'UPI',amount:'25.50',reference:'pay_test123',settlement_status:'PENDING',
+        provider:'razorpay',provider_transaction_id:'pay_test123',lifecycle_status:'PENDING'
+      }]);
+      expect(fetch).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+      if (originalKeyId === undefined) delete process.env.RAZORPAY_KEY_ID;
+      else process.env.RAZORPAY_KEY_ID = originalKeyId;
+      if (originalKeySecret === undefined) delete process.env.RAZORPAY_KEY_SECRET;
+      else process.env.RAZORPAY_KEY_SECRET = originalKeySecret;
+    }
   });
 
   it('persists partial mixed tenders once, replays idempotently, settles the balance, and closes the table', async () => {

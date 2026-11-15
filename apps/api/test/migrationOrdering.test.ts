@@ -33,4 +33,11 @@ describe('database migration ordering', () => {
     const actualSequence = files.filter((name) => expectedSequence.includes(name));
     expect(actualSequence).toEqual(expectedSequence);
   });
+
+  it('creates menu and recipe inventory tables after the Phase 1 migrations', () => {
+    expect(files.indexOf('269_p595_menu_recipes_and_batch_fefo.sql')).toBeGreaterThan(files.indexOf('268_p594_bar_void_wastage_disposition.sql'));
+    expect(files.indexOf('270_p596_phase_two_acceptance.sql')).toBeGreaterThan(files.indexOf('269_p595_menu_recipes_and_batch_fefo.sql'));
+    expect(files.indexOf('271_p597_phase_two_substitutions_and_three_way_match.sql')).toBeGreaterThan(files.indexOf('270_p596_phase_two_acceptance.sql'));
+    expect(files.indexOf('272_p597_razorpay_bar_tab_payments.sql')).toBeGreaterThan(files.indexOf('271_p597_phase_two_substitutions_and_three_way_match.sql'));
+  });
 });

@@ -13,6 +13,8 @@ import { evaluateExciseSale } from '../services/exciseCompliance.js';
 import { createCheckoutTaxQuote } from '../services/taxQuote.js';
 import { calculateBarSettlement, createBarSettlementFingerprint } from '../services/barTabSettlement.js';
 import { addInventoryCostLayer } from '../services/inventoryCosting.js';
+import { scaleRecipeQuantity } from '../services/barRecipe.js';
+import { consumeInventoryBatchFefo, restoreInventoryBatchFefo } from '../services/inventoryBatchFefo.js';
 
 export const barCheckoutRouter = Router();
 barCheckoutRouter.use(authenticate, requireOrgScope);
@@ -23,7 +25,9 @@ const lineSchema = z.object({
   lineType: z.enum(['PEG', 'BOTTLE', 'PACKAGED']),
   quantity: z.number().positive(),
   volumeMl: z.number().int().positive().optional(),
-  openBottleId: uuid.optional()
+  openBottleId: uuid.optional(),
+  modifierOptionIds: z.array(uuid).max(20).default([])
+    .refine(ids=>new Set(ids).size===ids.length,'Modifier options cannot be repeated')
 }).superRefine((line, ctx) => {
   if (line.lineType === 'PEG') {
     if (!Number.isInteger(line.quantity)) ctx.addIssue({ code: 'custom', message: 'Peg quantity must be a whole number', path: ['quantity'] });
@@ -110,7 +114,14 @@ barCheckoutRouter.get('/bar/tickets/:ticketId', requirePermission('bar:read'), a
   );
   if(!ticket.rowCount)return res.status(404).json({error:{code:'TICKET_NOT_FOUND'}});
   const [lines,payments,refunds]=await Promise.all([
-    pool.query(`SELECT l.*,COALESCE((SELECT SUM(x.volume_ml) FROM bar_refund_peg_restorations x WHERE x.ticket_line_id=l.id),0) quarantined_volume_ml FROM bar_ticket_lines l WHERE l.ticket_id=$1 AND l.quantity>0 ORDER BY l.id`,[req.params.ticketId]),
+    pool.query(`SELECT l.*,COALESCE((SELECT SUM(x.volume_ml) FROM bar_refund_peg_restorations x WHERE x.ticket_line_id=l.id),0) quarantined_volume_ml,
+       COALESCE((SELECT json_agg(json_build_object(
+         'id',m.id,'groupId',m.group_id,'groupName',m.group_name,'optionId',m.option_id,
+         'name',m.option_name,'priceDelta',m.price_delta,'substitutesProductId',m.substitutes_product_id,
+         'ingredientProductId',m.ingredient_product_id,
+         'ingredientQuantity',m.ingredient_quantity
+       ) ORDER BY m.id) FROM bar_ticket_line_modifiers m WHERE m.ticket_line_id=l.id),'[]'::json) modifiers
+      FROM bar_ticket_lines l WHERE l.ticket_id=$1 AND l.quantity>0 ORDER BY l.id`,[req.params.ticketId]),
     pool.query('SELECT method,amount,reference FROM bar_payments WHERE ticket_id=$1 ORDER BY created_at,id',[req.params.ticketId]),
     pool.query('SELECT * FROM bar_refunds WHERE ticket_id=$1 ORDER BY created_at,id',[req.params.ticketId])
   ]);
@@ -162,6 +173,16 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/payments', requirePermission('bar
       await client.query('COMMIT');
       return res.json({data:replayedPayments.rows,paidTotal,remainingDue:Math.max(0,Number(ticket.rows[0].grand_total)-paidTotal),status:ticket.rows[0].status,idempotentReplay:true});
     }
+    const activeProviderOrder=await client.query(
+      `SELECT 1 FROM p597_razorpay_bar_tab_orders
+        WHERE organisation_id=$1 AND ticket_id=$2 AND status IN ('CREATING','CREATED','REVIEW_REQUIRED')
+        LIMIT 1`,
+      [org,req.params.ticketId]
+    );
+    if(activeProviderOrder.rowCount){
+      await client.query('ROLLBACK');
+      return res.status(409).json({error:{code:'RAZORPAY_PAYMENT_IN_PROGRESS',message:'Finish or resolve the active Razorpay payment before recording another tender'}});
+    }
     if(!['SENT','PART_PAID'].includes(ticket.rows[0].status)){
       await client.query('ROLLBACK');
       return res.status(409).json({error:{code:'TICKET_NOT_OPEN_FOR_PAYMENT',message:'Only an unpaid or partially paid tab ticket can receive additional payment'}});
@@ -203,7 +224,10 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/payments', requirePermission('bar
     );
     await client.query('COMMIT');
     return res.status(201).json({data:inserted,paidTotal:settlement.paidTotal,remainingDue:settlement.remainingDue,status:settlement.status,idempotentReplay:false});
-  }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
+  }catch(error:any){
+    await client.query('ROLLBACK');
+    throw error;
+  }finally{client.release();}
 });
 
 /**
@@ -327,6 +351,10 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/lines/:lineId/quantity', requireP
         notes:parsed.data.reason,createdBy:req.auth!.userId
       });
       if(!movement.created)throw new Error('BAR_LINE_EDIT_MOVEMENT_EXISTS_BEFORE_COMMIT');
+      await consumeInventoryBatchFefo(client,{
+        organisationId:org,outletId:ticket.rows[0].outlet_id,productId:line.rows[0].product_id,
+        stockMovementId:movement.id,quantityUnits:delta
+      });
       await consumeInventoryCostFifo(client,{
         organisationId:org,outletId:ticket.rows[0].outlet_id,productId:line.rows[0].product_id,
         quantityUnits:delta,sourceType:'BAR_TICKET_LINE_EDIT',sourceId:movement.id,movementId:movement.id
@@ -361,6 +389,11 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/lines/:lineId/quantity', requireP
          UNION SELECT stock_movement_id FROM bar_ticket_lines WHERE id=$1 AND stock_movement_id IS NOT NULL`,
         [req.params.lineId]
       );
+      await restoreInventoryBatchFefo(client,{
+        organisationId:org,outletId:ticket.rows[0].outlet_id,productId:line.rows[0].product_id,
+        sourceMovementIds:saleMovements.rows.map((row:any)=>row.movement_id),
+        returnMovementId:movement.id,quantityUnits:returnedQuantity
+      });
       const cost=await client.query(
         `SELECT COALESCE(SUM(quantity_units),0) quantity,COALESCE(SUM(extended_cost),0) cost
          FROM inventory_cost_consumptions WHERE movement_id=ANY($1::uuid[])`,
@@ -419,7 +452,11 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/lines/:lineId/quantity', requireP
     );
     await client.query('COMMIT');
     return res.status(200).json({data:updated.rows[0],idempotentReplay:false});
-  }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
+  }catch(error:any){
+    await client.query('ROLLBACK');
+    if(typeof error?.code==='string'&&error.code.startsWith('INVENTORY_BATCH_'))return res.status(409).json({error:{code:error.code,message:error.message}});
+    throw error;
+  }finally{client.release();}
 });
 
 barCheckoutRouter.post('/bar/tickets/:ticketId/split', requirePermission('bar:sell'), async (req,res) => {
@@ -842,6 +879,7 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/void', requirePermission('bar:ref
     );
     const assignedLegacyMovementIds=new Set<string>();
     for(const line of lines.rows){
+      let modifierVoidCost=0;
       if(preparationStarted&&line.line_type==='PEG'){
         const pegEvidence=await client.query(
           `SELECT COALESCE(SUM(volume_ml),0)::numeric volume_ml
@@ -864,6 +902,141 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/void', requirePermission('bar:ref
             line.line_type,line.quantity,wastedVolume,req.auth!.userId]
         );
         continue;
+      }
+      if(line.stock_movement_id===null){
+        const recipeConsumptions=await client.query(
+          `SELECT c.ingredient_product_id,c.quantity_units,c.stock_movement_id,
+                  m.quantity_units AS movement_quantity,e.covered_units,e.extended_cost
+             FROM bar_ticket_recipe_consumptions c
+             JOIN stock_movements m ON m.id=c.stock_movement_id
+              AND m.organisation_id=c.organisation_id AND m.outlet_id=c.outlet_id
+              AND m.product_id=c.ingredient_product_id AND m.movement_type='SALE'
+             LEFT JOIN inventory_cost_consumption_events e
+               ON e.source_id=m.id AND e.organisation_id=c.organisation_id
+              AND e.source_type='BAR_RECIPE_INGREDIENT'
+            WHERE c.organisation_id=$1 AND c.outlet_id=$2 AND c.ticket_line_id=$3
+            ORDER BY c.ingredient_product_id,c.id FOR UPDATE OF c,m`,
+          [org,ticket.rows[0].outlet_id,line.id]
+        );
+        const modifierConsumptions=await client.query(
+          `SELECT c.ingredient_product_id,c.quantity_units,c.stock_movement_id,
+                  m.quantity_units AS movement_quantity,e.covered_units,e.extended_cost
+             FROM bar_ticket_modifier_consumptions c
+             JOIN bar_ticket_line_modifiers modifier ON modifier.id=c.modifier_id
+             JOIN stock_movements m ON m.id=c.stock_movement_id
+              AND m.organisation_id=c.organisation_id AND m.outlet_id=$2
+              AND m.product_id=c.ingredient_product_id AND m.movement_type='SALE'
+             LEFT JOIN inventory_cost_consumption_events e
+               ON e.source_id=m.id AND e.organisation_id=c.organisation_id
+              AND e.source_type='BAR_MODIFIER'
+            WHERE c.organisation_id=$1 AND modifier.ticket_line_id=$3
+            ORDER BY c.ingredient_product_id,c.id FOR UPDATE OF c,m`,
+          [org,ticket.rows[0].outlet_id,line.id]
+        );
+        const ingredientConsumptions=[
+          ...recipeConsumptions.rows,
+          ...modifierConsumptions.rows
+        ];
+        if(ingredientConsumptions.length){
+          let totalCost=0;
+          for(const ingredient of ingredientConsumptions){
+            const quantity=Number(ingredient.quantity_units);
+            if(Math.abs(Number(ingredient.movement_quantity)-quantity)>0.0005){
+              await client.query('ROLLBACK');
+              return res.status(409).json({error:{code:'RECIPE_STOCK_EVIDENCE_MISMATCH',message:'Recipe ingredient consumption does not reconcile with its stock movement'}});
+            }
+            const covered=Number(ingredient.covered_units??0);
+            const cost=Number(ingredient.extended_cost??0);
+            totalCost+=cost;
+            if(preparationStarted)continue;
+            const restored=await client.query(
+              `UPDATE stock_balances SET quantity_units=quantity_units+$1,updated_at=NOW()
+                WHERE organisation_id=$2 AND outlet_id=$3 AND product_id=$4`,
+              [quantity,org,ticket.rows[0].outlet_id,ingredient.ingredient_product_id]
+            );
+            if(!restored.rowCount)throw new Error('RECIPE_STOCK_BALANCE_MISSING_FOR_VOID');
+            const returned=await appendStockMovementOnce(client,{
+              organisationId:org,outletId:ticket.rows[0].outlet_id,productId:ingredient.ingredient_product_id,
+              movementType:'RETURN',quantityUnits:quantity,referenceType:'BAR_TICKET_VOID_RECIPE',
+              referenceId:String(req.params.ticketId),
+              idempotencyKey:`bar-ticket-void:${req.params.ticketId}:${line.id}:ingredient:${ingredient.stock_movement_id}`,
+              notes:voidReason,createdBy:req.auth!.userId
+            });
+            if(!returned.created)throw new Error('RECIPE_STOCK_VOID_MOVEMENT_EXISTS_BEFORE_VOID_COMMIT');
+            await restoreInventoryBatchFefo(client,{
+              organisationId:org,outletId:ticket.rows[0].outlet_id,
+              productId:ingredient.ingredient_product_id,sourceMovementIds:[ingredient.stock_movement_id],
+              returnMovementId:returned.id,quantityUnits:quantity
+            });
+            if(covered>0)await addInventoryCostLayer(client,{
+              organisationId:org,outletId:ticket.rows[0].outlet_id,productId:ingredient.ingredient_product_id,
+              sourceType:'RETURN',sourceId:returned.id,sourceLineId:randomUUID(),
+              quantityUnits:covered,unitCost:cost/covered
+            });
+          }
+          await client.query(
+            `INSERT INTO bar_ticket_void_disposition_lines(
+               organisation_id,outlet_id,void_request_id,ticket_line_id,product_id,line_type,quantity,
+               disposition,cost_amount,created_by
+             ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+            [org,ticket.rows[0].outlet_id,voidRequest.rows[0].id,line.id,line.product_id,
+              line.line_type,line.quantity,preparationStarted?'WASTAGE':'RESTOCKED',
+              Math.round(totalCost*100)/100,req.auth!.userId]
+          );
+          continue;
+        }
+      }
+      if(line.stock_movement_id!==null){
+        const modifierConsumptions=await client.query(
+          `SELECT c.ingredient_product_id,c.quantity_units,c.stock_movement_id,
+                  m.quantity_units AS movement_quantity,e.covered_units,e.extended_cost
+             FROM bar_ticket_modifier_consumptions c
+             JOIN bar_ticket_line_modifiers modifier ON modifier.id=c.modifier_id
+             JOIN stock_movements m ON m.id=c.stock_movement_id
+              AND m.organisation_id=c.organisation_id AND m.outlet_id=$2
+              AND m.product_id=c.ingredient_product_id AND m.movement_type='SALE'
+             LEFT JOIN inventory_cost_consumption_events e
+               ON e.source_id=m.id AND e.organisation_id=c.organisation_id
+              AND e.source_type='BAR_MODIFIER'
+            WHERE c.organisation_id=$1 AND modifier.ticket_line_id=$3
+            ORDER BY c.ingredient_product_id,c.id FOR UPDATE OF c,m`,
+          [org,ticket.rows[0].outlet_id,line.id]
+        );
+        for(const ingredient of modifierConsumptions.rows){
+          const quantity=Number(ingredient.quantity_units);
+          if(Math.abs(Number(ingredient.movement_quantity)-quantity)>0.0005){
+            await client.query('ROLLBACK');
+            return res.status(409).json({error:{code:'MODIFIER_STOCK_EVIDENCE_MISMATCH',message:'Modifier ingredient consumption does not reconcile with its stock movement'}});
+          }
+          const covered=Number(ingredient.covered_units??0);
+          const cost=Number(ingredient.extended_cost??0);
+          modifierVoidCost+=cost;
+          if(preparationStarted)continue;
+          const restored=await client.query(
+            `UPDATE stock_balances SET quantity_units=quantity_units+$1,updated_at=NOW()
+              WHERE organisation_id=$2 AND outlet_id=$3 AND product_id=$4`,
+            [quantity,org,ticket.rows[0].outlet_id,ingredient.ingredient_product_id]
+          );
+          if(!restored.rowCount)throw new Error('MODIFIER_STOCK_BALANCE_MISSING_FOR_VOID');
+          const returned=await appendStockMovementOnce(client,{
+            organisationId:org,outletId:ticket.rows[0].outlet_id,productId:ingredient.ingredient_product_id,
+            movementType:'RETURN',quantityUnits:quantity,referenceType:'BAR_TICKET_VOID_MODIFIER',
+            referenceId:String(req.params.ticketId),
+            idempotencyKey:`bar-ticket-void:${req.params.ticketId}:${line.id}:modifier:${ingredient.stock_movement_id}`,
+            notes:voidReason,createdBy:req.auth!.userId
+          });
+          if(!returned.created)throw new Error('MODIFIER_VOID_MOVEMENT_EXISTS_BEFORE_VOID_COMMIT');
+          await restoreInventoryBatchFefo(client,{
+            organisationId:org,outletId:ticket.rows[0].outlet_id,
+            productId:ingredient.ingredient_product_id,sourceMovementIds:[ingredient.stock_movement_id],
+            returnMovementId:returned.id,quantityUnits:quantity
+          });
+          if(covered>0)await addInventoryCostLayer(client,{
+            organisationId:org,outletId:ticket.rows[0].outlet_id,productId:ingredient.ingredient_product_id,
+            sourceType:'RETURN',sourceId:returned.id,sourceLineId:randomUUID(),
+            quantityUnits:covered,unitCost:cost/covered
+          });
+        }
       }
       const adjustments=await client.query(
         `SELECT movement_id,direction,quantity_units FROM bar_ticket_line_stock_adjustments
@@ -917,6 +1090,7 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/void', requirePermission('bar:ref
       ]);
       const netCostQuantity=Number(costs.rows[0].quantity)-Number(returnedCosts.rows[0].quantity);
       const netCostAmount=Number(costs.rows[0].cost)-Number(returnedCosts.rows[0].cost);
+      const dispositionCost=netCostAmount+modifierVoidCost;
       if(Math.abs(netCostQuantity-Number(line.quantity))>0.0005||netCostAmount<0){
         await client.query('ROLLBACK');
         return res.status(409).json({error:{code:'COST_REVERSAL_EVIDENCE_MISSING',message:'Cannot void because FIFO cost evidence does not reconcile with the remaining line quantity'}});
@@ -928,7 +1102,7 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/void', requirePermission('bar:ref
              disposition,stock_movement_id,cost_amount,created_by
            ) VALUES($1,$2,$3,$4,$5,$6,$7,'WASTAGE',$8,$9,$10)`,
           [org,ticket.rows[0].outlet_id,voidRequest.rows[0].id,line.id,line.product_id,
-            line.line_type,line.quantity,originalMovement.id,Math.round(netCostAmount*100)/100,req.auth!.userId]
+            line.line_type,line.quantity,originalMovement.id,Math.round(dispositionCost*100)/100,req.auth!.userId]
         );
         continue;
       }
@@ -946,6 +1120,10 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/void', requirePermission('bar:ref
         notes:voidReason,createdBy:req.auth!.userId
       });
       if(!returned.created)throw new Error('STOCK_VOID_MOVEMENT_EXISTS_BEFORE_VOID_COMMIT');
+      await restoreInventoryBatchFefo(client,{
+        organisationId:org,outletId:ticket.rows[0].outlet_id,productId:line.product_id,
+        sourceMovementIds:saleMovementIds,returnMovementId:returned.id,quantityUnits:Number(line.quantity)
+      });
       await addInventoryCostLayer(client,{
         organisationId:org,outletId:ticket.rows[0].outlet_id,productId:line.product_id,
         sourceType:'RETURN',sourceId:returned.id,sourceLineId:randomUUID(),
@@ -957,7 +1135,7 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/void', requirePermission('bar:ref
            disposition,stock_movement_id,cost_amount,created_by
          ) VALUES($1,$2,$3,$4,$5,$6,$7,'RESTOCKED',$8,$9,$10)`,
         [org,ticket.rows[0].outlet_id,voidRequest.rows[0].id,line.id,line.product_id,
-          line.line_type,line.quantity,originalMovement.id,Math.round(netCostAmount*100)/100,req.auth!.userId]
+          line.line_type,line.quantity,originalMovement.id,Math.round(dispositionCost*100)/100,req.auth!.userId]
       );
     }
     await client.query(
@@ -983,7 +1161,11 @@ barCheckoutRouter.post('/bar/tickets/:ticketId/void', requirePermission('bar:ref
     );
     await client.query('COMMIT');
     return res.status(200).json({data:{...voided.rows[0],inventoryDisposition},idempotentReplay:false});
-  }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
+  }catch(error:any){
+    await client.query('ROLLBACK');
+    if(typeof error?.code==='string'&&error.code.startsWith('INVENTORY_BATCH_'))return res.status(409).json({error:{code:error.code,message:error.message}});
+    throw error;
+  }finally{client.release();}
 });
 
 // P517: open table sessions are the authoritative table identity for bar service.
@@ -1360,11 +1542,16 @@ barCheckoutRouter.post('/bar/checkout', requirePermission('bar:sell'), async (re
     if (replay.rowCount) {
       const [payments,lines] = await Promise.all([
         client.query('SELECT method,amount,reference FROM bar_payments WHERE ticket_id=$1 ORDER BY created_at', [replay.rows[0].id]),
-        client.query('SELECT product_id,line_type,quantity,volume_ml,open_bottle_id FROM bar_ticket_lines WHERE ticket_id=$1 ORDER BY id', [replay.rows[0].id])
+        client.query(
+          `SELECT l.product_id,l.line_type,l.quantity,l.volume_ml,l.open_bottle_id,
+             ARRAY(SELECT m.option_id FROM bar_ticket_line_modifiers m WHERE m.ticket_line_id=l.id ORDER BY m.option_id) modifier_option_ids
+             FROM bar_ticket_lines l WHERE l.ticket_id=$1 ORDER BY l.id`,
+          [replay.rows[0].id]
+        )
       ]);
       const storedFingerprint=replay.rows[0].request_fingerprint?.trim()||createBarCheckoutFingerprint({
         outletId:data.outletId,ticketNumber:replay.rows[0].ticket_number,tableLabel:replay.rows[0].table_label??undefined,tableSessionId:replay.rows[0].table_session_id??undefined,
-        lines:lines.rows.map((line:any)=>({productId:line.product_id,lineType:line.line_type,quantity:Number(line.quantity),volumeMl:line.volume_ml===null?undefined:Number(line.volume_ml),openBottleId:line.open_bottle_id??undefined})),
+        lines:lines.rows.map((line:any)=>({productId:line.product_id,lineType:line.line_type,quantity:Number(line.quantity),volumeMl:line.volume_ml===null?undefined:Number(line.volume_ml),openBottleId:line.open_bottle_id??undefined,modifierOptionIds:line.modifier_option_ids??[]})),
         payments:payments.rows.map((p:any)=>({method:p.method,amount:Number(p.amount),reference:p.reference??undefined}))
       });
       if(storedFingerprint!==fingerprint){
@@ -1393,6 +1580,8 @@ barCheckoutRouter.post('/bar/checkout', requirePermission('bar:sell'), async (re
     const resolved: Array<{
       productId: string; lineType: 'PEG' | 'BOTTLE' | 'PACKAGED'; quantity: number;
       volumeMl?: number; openBottleId?: string; unitPrice: number; baseAmount: number; taxAmount: number; lineTotal: number; taxSnapshotId: string; taxSnapshotHash: string;
+      recipe: { id: string; yieldQuantity: number; lines: Array<{ id: string; productId: string; quantity: number }> } | null;
+      modifiers: Array<{id:string;groupId:string;groupName:string;name:string;priceDelta:number;substitutesProductId:string|null;ingredientProductId:string|null;ingredientQuantity:number}>;
     }> = [];
     for (const line of data.lines) {
       const product = await client.query(
@@ -1403,11 +1592,104 @@ barCheckoutRouter.post('/bar/checkout', requirePermission('bar:sell'), async (re
         await client.query('ROLLBACK');
         return res.status(404).json({ error: { code: 'PRODUCT_NOT_FOUND', message: 'Active product not found' } });
       }
+      const availability = await client.query(
+        `SELECT is_available FROM bar_menu_availability
+          WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 AND measure_type=$4`,
+        [organisationId,data.outletId,line.productId,line.lineType]
+      );
+      if (availability.rowCount && !availability.rows[0].is_available) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: { code: 'MENU_ITEM_UNAVAILABLE', message: 'This menu item is unavailable for the selected measure' } });
+      }
+      const groups=await client.query(
+        `SELECT id,name,min_selections,max_selections,substitutes_product_id FROM bar_modifier_groups
+          WHERE organisation_id=$1 AND product_id=$2 AND status='ACTIVE' ORDER BY id`,
+        [organisationId,line.productId]
+      );
+      const modifierRows=line.modifierOptionIds.length?await client.query(
+        `SELECT o.id,o.group_id,o.name,o.price_delta,o.ingredient_product_id,o.ingredient_quantity,
+                g.name AS group_name,g.substitutes_product_id
+           FROM bar_modifier_options o
+           JOIN bar_modifier_groups g ON g.id=o.group_id AND g.organisation_id=o.organisation_id
+            AND g.product_id=o.product_id AND g.status='ACTIVE'
+          WHERE o.organisation_id=$1 AND o.product_id=$2 AND o.status='ACTIVE' AND o.id=ANY($3::uuid[])
+          ORDER BY o.id`,
+        [organisationId,line.productId,line.modifierOptionIds]
+      ): { rows: [], rowCount: 0 };
+      if(modifierRows.rowCount!==line.modifierOptionIds.length){
+        await client.query('ROLLBACK');
+        return res.status(400).json({error:{code:'INVALID_MENU_MODIFIER',message:'One or more selected modifiers are not active for this menu item'}});
+      }
+      if(line.lineType==='PEG'&&modifierRows.rows.some((option:any)=>option.substitutes_product_id)){
+        await client.query('ROLLBACK');
+        return res.status(400).json({error:{code:'SUBSTITUTION_NOT_SUPPORTED_FOR_PEG',message:'Ingredient substitutions apply to recipe-based servings, not open-bottle peg pours'}});
+      }
+      for(const group of groups.rows){
+        if(line.lineType==='PEG'&&group.substitutes_product_id)continue;
+        const selectedCount=modifierRows.rows.filter((option:any)=>option.group_id===group.id).length;
+        if(selectedCount<Number(group.min_selections)||selectedCount>Number(group.max_selections)){
+          await client.query('ROLLBACK');
+          return res.status(400).json({error:{code:'MODIFIER_SELECTION_REQUIRED',message:`Choose ${group.min_selections}-${group.max_selections} option(s) for ${group.name}`}});
+        }
+      }
+      const modifierAdjustment=modifierRows.rows.reduce((sum:number,option:any)=>sum+Number(option.price_delta),0);
+      let recipe: { id: string; yieldQuantity: number; lines: Array<{ id: string; productId: string; quantity: number }> } | null = null;
+      if (line.lineType !== 'PEG') {
+        const activeRecipe = await client.query(
+          `SELECT id,yield_quantity FROM bar_product_recipes
+            WHERE organisation_id=$1 AND product_id=$2 AND status='ACTIVE'`,
+          [organisationId,line.productId]
+        );
+        if (activeRecipe.rowCount) {
+          const recipeLines = await client.query(
+            `SELECT l.id,l.ingredient_product_id,l.quantity
+               FROM bar_product_recipe_lines l
+               JOIN products ingredient ON ingredient.id=l.ingredient_product_id
+                AND ingredient.organisation_id=l.organisation_id AND ingredient.status='ACTIVE'
+              WHERE l.organisation_id=$1 AND l.recipe_id=$2 ORDER BY l.id`,
+            [organisationId,activeRecipe.rows[0].id]
+          );
+          if (!recipeLines.rowCount) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: { code: 'ACTIVE_RECIPE_EMPTY', message: 'The active recipe has no active ingredients' } });
+          }
+          const substitutions=new Set<string>();
+          for(const group of groups.rows){
+            if(!group.substitutes_product_id)continue;
+            const selected=modifierRows.rows.filter((option:any)=>option.group_id===group.id);
+            if(selected.length!==1){
+              await client.query('ROLLBACK');
+              return res.status(400).json({error:{code:'SUBSTITUTION_REQUIRED',message:`Choose one replacement for ${group.name}`}});
+            }
+            if(!recipeLines.rows.some((row:any)=>row.ingredient_product_id===group.substitutes_product_id)){
+              await client.query('ROLLBACK');
+              return res.status(409).json({error:{code:'SUBSTITUTION_NOT_IN_RECIPE',message:`${group.name} no longer matches an ingredient in the active recipe`}});
+            }
+            substitutions.add(group.substitutes_product_id);
+          }
+          recipe = {
+            id: activeRecipe.rows[0].id,
+            yieldQuantity: Number(activeRecipe.rows[0].yield_quantity),
+            lines: recipeLines.rows.filter((row:any)=>!substitutions.has(row.ingredient_product_id))
+              .map((row:any) => ({ id:row.id,productId:row.ingredient_product_id,quantity:Number(row.quantity) }))
+          };
+        } else if(groups.rows.some((group:any)=>group.substitutes_product_id)){
+          await client.query('ROLLBACK');
+          return res.status(409).json({error:{code:'SUBSTITUTION_RECIPE_REQUIRED',message:'Substitutions require an active recipe for this menu item'}});
+        }
+      }
       const quote = await createCheckoutTaxQuote(client,{organisationId,outletId:data.outletId,productId:line.productId,
         actorUserId:req.auth!.userId,channel:'BAR',measureType:line.lineType,quantity:line.quantity,
+        priceAdjustmentPerUnit:modifierAdjustment,
         ...(line.lineType==='PEG'&&line.volumeMl?{packSizeMlOverride:line.volumeMl}:{})});
       resolved.push({ ...line, unitPrice:quote.unitPrice, baseAmount:quote.baseAmount, taxAmount:quote.taxAmount, lineTotal:quote.lineTotal,
-        taxSnapshotId:quote.snapshotId, taxSnapshotHash:quote.snapshotHash });
+        taxSnapshotId:quote.snapshotId, taxSnapshotHash:quote.snapshotHash,recipe,
+        modifiers:modifierRows.rows.map((option:any)=>({
+          id:option.id,groupId:option.group_id,groupName:option.group_name,name:option.name,
+          priceDelta:Number(option.price_delta),substitutesProductId:option.substitutes_product_id,
+          ingredientProductId:option.ingredient_product_id,
+          ingredientQuantity:Number(option.ingredient_quantity)
+        })) });
     }
 
     const totals = calculateBarTotals(resolved);
@@ -1426,6 +1708,53 @@ barCheckoutRouter.post('/bar/checkout', requirePermission('bar:sell'), async (re
     const ticketId = ticket.rows[0].id;
     await client.query('UPDATE bar_tickets SET excise_decision_id=$1 WHERE id=$2', [compliance.decisionId, ticketId]);
     const kotByStation=new Map<string,string>();
+    const persistModifiers=async(ticketLineId:string,line:typeof resolved[number],lineIndex:number)=>{
+      for(let modifierIndex=0;modifierIndex<line.modifiers.length;modifierIndex++){
+        const modifier=line.modifiers[modifierIndex];
+        const saved=await client.query(
+          `INSERT INTO bar_ticket_line_modifiers(
+             organisation_id,ticket_line_id,group_id,option_id,group_name,option_name,price_delta,
+             substitutes_product_id,ingredient_product_id,ingredient_quantity
+           ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`,
+          [organisationId,ticketLineId,modifier.groupId,modifier.id,modifier.groupName,modifier.name,
+            modifier.priceDelta,modifier.substitutesProductId,modifier.ingredientProductId,modifier.ingredientQuantity]
+        );
+        if(!modifier.ingredientProductId||modifier.ingredientQuantity<=0)continue;
+        const quantity=scaleRecipeQuantity(modifier.ingredientQuantity,1,line.quantity);
+        const stock=await client.query(
+          `SELECT quantity_units FROM stock_balances
+            WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE`,
+          [organisationId,data.outletId,modifier.ingredientProductId]
+        );
+        if(!stock.rowCount||Number(stock.rows[0].quantity_units)<quantity){
+          throw Object.assign(new Error('Insufficient stock for selected menu modifier'),{code:'MODIFIER_INSUFFICIENT_STOCK'});
+        }
+        await client.query(
+          'UPDATE stock_balances SET quantity_units=quantity_units-$1,updated_at=NOW() WHERE organisation_id=$2 AND outlet_id=$3 AND product_id=$4',
+          [quantity,organisationId,data.outletId,modifier.ingredientProductId]
+        );
+        const movement=await appendStockMovementOnce(client,{
+          organisationId,outletId:data.outletId,productId:modifier.ingredientProductId,movementType:'SALE',
+          quantityUnits:quantity,referenceType:'BAR_MODIFIER',referenceId:ticketId,
+          idempotencyKey:`bar-ticket:${ticketId}:line:${lineIndex}:modifier:${modifierIndex}`,
+          notes:`${modifier.groupName}: ${modifier.name}`,createdBy:req.auth!.userId
+        });
+        await consumeInventoryBatchFefo(client,{
+          organisationId,outletId:data.outletId,productId:modifier.ingredientProductId,
+          stockMovementId:movement.id,quantityUnits:quantity
+        });
+        await consumeInventoryCostFifo(client,{
+          organisationId,outletId:data.outletId,productId:modifier.ingredientProductId,
+          quantityUnits:quantity,sourceType:'BAR_MODIFIER',sourceId:movement.id,movementId:movement.id
+        });
+        await client.query(
+          `INSERT INTO bar_ticket_modifier_consumptions(
+             organisation_id,modifier_id,ingredient_product_id,stock_movement_id,quantity_units
+           ) VALUES($1,$2,$3,$4,$5)`,
+          [organisationId,saved.rows[0].id,modifier.ingredientProductId,movement.id,quantity]
+        );
+      }
+    };
 
     for (let lineIndex=0;lineIndex<resolved.length;lineIndex++) { const line=resolved[lineIndex];
       let stockMovementId:string|null=null;
@@ -1463,6 +1792,80 @@ barCheckoutRouter.post('/bar/checkout', requirePermission('bar:sell'), async (re
           [organisationId, data.outletId, line.openBottleId, line.productId, consumedMl, ticketId, req.auth!.userId]
         );
       } else {
+        if (line.recipe) {
+          const consumptions: Array<{ recipeLineId:string; productId:string; quantity:number; movementId:string }> = [];
+          for (const [ingredientIndex,ingredient] of line.recipe.lines.entries()) {
+            const quantity = scaleRecipeQuantity(ingredient.quantity,line.recipe.yieldQuantity,line.quantity);
+            const stock = await client.query(
+              `SELECT quantity_units FROM stock_balances
+                WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE`,
+              [organisationId,data.outletId,ingredient.productId]
+            );
+            if (!stock.rowCount || Number(stock.rows[0].quantity_units) < quantity) {
+              await client.query('ROLLBACK');
+              return res.status(409).json({ error: { code: 'INSUFFICIENT_RECIPE_INGREDIENT', message: `Insufficient stock for recipe ingredient ${ingredient.productId}` } });
+            }
+            await client.query(
+              'UPDATE stock_balances SET quantity_units=quantity_units-$1,updated_at=NOW() WHERE organisation_id=$2 AND outlet_id=$3 AND product_id=$4',
+              [quantity,organisationId,data.outletId,ingredient.productId]
+            );
+            const movement=await appendStockMovementOnce(client,{
+              organisationId,outletId:data.outletId,productId:ingredient.productId,movementType:'SALE',
+              quantityUnits:quantity,referenceType:'BAR_RECIPE',referenceId:ticketId,
+              idempotencyKey:`bar-ticket:${ticketId}:line:${lineIndex}:recipe:${ingredient.id}:${ingredientIndex}`,
+              notes:`Recipe for ${line.productId}`,createdBy:req.auth!.userId
+            });
+            await consumeInventoryBatchFefo(client,{
+              organisationId,outletId:data.outletId,productId:ingredient.productId,
+              stockMovementId:movement.id,quantityUnits:quantity
+            });
+            await consumeInventoryCostFifo(client,{
+              organisationId,outletId:data.outletId,productId:ingredient.productId,quantityUnits:quantity,
+              sourceType:'BAR_RECIPE_INGREDIENT',sourceId:movement.id,movementId:movement.id
+            });
+            consumptions.push({recipeLineId:ingredient.id,productId:ingredient.productId,quantity,movementId:movement.id});
+          }
+          const ticketLine=await client.query(
+            `INSERT INTO bar_ticket_lines(ticket_id,product_id,line_type,quantity,volume_ml,unit_price,tax_amount,line_total,open_bottle_id,tax_snapshot_id,stock_movement_id)
+             VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NULL) RETURNING id`,
+            [ticketId,line.productId,line.lineType,line.quantity,line.volumeMl??null,line.unitPrice,line.taxAmount,line.lineTotal,line.openBottleId??null,line.taxSnapshotId]
+          );
+          await persistModifiers(ticketLine.rows[0].id,line,lineIndex);
+          for (const consumption of consumptions) await client.query(
+            `INSERT INTO bar_ticket_recipe_consumptions(
+               organisation_id,outlet_id,ticket_line_id,recipe_id,recipe_line_id,ingredient_product_id,stock_movement_id,quantity_units
+             ) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,
+            [organisationId,data.outletId,ticketLine.rows[0].id,line.recipe.id,consumption.recipeLineId,consumption.productId,consumption.movementId,consumption.quantity]
+          );
+          const stationResult=await client.query(
+            `SELECT COALESCE(
+               (SELECT ps.station_id FROM bar_kot_product_stations ps JOIN bar_kot_stations assigned
+                  ON assigned.id=ps.station_id AND assigned.organisation_id=ps.organisation_id
+                 AND assigned.outlet_id=ps.outlet_id AND assigned.status='ACTIVE'
+                WHERE ps.organisation_id=$1 AND ps.outlet_id=$2 AND ps.product_id=$3),
+               (SELECT id FROM bar_kot_stations WHERE organisation_id=$1 AND outlet_id=$2 AND is_default AND status='ACTIVE' LIMIT 1)
+             ) station_id`,
+            [organisationId,data.outletId,line.productId]
+          );
+          const stationId=stationResult.rows[0].station_id as string|null;
+          const stationKey=stationId??'__unrouted__';
+          let kotId=kotByStation.get(stationKey);
+          if(!kotId){
+            const kot=await client.query(
+              `INSERT INTO bar_kot_orders(organisation_id,outlet_id,table_session_id,ticket_id,station_id,created_by)
+               VALUES($1,$2,$3,$4,$5,$6) RETURNING id`,
+              [organisationId,data.outletId,data.tableSessionId??null,ticketId,stationId,req.auth!.userId]
+            );
+            const createdKotId=kot.rows[0]?.id;
+            if(!createdKotId)throw new Error('KOT_CREATION_FAILED');
+            kotId=createdKotId;
+            kotByStation.set(stationKey,createdKotId);
+          }
+          if(!kotId)throw new Error('KOT_CREATION_FAILED');
+          await client.query('INSERT INTO bar_kot_lines(kot_order_id,ticket_line_id,product_id,quantity) VALUES($1,$2,$3,$4)',
+            [kotId,ticketLine.rows[0].id,line.productId,line.quantity]);
+          continue;
+        }
         const stock = await client.query(
           `SELECT quantity_units FROM stock_balances
             WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE`,
@@ -1478,6 +1881,10 @@ barCheckoutRouter.post('/bar/checkout', requirePermission('bar:sell'), async (re
           [line.quantity, organisationId, data.outletId, line.productId]
         );
         const saleMovement=await appendStockMovementOnce(client,{organisationId,outletId:data.outletId,productId:line.productId,movementType:'SALE',quantityUnits:line.quantity,referenceType:'BAR_TICKET',referenceId:ticketId,idempotencyKey:`bar-ticket:${ticketId}:line:${lineIndex}`,createdBy:req.auth!.userId});
+        await consumeInventoryBatchFefo(client,{
+          organisationId,outletId:data.outletId,productId:line.productId,
+          stockMovementId:saleMovement.id,quantityUnits:line.quantity
+        });
         stockMovementId=saleMovement.id;
         await consumeInventoryCostFifo(client,{organisationId,outletId:data.outletId,productId:line.productId,quantityUnits:line.quantity,sourceType:'BAR_TICKET_LINE',sourceId:saleMovement.id,movementId:saleMovement.id});
       }
@@ -1486,6 +1893,7 @@ barCheckoutRouter.post('/bar/checkout', requirePermission('bar:sell'), async (re
          VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id`,
         [ticketId, line.productId, line.lineType, line.quantity, line.volumeMl ?? null, line.unitPrice, line.taxAmount, line.lineTotal, line.openBottleId ?? null,line.taxSnapshotId,stockMovementId]
       );
+      await persistModifiers(ticketLine.rows[0].id,line,lineIndex);
       const stationResult=await client.query(
         `SELECT COALESCE(
            (SELECT ps.station_id
@@ -1534,6 +1942,8 @@ barCheckoutRouter.post('/bar/checkout', requirePermission('bar:sell'), async (re
     return res.status(201).json({ data: ticket.rows[0], totals, idempotentReplay: false });
   } catch (error: any) {
     await client.query('ROLLBACK');
+    if(typeof error?.code==='string'&&error.code.startsWith('INVENTORY_BATCH_'))return res.status(409).json({error:{code:error.code,message:error.message}});
+    if(error?.code==='MODIFIER_INSUFFICIENT_STOCK')return res.status(409).json({error:{code:error.code,message:error.message}});
     if(error?.code==='TAX_CONFIGURATION_INCOMPLETE')return res.status(409).json({error:{code:'TAX_CONFIGURATION_INCOMPLETE',message:'An active tax pack, verified product profile and approved outlet price are required before bar checkout'}});
     if(error instanceof Error&&['INVALID_TAX_INPUT','INVALID_PEG_VOLUME','MRP_EXCEEDED','BAR_MENU_CEILING_REQUIRED','MENU_CEILING_EXCEEDED','ALCOHOL_GST_DOUBLE_CHARGE','GST_COMPONENT_CONFLICT','GST_PAIR_INCOMPLETE'].includes(error.message))return res.status(422).json({error:{code:error.message,message:'Tax calculation rejected this checkout line'}});
     if (error?.code === '23505' && String(error?.constraint ?? '').includes('idempotency')) {

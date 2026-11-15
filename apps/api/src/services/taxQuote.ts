@@ -20,6 +20,7 @@ export type CheckoutTaxQuote = {
 export async function createCheckoutTaxQuote(client: PoolClient, input: {
   organisationId: string; outletId: string; productId: string; actorUserId: string;
   channel: CheckoutTaxChannel; measureType?: CheckoutTaxMeasure; quantity: number; packSizeMlOverride?: number;
+  priceAdjustmentPerUnit?: number;
 }): Promise<CheckoutTaxQuote> {
   const requestHash = sha256(input);
   const resolved = await client.query(`
@@ -58,7 +59,10 @@ export async function createCheckoutTaxQuote(client: PoolClient, input: {
   }
   const components=await client.query(`SELECT component_code,calculation_basis,rate,slab_min,slab_max
     FROM tax_rule_components WHERE rule_pack_id=$1 ORDER BY component_code,calculation_basis`,[pack.rows[0].id]);
-  const unitPrice=Number(p.unit_price);
+  const adjustment=input.priceAdjustmentPerUnit??0;
+  if(!Number.isFinite(adjustment))throw new Error('Invalid menu modifier price adjustment');
+  const unitPrice=Number(p.unit_price)+adjustment;
+  if(unitPrice<0)throw new Error('Menu modifier price adjustment cannot reduce the item below zero');
   const result=calculateTax({unitPrice,quantity:input.quantity,mrp:p.mrp==null?null:Number(p.mrp),
     menuCeiling:p.menu_ceiling==null?null:Number(p.menu_ceiling),abv:Number(p.abv),
     packSizeMl:input.packSizeMlOverride??Number(p.pack_size_ml),productClass:p.product_class,

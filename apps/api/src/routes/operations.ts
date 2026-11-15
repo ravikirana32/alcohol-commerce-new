@@ -6,6 +6,7 @@ import { pool } from '../db/pool.js';
 import { appendStockMovementOnce } from '../services/stockMovementIdempotency.js';
 import { collectStockReconciliation } from '../services/stockReconciliation.js';
 import { addInventoryCostLayer, consumeInventoryCostFifo } from '../services/inventoryCosting.js';
+import { consumeInventoryBatchFefo } from '../services/inventoryBatchFefo.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/requirePermission.js';
 import { requireOrgScope } from '../middleware/requireOrgScope.js';
@@ -139,32 +140,48 @@ operationsRouter.post('/inventory/opening-balance-snapshots',requirePermission('
 // P570: read-only ledger/balance reconciliation. Findings are recorded for investigation;
 // this endpoint never mutates stock balances or stock movements.
 operationsRouter.post('/inventory/reconciliation-runs',requirePermission('inventory:read'),async(req,res)=>{
- const s=z.object({outletId:uuid,notes:z.string().max(1000).optional()}).safeParse(req.body);
+ const s=z.object({
+  outletId:uuid.optional(),
+  outletIds:z.array(uuid).min(1).max(50).optional(),
+  notes:z.string().max(1000).optional()
+ }).superRefine((value,ctx)=>{
+  if(Boolean(value.outletId)===Boolean(value.outletIds))ctx.addIssue({code:'custom',message:'Provide either outletId or outletIds'});
+  if(value.outletIds&&new Set(value.outletIds).size!==value.outletIds.length)ctx.addIssue({code:'custom',message:'Outlet IDs must be unique',path:['outletIds']});
+ }).safeParse(req.body);
  if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
+ const outletIds=(s.data.outletIds??[s.data.outletId!]).slice().sort();
  const client=await pool.connect();
  try{
   await client.query('BEGIN');
-  const outlet=await client.query('SELECT id FROM outlets WHERE id=$1 AND organisation_id=$2 FOR SHARE',[s.data.outletId,orgId(req)]);
-  await client.query(`SELECT pg_advisory_xact_lock(hashtextextended($1::text || ':' || $2::text,0))`,[orgId(req),s.data.outletId]);
-  const cutoff=await client.query('SELECT clock_timestamp() AS cutoff_at');
-  const baseline=await client.query('SELECT id FROM stock_opening_balance_snapshots WHERE organisation_id=$1 AND outlet_id=$2',[orgId(req),s.data.outletId]);
-  if(!outlet.rowCount){await client.query('ROLLBACK');return fail(res,'OUTLET_NOT_FOUND','Outlet not found',404);}
-  const rows=await collectStockReconciliation(client,orgId(req),s.data.outletId,cutoff.rows[0].cutoff_at);
-  const pending:any[]=[];
-  for(const row of rows){
-   const balance=Number(row.balance_quantity),ledger=Number(row.ledger_quantity),variance=Number((balance-ledger).toFixed(3));
-   if(row.missing_balance) pending.push({productId:row.product_id,type:'MISSING_BALANCE_ROW',severity:'WARNING',ledger,balance:0,variance:null});
-   if(balance<0) pending.push({productId:row.product_id,type:'NEGATIVE_BALANCE',severity:'CRITICAL',ledger,balance,variance});
-   if(Math.abs(variance)>0.0005) pending.push({productId:row.product_id,type:'BALANCE_LEDGER_VARIANCE',severity:'WARNING',ledger,balance,variance});
-   if(Number(row.unclassified_adjustments)>0) pending.push({productId:row.product_id,type:'UNCLASSIFIED_ADJUSTMENT',severity:'INFO',ledger,balance,variance:null});
+  const outlets=await client.query('SELECT id FROM outlets WHERE id=ANY($1::uuid[]) AND organisation_id=$2 ORDER BY id FOR SHARE',[outletIds,orgId(req)]);
+  if(outlets.rowCount!==outletIds.length){await client.query('ROLLBACK');return fail(res,'OUTLET_NOT_FOUND','One or more outlets were not found in this organisation',404);}
+  for(const outletId of outletIds)await client.query(
+   `SELECT pg_advisory_xact_lock(hashtextextended($1::text || ':' || $2::text,0))`,
+   [orgId(req),outletId]
+  );
+  const results=[];
+  for(const outletId of outletIds){
+   const cutoff=await client.query('SELECT clock_timestamp() AS cutoff_at');
+   const baseline=await client.query('SELECT id FROM stock_opening_balance_snapshots WHERE organisation_id=$1 AND outlet_id=$2',[orgId(req),outletId]);
+   const rows=await collectStockReconciliation(client,orgId(req),outletId,cutoff.rows[0].cutoff_at);
+   const pending:any[]=[];
+   for(const row of rows){
+    const balance=Number(row.balance_quantity),ledger=Number(row.ledger_quantity),variance=Number((balance-ledger).toFixed(3));
+    if(row.missing_balance) pending.push({productId:row.product_id,type:'MISSING_BALANCE_ROW',severity:'WARNING',ledger,balance:0,variance:null});
+    if(balance<0) pending.push({productId:row.product_id,type:'NEGATIVE_BALANCE',severity:'CRITICAL',ledger,balance,variance});
+    if(Math.abs(variance)>0.0005) pending.push({productId:row.product_id,type:'BALANCE_LEDGER_VARIANCE',severity:'WARNING',ledger,balance,variance});
+    if(Number(row.unclassified_adjustments)>0) pending.push({productId:row.product_id,type:'UNCLASSIFIED_ADJUSTMENT',severity:'INFO',ledger,balance,variance:null});
+   }
+   const run=await client.query(`INSERT INTO stock_reconciliation_runs(organisation_id,outlet_id,status,started_by,product_count,exception_count,notes,ledger_cutoff_at,baseline_snapshot_id)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,[orgId(req),outletId,pending.length?'COMPLETED_WITH_EXCEPTIONS':'COMPLETED',req.auth!.userId,rows.length,pending.length,s.data.notes??null,cutoff.rows[0].cutoff_at,baseline.rows[0]?.id??null]);
+   for(const e of pending) await client.query(`INSERT INTO stock_reconciliation_exceptions
+    (organisation_id,outlet_id,run_id,product_id,exception_type,severity,ledger_quantity,balance_quantity,variance_quantity)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[orgId(req),outletId,run.rows[0].id,e.productId,e.type,e.severity,e.ledger,e.balance,e.variance]);
+   results.push({run:run.rows[0],exceptions:pending});
   }
-  const run=await client.query(`INSERT INTO stock_reconciliation_runs(organisation_id,outlet_id,status,started_by,product_count,exception_count,notes,ledger_cutoff_at,baseline_snapshot_id)
-   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,[orgId(req),s.data.outletId,pending.length?'COMPLETED_WITH_EXCEPTIONS':'COMPLETED',req.auth!.userId,rows.length,pending.length,s.data.notes??null,cutoff.rows[0].cutoff_at,baseline.rows[0]?.id??null]);
-  for(const e of pending) await client.query(`INSERT INTO stock_reconciliation_exceptions
-   (organisation_id,outlet_id,run_id,product_id,exception_type,severity,ledger_quantity,balance_quantity,variance_quantity)
-   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[orgId(req),s.data.outletId,run.rows[0].id,e.productId,e.type,e.severity,e.ledger,e.balance,e.variance]);
   await client.query('COMMIT');
-  return res.status(201).json({data:{run:run.rows[0],exceptions:pending,limitations:['ADJUSTMENT movements are excluded from arithmetic because historical rows do not persist adjustment sign.','Opening baseline is outlet-specific and immutable; products without a balance row are treated as zero at capture time.','No automatic balance correction is performed.']}});
+  const limitations=['ADJUSTMENT movements are excluded from arithmetic because historical rows do not persist adjustment sign.','Opening baseline is outlet-specific and immutable; products without a balance row are treated as zero at capture time.','No automatic balance correction is performed.'];
+  return res.status(201).json({data:results.length===1?{...results[0],limitations}:{runs:results,limitations}});
  }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
 });
 operationsRouter.get('/inventory/reconciliation-runs',requirePermission('inventory:read'),async(req,res)=>{
@@ -244,9 +261,28 @@ operationsRouter.post('/inventory/variance-correction-requests/:requestId/approv
   const movement=await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:request.outlet_id,productId:request.product_id,
    movementType:'ADJUSTMENT',quantityUnits:Math.abs(Number(request.requested_delta)),adjustmentDirection:Number(request.requested_delta)>0?'INCREASE':'DECREASE',
    referenceType:'VARIANCE_CORRECTION',referenceId:request.id,notes:request.reason,idempotencyKey:`variance-correction:${request.id}`,createdBy:req.auth!.userId});
-  if(movement.created)await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units)
-   VALUES($1,$2,$3,$4) ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=EXCLUDED.quantity_units,updated_at=NOW()
-   WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),request.outlet_id,request.product_id,next]);
+  if(movement.created){
+   await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units)
+    VALUES($1,$2,$3,$4) ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=EXCLUDED.quantity_units,updated_at=NOW()
+    WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),request.outlet_id,request.product_id,next]);
+   if(Number(request.requested_delta)>0){
+    const batch=await client.query(
+     `INSERT INTO inventory_batches(organisation_id,outlet_id,product_id,batch_number,received_units,remaining_units,created_by)
+      VALUES($1,$2,$3,$4,$5,$5,$6) RETURNING id`,
+     [orgId(req),request.outlet_id,request.product_id,`CORRECTION-${movement.id}`,Number(request.requested_delta),req.auth!.userId]
+    );
+    await client.query(
+     `INSERT INTO inventory_batch_movements(organisation_id,outlet_id,product_id,batch_id,stock_movement_id,movement_type,direction,quantity_units)
+      VALUES($1,$2,$3,$4,$5,'RECEIPT','INCREASE',$6)`,
+     [orgId(req),request.outlet_id,request.product_id,batch.rows[0].id,movement.id,Number(request.requested_delta)]
+    );
+   }else{
+    await consumeInventoryBatchFefo(client,{
+     organisationId:orgId(req),outletId:request.outlet_id,productId:request.product_id,
+     stockMovementId:movement.id,quantityUnits:Math.abs(Number(request.requested_delta))
+    });
+   }
+  }
   const updated=await client.query(`UPDATE stock_variance_correction_requests SET status='APPROVED',approved_by=$1,approved_at=NOW(),
    stock_movement_id=$2,updated_at=NOW() WHERE id=$3 AND organisation_id=$4 RETURNING *`,
    [req.auth!.userId,movement.id,request.id,orgId(req)]);
@@ -254,7 +290,7 @@ operationsRouter.post('/inventory/variance-correction-requests/:requestId/approv
    last_reviewed_at=NOW(),last_reviewed_by=$2 WHERE id=$3 AND organisation_id=$4`,
    [`Approved stock correction ${request.id}; movement ${movement.id}`,req.auth!.userId,request.exception_id,orgId(req)]);
   await client.query('COMMIT');return res.status(200).json({data:updated.rows[0],balance:next,replayed:!movement.created});
- }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+ }catch(e:any){await client.query('ROLLBACK');if(typeof e?.code==='string'&&e.code.startsWith('INVENTORY_BATCH_'))return fail(res,e.code,e.message,409);throw e;}finally{client.release();}
 });
 operationsRouter.post('/inventory/variance-correction-requests/:requestId/reject',requirePermission('inventory:adjust'),async(req,res)=>{
  const parsed=z.object({reason:z.string().trim().min(3).max(1000)}).safeParse(req.body);
@@ -282,13 +318,25 @@ operationsRouter.post('/inventory/receipts',requirePermission('inventory:receive
   const m=await client.query('SELECT * FROM stock_movements WHERE id=$1',[movement.id]);
   if(movement.created) await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units) VALUES($1,$2,$3,$4)
    ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=stock_balances.quantity_units+EXCLUDED.quantity_units,updated_at=NOW() WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),d.outletId,d.productId,d.quantity]);
+  if(movement.created){
+   const batch=await client.query(
+    `INSERT INTO inventory_batches(organisation_id,outlet_id,product_id,batch_number,received_units,remaining_units,created_by)
+     VALUES($1,$2,$3,$4,$5,$5,$6) RETURNING id`,
+    [orgId(req),d.outletId,d.productId,`MANUAL-${movement.id}`,d.quantity,req.auth!.userId]
+   );
+   await client.query(
+    `INSERT INTO inventory_batch_movements(organisation_id,outlet_id,product_id,batch_id,stock_movement_id,movement_type,direction,quantity_units)
+     VALUES($1,$2,$3,$4,$5,'RECEIPT','INCREASE',$6)`,
+    [orgId(req),d.outletId,d.productId,batch.rows[0].id,movement.id,d.quantity]
+   );
+  }
   if(movement.created && d.unitCost!==undefined) await addInventoryCostLayer(client,{organisationId:orgId(req),outletId:d.outletId,productId:d.productId,sourceType:'MANUAL_RECEIPT',sourceId:movement.id,sourceLineId:movement.id,quantityUnits:d.quantity,unitCost:d.unitCost});
   if(movement.created && d.unitCost===undefined) await client.query(`INSERT INTO inventory_cost_exceptions(organisation_id,outlet_id,product_id,source_type,source_id,requested_units,covered_units,reason)
    VALUES($1,$2,$3,'MANUAL_RECEIPT',$4,$5,0,'Manual receipt has no supplied unit cost; inventory remains unvalued') ON CONFLICT DO NOTHING`,
    [orgId(req),d.outletId,d.productId,movement.id,d.quantity]);
   const balance=await client.query('SELECT quantity_units FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3',[orgId(req),d.outletId,d.productId]);
   await client.query('COMMIT'); return res.status(movement.created?201:200).json({data:m.rows[0],balance:balance.rows[0]?.quantity_units,replayed:!movement.created});
- } catch(e){await client.query('ROLLBACK');throw e;} finally{client.release();}
+ } catch(e:any){await client.query('ROLLBACK');if(typeof e?.code==='string'&&e.code.startsWith('INVENTORY_BATCH_'))return fail(res,e.code,e.message,409);throw e;} finally{client.release();}
 });
 operationsRouter.get('/inventory/balances',requirePermission('inventory:read'),async(req,res)=>{
  const outlet=req.query.outletId ? String(req.query.outletId) : null;
@@ -296,7 +344,7 @@ operationsRouter.get('/inventory/balances',requirePermission('inventory:read'),a
  WHERE b.organisation_id=$1 AND ($2::uuid IS NULL OR b.outlet_id=$2) ORDER BY p.name`,[orgId(req),outlet]);res.json({data:r.rows});
 });
 operationsRouter.post('/inventory/adjustments',requirePermission('inventory:adjust'),async(req,res)=>{
- const s=z.object({outletId:uuid,productId:uuid,delta:z.number().refine(n=>n!==0),reason:z.string().min(3).max(500)}).safeParse(req.body);
+ const s=z.object({outletId:uuid,productId:uuid,delta:z.number().refine(n=>n!==0&&Math.abs(Math.round(n*1000)-n*1000)<1e-7),reason:z.string().min(3).max(500)}).safeParse(req.body);
  if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
  const d=s.data,client=await pool.connect();
  try{await client.query('BEGIN');
@@ -311,8 +359,90 @@ operationsRouter.post('/inventory/adjustments',requirePermission('inventory:adju
  if(next<0){await client.query('ROLLBACK');return fail(res,'INSUFFICIENT_STOCK','Adjustment cannot make stock negative',409);}
  await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units) VALUES($1,$2,$3,$4)
  ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=EXCLUDED.quantity_units,updated_at=NOW() WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),d.outletId,d.productId,next]);
+ if(d.delta>0){
+  const batch=await client.query(
+   `INSERT INTO inventory_batches(organisation_id,outlet_id,product_id,batch_number,received_units,remaining_units,created_by)
+    VALUES($1,$2,$3,$4,$5,$5,$6) RETURNING id`,
+   [orgId(req),d.outletId,d.productId,`ADJUST-${movement.id}`,d.delta,req.auth!.userId]
+  );
+  await client.query(
+   `INSERT INTO inventory_batch_movements(organisation_id,outlet_id,product_id,batch_id,stock_movement_id,movement_type,direction,quantity_units)
+    VALUES($1,$2,$3,$4,$5,'RECEIPT','INCREASE',$6)`,
+   [orgId(req),d.outletId,d.productId,batch.rows[0].id,movement.id,d.delta]
+  );
+ }else{
+  await consumeInventoryBatchFefo(client,{
+   organisationId:orgId(req),outletId:d.outletId,productId:d.productId,
+   stockMovementId:movement.id,quantityUnits:Math.abs(d.delta)
+  });
+ }
  await client.query('COMMIT');res.status(201).json({data:m.rows[0],balance:next,replayed:false});
- }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+ }catch(e:any){await client.query('ROLLBACK');if(typeof e?.code==='string'&&e.code.startsWith('INVENTORY_BATCH_'))return fail(res,e.code,e.message,409);throw e;}finally{client.release();}
+});
+operationsRouter.post('/inventory/wastage',requirePermission('inventory:adjust'),async(req,res)=>{
+ const s=z.object({
+  outletId:uuid,productId:uuid,
+  quantity:z.number().positive().max(999999).refine(n=>Math.abs(Math.round(n*1000)-n*1000)<1e-7),
+  category:z.enum(['SPOILAGE','BREAKAGE','EXPIRED','OTHER']),
+  reason:z.string().trim().min(3).max(500)
+ }).safeParse(req.body);
+ if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
+ const d=s.data,client=await pool.connect();
+ try{
+  await client.query('BEGIN');
+  const key=String(req.get('Idempotency-Key')??'').trim();
+  if(!/^[A-Za-z0-9][A-Za-z0-9._:-]{15,120}$/.test(key)){
+   await client.query('ROLLBACK');
+   return fail(res,'IDEMPOTENCY_KEY_REQUIRED','Provide a 16-120 character Idempotency-Key header');
+  }
+  const outlet=await client.query('SELECT id FROM outlets WHERE id=$1 AND organisation_id=$2 FOR UPDATE',[d.outletId,orgId(req)]);
+  const product=await client.query("SELECT id FROM products WHERE id=$1 AND organisation_id=$2 AND status='ACTIVE'",[d.productId,orgId(req)]);
+  if(!outlet.rowCount||!product.rowCount){
+   await client.query('ROLLBACK');
+   return fail(res,'INVALID_STOCK_TARGET','Outlet or product not found',404);
+  }
+  const movement=await appendStockMovementOnce(client,{
+   organisationId:orgId(req),outletId:d.outletId,productId:d.productId,movementType:'WASTAGE',
+   quantityUnits:d.quantity,referenceType:'INVENTORY_WASTAGE',notes:`${d.category}: ${d.reason}`,
+   idempotencyKey:`inventory-wastage:${key}`,createdBy:req.auth!.userId
+  });
+  if(movement.created){
+   const balance=await client.query(
+    'SELECT quantity_units FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE',
+    [orgId(req),d.outletId,d.productId]
+   );
+   const current=Number(balance.rows[0]?.quantity_units??0);
+   if(current+0.0005<d.quantity){
+    await client.query('ROLLBACK');
+    return fail(res,'INSUFFICIENT_STOCK','Wastage cannot make stock negative',409);
+   }
+   await client.query(
+    'UPDATE stock_balances SET quantity_units=quantity_units-$1,updated_at=NOW() WHERE organisation_id=$2 AND outlet_id=$3 AND product_id=$4',
+    [d.quantity,orgId(req),d.outletId,d.productId]
+   );
+   await consumeInventoryBatchFefo(client,{
+    organisationId:orgId(req),outletId:d.outletId,productId:d.productId,
+     stockMovementId:movement.id,quantityUnits:d.quantity,allowExpired:true
+   });
+   await consumeInventoryCostFifo(client,{
+    organisationId:orgId(req),outletId:d.outletId,productId:d.productId,
+    quantityUnits:d.quantity,sourceType:'WASTAGE',sourceId:movement.id,movementId:movement.id
+   });
+  }
+  const [record,balance]=await Promise.all([
+   client.query('SELECT * FROM stock_movements WHERE id=$1',[movement.id]),
+   client.query('SELECT quantity_units FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3',[orgId(req),d.outletId,d.productId])
+  ]);
+  await client.query('COMMIT');
+  return res.status(movement.created?201:200).json({
+   data:record.rows[0],balance:balance.rows[0]?.quantity_units,replayed:!movement.created
+  });
+ }catch(error:any){
+  await client.query('ROLLBACK');
+  if(typeof error?.code==='string'&&error.code.startsWith('INVENTORY_BATCH_'))return fail(res,error.code,error.message,409);
+  if(error?.message==='STOCK_MOVEMENT_IDEMPOTENCY_CONFLICT')return fail(res,'IDEMPOTENCY_KEY_CONFLICT','Idempotency key was already used with a different wastage request',409);
+  throw error;
+ }finally{client.release();}
 });
 
 // P518 batch register and expiry visibility. Quantities are tracked per outlet/product/lot.
@@ -324,22 +454,44 @@ operationsRouter.get('/inventory/batches',requirePermission('inventory:read'),as
   AND (b.expiry_date IS NULL OR b.expiry_date<=CURRENT_DATE+$3::int) ORDER BY b.expiry_date NULLS LAST,p.name`,[orgId(req),outlet,days]);res.json({data:r.rows});
 });
 operationsRouter.post('/inventory/batches',requirePermission('inventory:receive'),async(req,res)=>{
- const s=z.object({outletId:uuid,productId:uuid,batchNumber:z.string().trim().min(1).max(100),quantity:z.number().positive(),unitCost:z.number().min(0).optional(),expiryDate:z.string().date().optional()}).safeParse(req.body);
+ const s=z.object({outletId:uuid,productId:uuid,batchNumber:z.string().trim().min(1).max(100),quantity:z.number().positive().max(999999).refine(v=>Math.abs(Math.round(v*1000)-v*1000)<1e-7),unitCost:z.number().min(0).optional(),expiryDate:z.string().date().optional()}).safeParse(req.body);
  if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
  const d=s.data,client=await pool.connect();try{await client.query('BEGIN');
+  const key=String(req.get('Idempotency-Key')??'').trim();
+  if(!/^[A-Za-z0-9][A-Za-z0-9._:-]{15,120}$/.test(key)){await client.query('ROLLBACK');return fail(res,'IDEMPOTENCY_KEY_REQUIRED','Provide a 16-120 character Idempotency-Key header');}
   const o=await client.query('SELECT id FROM outlets WHERE id=$1 AND organisation_id=$2',[d.outletId,orgId(req)]);const p=await client.query("SELECT id FROM products WHERE id=$1 AND organisation_id=$2 AND status='ACTIVE'",[d.productId,orgId(req)]);
   if(!o.rowCount||!p.rowCount){await client.query('ROLLBACK');return fail(res,'INVALID_STOCK_TARGET','Outlet or active product not found',404);}
+  const movement=await appendStockMovementOnce(client,{
+   organisationId:orgId(req),outletId:d.outletId,productId:d.productId,movementType:'RECEIPT',
+   quantityUnits:d.quantity,referenceType:'INVENTORY_BATCH',
+   notes:JSON.stringify({batchNumber:d.batchNumber,expiryDate:d.expiryDate??null,unitCost:d.unitCost??null}),
+   idempotencyKey:`inventory-batch:${key}`,createdBy:req.auth!.userId
+  });
+  if(!movement.created){
+   const prior=await client.query(
+    `SELECT b.* FROM inventory_batch_movements m
+      JOIN inventory_batches b ON b.id=m.batch_id AND b.organisation_id=m.organisation_id
+     WHERE m.organisation_id=$1 AND m.stock_movement_id=$2 AND m.movement_type='RECEIPT'`,
+    [orgId(req),movement.id]
+   );
+   if(!prior.rowCount){await client.query('ROLLBACK');return fail(res,'INVENTORY_BATCH_REPLAY_INCONSISTENT','Existing receipt movement has no batch record',409);}
+   await client.query('COMMIT');return res.status(200).json({data:prior.rows[0],replayed:true});
+  }
   const b=await client.query(`INSERT INTO inventory_batches(organisation_id,outlet_id,product_id,batch_number,received_units,remaining_units,expiry_date,created_by)
    VALUES($1,$2,$3,$4,$5,$5,$6,$7) RETURNING *`,[orgId(req),d.outletId,d.productId,d.batchNumber,d.quantity,d.expiryDate??null,req.auth!.userId]);
   await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units) VALUES($1,$2,$3,$4)
    ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=stock_balances.quantity_units+EXCLUDED.quantity_units,updated_at=NOW() WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),d.outletId,d.productId,d.quantity]);
-  const movement=await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:d.outletId,productId:d.productId,movementType:'RECEIPT',quantityUnits:d.quantity,referenceType:'INVENTORY_BATCH',referenceId:b.rows[0].id,idempotencyKey:`inventory-batch:${b.rows[0].id}:receipt`,notes:d.batchNumber,createdBy:req.auth!.userId});
+  await client.query(
+   `INSERT INTO inventory_batch_movements(organisation_id,outlet_id,product_id,batch_id,stock_movement_id,movement_type,direction,quantity_units)
+    VALUES($1,$2,$3,$4,$5,'RECEIPT','INCREASE',$6)`,
+   [orgId(req),d.outletId,d.productId,b.rows[0].id,movement.id,d.quantity]
+  );
   if(d.unitCost!==undefined) await addInventoryCostLayer(client,{organisationId:orgId(req),outletId:d.outletId,productId:d.productId,sourceType:'INVENTORY_BATCH',sourceId:movement.id,sourceLineId:movement.id,quantityUnits:d.quantity,unitCost:d.unitCost});
   else await client.query(`INSERT INTO inventory_cost_exceptions(organisation_id,outlet_id,product_id,source_type,source_id,requested_units,covered_units,reason)
    VALUES($1,$2,$3,'INVENTORY_BATCH',$4,$5,0,'Batch receipt has no supplied unit cost; inventory remains unvalued') ON CONFLICT DO NOTHING`,
    [orgId(req),d.outletId,d.productId,movement.id,d.quantity]);
-  await client.query('COMMIT');return res.status(201).json({data:b.rows[0]});
- }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+  await client.query('COMMIT');return res.status(201).json({data:b.rows[0],replayed:false});
+ }catch(e:any){await client.query('ROLLBACK');if(e?.code==='23505')return fail(res,'BATCH_NUMBER_EXISTS','This batch number already exists for the product at this outlet',409);if(e?.message==='STOCK_MOVEMENT_IDEMPOTENCY_CONFLICT')return fail(res,'IDEMPOTENCY_KEY_CONFLICT','Idempotency key was already used with a different batch receipt',409);throw e;}finally{client.release();}
 });
 
 // P518 warehouse controls: stock transfers are dispatched and received as separate auditable steps.
@@ -380,12 +532,34 @@ operationsRouter.post('/inventory/transfers/:transferId/dispatch',requirePermiss
   for(const l of lines.rows){const b=await client.query('SELECT quantity_units FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE',[orgId(req),t.rows[0].source_outlet_id,l.product_id]);
    const onHand=Number(b.rows[0]?.quantity_units??0),qty=Number(l.requested_units);if(onHand<qty){await client.query('ROLLBACK');return fail(res,'INSUFFICIENT_STOCK',`Insufficient stock for product ${l.product_id}`,409);}
    await client.query('UPDATE stock_balances SET quantity_units=quantity_units-$1,updated_at=NOW() WHERE organisation_id=$2 AND outlet_id=$3 AND product_id=$4',[qty,orgId(req),t.rows[0].source_outlet_id,l.product_id]);
-   await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:t.rows[0].source_outlet_id,productId:l.product_id,movementType:'TRANSFER_OUT',quantityUnits:qty,referenceType:'STOCK_TRANSFER',referenceId:transferId,idempotencyKey:`stock-transfer:${transferId}:line:${l.id}:out`,notes:t.rows[0].transfer_number,createdBy:req.auth!.userId});
+   const movement=await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:t.rows[0].source_outlet_id,productId:l.product_id,movementType:'TRANSFER_OUT',quantityUnits:qty,referenceType:'STOCK_TRANSFER',referenceId:transferId,idempotencyKey:`stock-transfer:${transferId}:line:${l.id}:out`,notes:t.rows[0].transfer_number,createdBy:req.auth!.userId});
+   const batchConsumption=await consumeInventoryBatchFefo(client,{
+    organisationId:orgId(req),outletId:t.rows[0].source_outlet_id,productId:l.product_id,
+    stockMovementId:movement.id,quantityUnits:qty
+   });
+   await consumeInventoryCostFifo(client,{
+    organisationId:orgId(req),outletId:t.rows[0].source_outlet_id,productId:l.product_id,
+    quantityUnits:qty,sourceType:'STOCK_TRANSFER_OUT',sourceId:movement.id,movementId:movement.id
+   });
+   await client.query('UPDATE stock_transfer_lines SET batch_tracked=$1 WHERE id=$2',[batchConsumption.tracked,l.id]);
+   const batchAllocations=await client.query(
+    `SELECT batch_id,SUM(quantity_units)::numeric quantity
+       FROM inventory_batch_movements
+      WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3
+        AND stock_movement_id=$4 AND movement_type='CONSUME'
+      GROUP BY batch_id`,
+    [orgId(req),t.rows[0].source_outlet_id,l.product_id,movement.id]
+   );
+   for(const allocation of batchAllocations.rows)await client.query(
+    `INSERT INTO stock_transfer_batch_lines(organisation_id,transfer_line_id,source_batch_id,dispatched_units)
+     VALUES($1,$2,$3,$4)`,
+    [orgId(req),l.id,allocation.batch_id,allocation.quantity]
+   );
    await client.query('UPDATE stock_transfer_lines SET dispatched_units=$1 WHERE id=$2 AND transfer_id IN (SELECT id FROM stock_transfers WHERE id=$3 AND organisation_id=$4)',[qty,l.id,req.params.transferId,orgId(req)]);
   }
   const updated=await client.query("UPDATE stock_transfers SET status='DISPATCHED',dispatched_by=$1,dispatched_at=NOW() WHERE id=$2 AND organisation_id=$3 RETURNING *",[req.auth!.userId,req.params.transferId,orgId(req)]);
   await client.query('COMMIT');return res.json({data:updated.rows[0]});
- }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+ }catch(e:any){await client.query('ROLLBACK');if(typeof e?.code==='string'&&e.code.startsWith('INVENTORY_BATCH_'))return fail(res,e.code,e.message,409);throw e;}finally{client.release();}
 });
 operationsRouter.post('/inventory/transfers/:transferId/receive',requirePermission('inventory:receive'),async(req,res)=>{
  if(Array.isArray(req.params.transferId))return fail(res,'INVALID_TRANSFER_ID','Transfer ID must be a single path value',400);
@@ -400,13 +574,82 @@ operationsRouter.post('/inventory/transfers/:transferId/receive',requirePermissi
   if(s.data.lines.length!==lines.rowCount||s.data.lines.some(x=>!lines.rows.some((l:any)=>l.product_id===x.productId))){await client.query('ROLLBACK');return fail(res,'TRANSFER_LINES_MISMATCH','Receive quantities must cover every transfer line exactly once');}
   for(const l of lines.rows){const input=s.data.lines.find(x=>x.productId===l.product_id)!;const dispatched=Number(l.dispatched_units);if(input.receivedQuantity>dispatched){await client.query('ROLLBACK');return fail(res,'RECEIVED_EXCEEDS_DISPATCHED','Received quantity cannot exceed dispatched quantity');}
    await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units) VALUES($1,$2,$3,$4) ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=stock_balances.quantity_units+EXCLUDED.quantity_units,updated_at=NOW() WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),t.rows[0].destination_outlet_id,l.product_id,input.receivedQuantity]);
-   if(input.receivedQuantity>0)await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:t.rows[0].destination_outlet_id,productId:l.product_id,movementType:'TRANSFER_IN',quantityUnits:input.receivedQuantity,referenceType:'STOCK_TRANSFER',referenceId:t.rows[0].id,idempotencyKey:`stock-transfer:${transferId}:line:${l.id}:in`,notes:t.rows[0].transfer_number,createdBy:req.auth!.userId});
+   if(input.receivedQuantity>0){
+    const movement=await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:t.rows[0].destination_outlet_id,productId:l.product_id,movementType:'TRANSFER_IN',quantityUnits:input.receivedQuantity,referenceType:'STOCK_TRANSFER',referenceId:t.rows[0].id,idempotencyKey:`stock-transfer:${transferId}:line:${l.id}:in`,notes:t.rows[0].transfer_number,createdBy:req.auth!.userId});
+    const sourceMovement=await client.query(
+     'SELECT id FROM stock_movements WHERE organisation_id=$1 AND outlet_id=$2 AND idempotency_key=$3',
+     [orgId(req),t.rows[0].source_outlet_id,`stock-transfer:${transferId}:line:${l.id}:out`]
+    );
+    if(!sourceMovement.rowCount)throw new Error('TRANSFER_COST_SOURCE_MISSING');
+    const sourceCosts=await client.query(
+     'SELECT quantity_units,unit_cost FROM inventory_cost_consumptions WHERE movement_id=$1 ORDER BY created_at,id',
+     [sourceMovement.rows[0].id]
+    );
+    let remainingCostQuantity=input.receivedQuantity;
+    let coveredUnits=0;
+    let extendedCost=0;
+    for(const cost of sourceCosts.rows){
+     if(remainingCostQuantity<=0.0005)break;
+     const take=Math.min(remainingCostQuantity,Number(cost.quantity_units));
+     coveredUnits+=take;
+     extendedCost+=take*Number(cost.unit_cost);
+     remainingCostQuantity-=take;
+    }
+    if(coveredUnits>0)await addInventoryCostLayer(client,{
+     organisationId:orgId(req),outletId:t.rows[0].destination_outlet_id,productId:l.product_id,
+     sourceType:'STOCK_TRANSFER',sourceId:movement.id,sourceLineId:l.id,
+     quantityUnits:coveredUnits,unitCost:extendedCost/coveredUnits
+    });
+    if(coveredUnits<input.receivedQuantity-0.0005)await client.query(
+     `INSERT INTO inventory_cost_exceptions(organisation_id,outlet_id,product_id,source_type,source_id,requested_units,covered_units,reason)
+      VALUES($1,$2,$3,'STOCK_TRANSFER',$4,$5,$6,'Transferred stock arrived without complete source cost-layer coverage')
+      ON CONFLICT DO NOTHING`,
+     [orgId(req),t.rows[0].destination_outlet_id,l.product_id,movement.id,input.receivedQuantity,coveredUnits]
+    );
+    const allocations=await client.query(
+     `SELECT tl.*,b.batch_number,b.expiry_date
+        FROM stock_transfer_batch_lines tl
+        JOIN inventory_batches b ON b.id=tl.source_batch_id AND b.organisation_id=tl.organisation_id
+       WHERE tl.organisation_id=$1 AND tl.transfer_line_id=$2 ORDER BY b.expiry_date NULLS LAST,b.received_at,b.id
+       FOR UPDATE OF tl,b`,
+     [orgId(req),l.id]
+    );
+    let remainingReceipt=input.receivedQuantity;
+    for(const allocation of (l.batch_tracked?allocations.rows:[])){
+     if(remainingReceipt<=0.0005)break;
+     const received=Math.min(remainingReceipt,Number(allocation.dispatched_units));
+     const batchNumber=`${allocation.batch_number}-T-${transferId.slice(0,8)}`;
+     const destinationBatch=await client.query(
+      `INSERT INTO inventory_batches(organisation_id,outlet_id,product_id,batch_number,received_units,remaining_units,expiry_date,created_by)
+       VALUES($1,$2,$3,$4,$5,$5,$6,$7)
+       ON CONFLICT(organisation_id,outlet_id,product_id,batch_number) DO UPDATE SET
+         received_units=inventory_batches.received_units+EXCLUDED.received_units,
+         remaining_units=inventory_batches.remaining_units+EXCLUDED.remaining_units
+       WHERE inventory_batches.organisation_id=EXCLUDED.organisation_id
+       RETURNING id`,
+      [orgId(req),t.rows[0].destination_outlet_id,l.product_id,batchNumber,received,allocation.expiry_date,req.auth!.userId]
+     );
+     if(!destinationBatch.rowCount)throw new Error('TRANSFER_BATCH_RECEIPT_FAILED');
+     await client.query(
+      `INSERT INTO inventory_batch_movements(
+         organisation_id,outlet_id,product_id,batch_id,stock_movement_id,movement_type,direction,quantity_units
+       ) VALUES($1,$2,$3,$4,$5,'RECEIPT','INCREASE',$6)`,
+      [orgId(req),t.rows[0].destination_outlet_id,l.product_id,destinationBatch.rows[0].id,movement.id,received]
+     );
+     await client.query(
+      'UPDATE stock_transfer_batch_lines SET destination_batch_id=$1,received_units=$2 WHERE id=$3',
+      [destinationBatch.rows[0].id,received,allocation.id]
+     );
+     remainingReceipt-=received;
+    }
+    if(l.batch_tracked&&remainingReceipt>0.0005)throw new Error('TRANSFER_BATCH_RECEIPT_MISMATCH');
+   }
    const variance=dispatched-input.receivedQuantity;if(variance>0&&!input.varianceReason?.trim()){await client.query('ROLLBACK');return fail(res,'VARIANCE_REASON_REQUIRED','A reason is required for every transfer shortage');}
    await client.query('UPDATE stock_transfer_lines SET received_units=$1,variance_reason=$2 WHERE id=$3 AND transfer_id IN (SELECT id FROM stock_transfers WHERE id=$4 AND organisation_id=$5)',[input.receivedQuantity,input.varianceReason??null,l.id,req.params.transferId,orgId(req)]);
   }
   const updated=await client.query("UPDATE stock_transfers SET status='RECEIVED',received_by=$1,received_at=NOW() WHERE id=$2 AND organisation_id=$3 RETURNING *",[req.auth!.userId,req.params.transferId,orgId(req)]);
   await client.query('COMMIT');return res.json({data:updated.rows[0]});
- }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
+ }catch(e:any){await client.query('ROLLBACK');if(e?.message==='TRANSFER_BATCH_RECEIPT_MISMATCH')return fail(res,'TRANSFER_BATCH_RECEIPT_MISMATCH','Received quantity exceeds tracked source batches',409);throw e;}finally{client.release();}
 });
 operationsRouter.get('/inventory/stocktakes',requirePermission('inventory:read'),async(req,res)=>{
  const r=await pool.query('SELECT * FROM inventory_stocktakes WHERE organisation_id=$1 ORDER BY created_at DESC LIMIT 200',[orgId(req)]);res.json({data:r.rows});
@@ -417,16 +660,50 @@ operationsRouter.post('/inventory/stocktakes',requirePermission('inventory:adjus
   const c=await client.query("INSERT INTO inventory_stocktakes(organisation_id,outlet_id,notes,counted_by) VALUES($1,$2,$3,$4) RETURNING *",[orgId(req),s.data.outletId,s.data.notes??null,req.auth!.userId]);
   const b=await client.query(`SELECT p.id AS product_id,COALESCE(sb.quantity_units,0) AS quantity_units FROM products p LEFT JOIN stock_balances sb ON sb.product_id=p.id AND sb.outlet_id=$2 AND sb.organisation_id=$1 WHERE p.organisation_id=$1 AND p.status='ACTIVE' ORDER BY p.id`,[orgId(req),s.data.outletId]);
   for(const x of b.rows)await client.query('INSERT INTO inventory_stocktake_lines(stocktake_id,product_id,expected_units,counted_units) VALUES($1,$2,$3,$3)',[c.rows[0].id,x.product_id,x.quantity_units]);
+  const batches=await client.query(
+   `SELECT id,product_id,remaining_units FROM inventory_batches
+     WHERE organisation_id=$1 AND outlet_id=$2 ORDER BY product_id,id`,
+   [orgId(req),s.data.outletId]
+  );
+  for(const batch of batches.rows)await client.query(
+   `INSERT INTO inventory_stocktake_batch_lines(stocktake_id,product_id,batch_id,expected_units,counted_units)
+    VALUES($1,$2,$3,$4,$4)`,
+   [c.rows[0].id,batch.product_id,batch.id,batch.remaining_units]
+  );
   await client.query('COMMIT');return res.status(201).json({data:c.rows[0],lineCount:b.rowCount});
  }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
 });
 operationsRouter.get('/inventory/stocktakes/:stocktakeId',requirePermission('inventory:read'),async(req,res)=>{
  const c=await pool.query('SELECT * FROM inventory_stocktakes WHERE id=$1 AND organisation_id=$2',[req.params.stocktakeId,orgId(req)]);if(!c.rowCount)return fail(res,'STOCKTAKE_NOT_FOUND','Stocktake not found',404);
- const l=await pool.query('SELECT l.*,p.name,p.sku FROM inventory_stocktake_lines l JOIN products p ON p.id=l.product_id WHERE l.stocktake_id=$1 ORDER BY p.name',[req.params.stocktakeId]);res.json({data:{...c.rows[0],lines:l.rows}});
+ const [l,batches]=await Promise.all([
+  pool.query('SELECT l.*,p.name,p.sku FROM inventory_stocktake_lines l JOIN products p ON p.id=l.product_id WHERE l.stocktake_id=$1 ORDER BY p.name',[req.params.stocktakeId]),
+  pool.query(`SELECT l.*,b.batch_number,b.expiry_date FROM inventory_stocktake_batch_lines l
+    JOIN inventory_batches b ON b.id=l.batch_id WHERE l.stocktake_id=$1 ORDER BY l.product_id,b.expiry_date NULLS LAST,b.batch_number`,[req.params.stocktakeId])
+ ]);
+ res.json({data:{...c.rows[0],lines:l.rows,batchLines:batches.rows}});
 });
 operationsRouter.put('/inventory/stocktakes/:stocktakeId/lines/:productId',requirePermission('inventory:adjust'),async(req,res)=>{
  const s=z.object({countedUnits:z.number().min(0).max(999999).refine(v=>Math.abs(Math.round(v*1000)-v*1000)<1e-7)}).safeParse(req.body);if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
+ const tracked=await pool.query('SELECT 1 FROM inventory_stocktake_batch_lines WHERE stocktake_id=$1 AND product_id=$2 LIMIT 1',[req.params.stocktakeId,req.params.productId]);
+ if(tracked.rowCount)return fail(res,'BATCH_COUNTS_REQUIRED','Enter the count for each batch; the product total is derived from batch counts',409);
  const r=await pool.query(`UPDATE inventory_stocktake_lines l SET counted_units=$1 FROM inventory_stocktakes c WHERE l.stocktake_id=c.id AND c.id=$2 AND c.organisation_id=$3 AND c.status='COUNTING' AND l.product_id=$4 RETURNING l.*`,[s.data.countedUnits,req.params.stocktakeId,orgId(req),req.params.productId]);if(!r.rowCount)return fail(res,'STOCKTAKE_LINE_NOT_EDITABLE','Stocktake or line not found, or counting is closed',409);res.json({data:r.rows[0]});
+});
+operationsRouter.put('/inventory/stocktakes/:stocktakeId/batches/:batchId',requirePermission('inventory:adjust'),async(req,res)=>{
+ const s=z.object({countedUnits:z.number().min(0).max(999999).refine(v=>Math.abs(Math.round(v*1000)-v*1000)<1e-7)}).safeParse(req.body);
+ if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
+ const client=await pool.connect();try{await client.query('BEGIN');
+  const count=await client.query(
+   `UPDATE inventory_stocktake_batch_lines l SET counted_units=$1
+      FROM inventory_stocktakes t
+     WHERE l.stocktake_id=t.id AND t.id=$2 AND t.organisation_id=$3
+       AND t.status='COUNTING' AND l.batch_id=$4 RETURNING l.*`,
+   [s.data.countedUnits,req.params.stocktakeId,orgId(req),req.params.batchId]
+  );
+  if(!count.rowCount){await client.query('ROLLBACK');return fail(res,'BATCH_COUNT_NOT_EDITABLE','Stocktake batch not found or counting is closed',409);}
+  const sum=await client.query('SELECT COALESCE(SUM(counted_units),0) quantity FROM inventory_stocktake_batch_lines WHERE stocktake_id=$1 AND product_id=$2',[req.params.stocktakeId,count.rows[0].product_id]);
+  await client.query('UPDATE inventory_stocktake_lines SET counted_units=$1 WHERE stocktake_id=$2 AND product_id=$3',[sum.rows[0].quantity,req.params.stocktakeId,count.rows[0].product_id]);
+  await client.query('COMMIT');return res.json({data:count.rows[0],productCountedUnits:Number(sum.rows[0].quantity)});
+ }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
 });
 operationsRouter.post('/inventory/stocktakes/:stocktakeId/submit',requirePermission('inventory:adjust'),async(req,res)=>{
  const r=await pool.query("UPDATE inventory_stocktakes SET status='SUBMITTED',submitted_at=NOW() WHERE id=$1 AND organisation_id=$2 AND status='COUNTING' RETURNING *",[req.params.stocktakeId,orgId(req)]);if(!r.rowCount)return fail(res,'STOCKTAKE_NOT_SUBMITTABLE','Only an open count can be submitted',409);res.json({data:r.rows[0]});
@@ -435,11 +712,69 @@ operationsRouter.post('/inventory/stocktakes/:stocktakeId/approve',requirePermis
  if(Array.isArray(req.params.stocktakeId))return fail(res,'INVALID_STOCKTAKE_ID','Stocktake ID must be a single path value',400);
  const stocktakeId=req.params.stocktakeId;
  const s=z.object({reason:z.string().trim().min(3).max(500)}).safeParse(req.body);if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
- const client=await pool.connect();try{await client.query('BEGIN');const c=await client.query("SELECT * FROM inventory_stocktakes WHERE id=$1 AND organisation_id=$2 FOR UPDATE",[req.params.stocktakeId,orgId(req)]);if(!c.rowCount){await client.query('ROLLBACK');return fail(res,'STOCKTAKE_NOT_FOUND','Stocktake not found',404);}if(c.rows[0].status!=='SUBMITTED'){await client.query('ROLLBACK');return fail(res,'INVALID_STOCKTAKE_STATE','Only submitted stocktakes can be approved',409);}
+ const client=await pool.connect();try{await client.query('BEGIN');const c=await client.query("SELECT * FROM inventory_stocktakes WHERE id=$1 AND organisation_id=$2 FOR UPDATE",[req.params.stocktakeId,orgId(req)]);if(!c.rowCount){await client.query('ROLLBACK');return fail(res,'STOCKTAKE_NOT_FOUND','Stocktake not found',404);}if(c.rows[0].status!=='SUBMITTED'){await client.query('ROLLBACK');return fail(res,'INVALID_STOCKTAKE_STATE','Only submitted stocktakes can be approved',409);}if(c.rows[0].counted_by===req.auth!.userId){await client.query('ROLLBACK');return fail(res,'STOCKTAKE_SELF_APPROVAL','A different authorised user must approve this stocktake',409);}
   const lines=await client.query('SELECT * FROM inventory_stocktake_lines WHERE stocktake_id=$1 ORDER BY product_id FOR UPDATE',[req.params.stocktakeId]);
-  for(const l of lines.rows){const delta=Number(l.counted_units)-Number(l.expected_units);if(!delta)continue;const b=await client.query('SELECT quantity_units FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE',[orgId(req),c.rows[0].outlet_id,l.product_id]);const current=Number(b.rows[0]?.quantity_units??0);if(Math.abs(current-Number(l.expected_units))>0.0005){await client.query('ROLLBACK');return fail(res,'STOCK_CHANGED_DURING_COUNT','Stock changed after the count snapshot; create a fresh stocktake before approval',409);}if(current+delta<0){await client.query('ROLLBACK');return fail(res,'INVALID_STOCKTAKE_VARIANCE','Stocktake adjustment would create negative stock',409);}
+  for(const l of lines.rows){const delta=Number(l.counted_units)-Number(l.expected_units);const b=await client.query('SELECT quantity_units FROM stock_balances WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3 FOR UPDATE',[orgId(req),c.rows[0].outlet_id,l.product_id]);const current=Number(b.rows[0]?.quantity_units??0);if(Math.abs(current-Number(l.expected_units))>0.0005){await client.query('ROLLBACK');return fail(res,'STOCK_CHANGED_DURING_COUNT','Stock changed after the count snapshot; create a fresh stocktake before approval',409);}if(current+delta<0){await client.query('ROLLBACK');return fail(res,'INVALID_STOCKTAKE_VARIANCE','Stocktake adjustment would create negative stock',409);}
+   const batchCounts=await client.query(
+    `SELECT l.*,b.remaining_units,b.received_units FROM inventory_stocktake_batch_lines l
+      JOIN inventory_batches b ON b.id=l.batch_id AND b.organisation_id=$2
+       AND b.outlet_id=$3 AND b.product_id=l.product_id
+     WHERE l.stocktake_id=$1 AND l.product_id=$4 ORDER BY b.id FOR UPDATE OF l,b`,
+    [req.params.stocktakeId,orgId(req),c.rows[0].outlet_id,l.product_id]
+   );
+   if(batchCounts.rowCount){
+    const batchTotals=batchCounts.rows.reduce((sum:number,row:any)=>sum+Number(row.counted_units),0);
+    const batchExpected=batchCounts.rows.reduce((sum:number,row:any)=>sum+Number(row.expected_units),0);
+    const currentBatchTotal=batchCounts.rows.reduce((sum:number,row:any)=>sum+Number(row.remaining_units),0);
+    const liveBatchCount=await client.query('SELECT COUNT(*)::int count FROM inventory_batches WHERE organisation_id=$1 AND outlet_id=$2 AND product_id=$3',[orgId(req),c.rows[0].outlet_id,l.product_id]);
+    if(batchCounts.rowCount!==Number(liveBatchCount.rows[0].count)||Math.abs(batchExpected-Number(l.expected_units))>0.0005||Math.abs(currentBatchTotal-batchExpected)>0.0005||Math.abs(batchTotals-Number(l.counted_units))>0.0005){
+     await client.query('ROLLBACK');return fail(res,'BATCH_STOCKTAKE_MISMATCH','Batch counts do not reconcile with the stock snapshot; create a fresh count and verify every batch',409);
+    }
+    if(batchCounts.rows.some((row:any)=>Number(row.counted_units)>Number(row.received_units??row.counted_units))){
+     await client.query('ROLLBACK');return fail(res,'BATCH_COUNT_EXCEEDS_RECEIVED','A batch count cannot exceed its received quantity',409);
+    }
+   }
+   if(!delta&&!batchCounts.rowCount)continue;
    await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units) VALUES($1,$2,$3,$4) ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=EXCLUDED.quantity_units,updated_at=NOW() WHERE stock_balances.organisation_id=EXCLUDED.organisation_id`,[orgId(req),c.rows[0].outlet_id,l.product_id,Number(l.counted_units)]);
-   await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:c.rows[0].outlet_id,productId:l.product_id,movementType:'ADJUSTMENT',quantityUnits:Math.abs(delta),adjustmentDirection:delta>0?'INCREASE':'DECREASE',referenceType:'STOCKTAKE',referenceId:stocktakeId,idempotencyKey:`stocktake:${stocktakeId}:line:${l.id}`,notes:s.data.reason,createdBy:req.auth!.userId});
+   if(!batchCounts.rowCount&&delta){
+    const movement=await appendStockMovementOnce(client,{organisationId:orgId(req),outletId:c.rows[0].outlet_id,productId:l.product_id,movementType:'ADJUSTMENT',quantityUnits:Math.abs(delta),adjustmentDirection:delta>0?'INCREASE':'DECREASE',referenceType:'STOCKTAKE',referenceId:stocktakeId,idempotencyKey:`stocktake:${stocktakeId}:line:${l.id}`,notes:s.data.reason,createdBy:req.auth!.userId});
+    if(delta>0){
+     const batch=await client.query(
+      `INSERT INTO inventory_batches(organisation_id,outlet_id,product_id,batch_number,received_units,remaining_units,created_by)
+       VALUES($1,$2,$3,$4,$5,$5,$6) RETURNING id`,
+      [orgId(req),c.rows[0].outlet_id,l.product_id,`COUNT-${stocktakeId.slice(0,8)}-${l.id.slice(0,8)}`,delta,req.auth!.userId]
+     );
+     await client.query(
+      `INSERT INTO inventory_batch_movements(organisation_id,outlet_id,product_id,batch_id,stock_movement_id,movement_type,direction,quantity_units)
+       VALUES($1,$2,$3,$4,$5,'RECEIPT','INCREASE',$6)`,
+      [orgId(req),c.rows[0].outlet_id,l.product_id,batch.rows[0].id,movement.id,delta]
+     );
+    }else{
+     await consumeInventoryBatchFefo(client,{
+      organisationId:orgId(req),outletId:c.rows[0].outlet_id,productId:l.product_id,
+      stockMovementId:movement.id,quantityUnits:Math.abs(delta)
+     });
+    }
+   }
+   for(const batch of batchCounts.rows){
+    const batchDelta=Number(batch.counted_units)-Number(batch.expected_units);
+    if(!batchDelta)continue;
+    const movement=await appendStockMovementOnce(client,{
+     organisationId:orgId(req),outletId:c.rows[0].outlet_id,productId:l.product_id,
+     movementType:'ADJUSTMENT',quantityUnits:Math.abs(batchDelta),
+     adjustmentDirection:batchDelta>0?'INCREASE':'DECREASE',
+     referenceType:'STOCKTAKE_BATCH',referenceId:stocktakeId,
+     idempotencyKey:`stocktake:${stocktakeId}:batch:${batch.batch_id}`,
+     notes:s.data.reason,createdBy:req.auth!.userId
+    });
+    await client.query('UPDATE inventory_batches SET remaining_units=$1 WHERE id=$2 AND organisation_id=$3 AND outlet_id=$4',[batch.counted_units,batch.batch_id,orgId(req),c.rows[0].outlet_id]);
+    await client.query(
+     `INSERT INTO inventory_batch_movements(
+        organisation_id,outlet_id,product_id,batch_id,stock_movement_id,movement_type,direction,quantity_units
+      ) VALUES($1,$2,$3,$4,$5,'COUNT',$6,$7)`,
+     [orgId(req),c.rows[0].outlet_id,l.product_id,batch.batch_id,movement.id,batchDelta>0?'INCREASE':'DECREASE',Math.abs(batchDelta)]
+    );
+   }
   }
   const updated=await client.query("UPDATE inventory_stocktakes SET status='APPROVED',approved_by=$1,approved_at=NOW() WHERE id=$2 RETURNING *",[req.auth!.userId,req.params.stocktakeId]);await client.query('COMMIT');return res.json({data:updated.rows[0],adjustedLines:lines.rows.filter((l:any)=>Number(l.counted_units)!==Number(l.expected_units)).length});
  }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
@@ -593,8 +928,8 @@ operationsRouter.post('/retail/sales',requirePermission('retail:sell'),async(req
   );
   await client.query('UPDATE retail_sales SET excise_decision_id=$1 WHERE id=$2', [compliance.decisionId, sale.rows[0].id]);
   for(let lineIndex=0;lineIndex<checked.length;lineIndex++){ const line=checked[lineIndex];
-   await client.query(
-    'INSERT INTO retail_sale_lines(sale_id,product_id,quantity_units,unit_price,tax_amount,line_total,tax_snapshot_id) VALUES($1,$2,$3,$4,$5,$6,$7)',
+   const saleLine=await client.query(
+    'INSERT INTO retail_sale_lines(sale_id,product_id,quantity_units,unit_price,tax_amount,line_total,tax_snapshot_id) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id',
     [sale.rows[0].id,line.productId,line.quantity,line.unitPrice,line.taxAmount,line.lineTotal,line.taxSnapshotId]
    );
    const updated=await client.query(
@@ -604,6 +939,11 @@ operationsRouter.post('/retail/sales',requirePermission('retail:sell'),async(req
    );
    if(!updated.rowCount)throw Object.assign(new Error('Stock changed while checkout was being committed'),{code:'RETAIL_STOCK_RACE'});
    const saleMovement=await appendStockMovementOnce(client,{organisationId,outletId:d.outletId,productId:line.productId,movementType:'SALE',quantityUnits:line.quantity,referenceType:'RETAIL_SALE',referenceId:sale.rows[0].id,idempotencyKey:`retail-sale:${sale.rows[0].id}:line:${lineIndex}`,createdBy:req.auth!.userId});
+   await client.query('UPDATE retail_sale_lines SET stock_movement_id=$1 WHERE id=$2',[saleMovement.id,saleLine.rows[0].id]);
+   await consumeInventoryBatchFefo(client,{
+    organisationId,outletId:d.outletId,productId:line.productId,
+    stockMovementId:saleMovement.id,quantityUnits:line.quantity
+   });
    await consumeInventoryCostFifo(client,{organisationId,outletId:d.outletId,productId:line.productId,quantityUnits:line.quantity,sourceType:'RETAIL_SALE_LINE',sourceId:saleMovement.id,movementId:saleMovement.id});
   }
   for(const payment of d.payments){
@@ -644,6 +984,7 @@ operationsRouter.post('/retail/sales',requirePermission('retail:sell'),async(req
    return fail(res,'RECEIPT_NUMBER_CONFLICT','Receipt number is already in use for this outlet',409);
   }
   if(error?.code==='RETAIL_STOCK_RACE')return fail(res,'INSUFFICIENT_STOCK','Stock changed during checkout; refresh inventory and retry',409);
+  if(typeof error?.code==='string'&&error.code.startsWith('INVENTORY_BATCH_'))return fail(res,error.code,error.message,409);
   if(error?.code==='TAX_CONFIGURATION_INCOMPLETE')return fail(res,'TAX_CONFIGURATION_INCOMPLETE','An active tax pack, verified product profile and approved outlet price are required before checkout',409);
   if(error instanceof Error&&['INVALID_TAX_INPUT','MRP_EXCEEDED','BAR_MENU_CEILING_REQUIRED','MENU_CEILING_EXCEEDED','ALCOHOL_GST_DOUBLE_CHARGE','GST_COMPONENT_CONFLICT','GST_PAIR_INCOMPLETE'].includes(error.message))return fail(res,error.message,'Tax calculation rejected this checkout line',422);
   throw error;
@@ -692,18 +1033,39 @@ operationsRouter.post('/bar/open-bottles',requirePermission('peg:manage'),async(
  const b=await client.query('SELECT quantity_units FROM stock_balances WHERE outlet_id=$1 AND product_id=$2 AND organisation_id=$3 FOR UPDATE',[d.outletId,d.productId,orgId(req)]);
  if(!b.rowCount||Number(b.rows[0].quantity_units)<1){await client.query('ROLLBACK');return fail(res,'INSUFFICIENT_STOCK','No full bottle available',409);}
  await client.query('UPDATE stock_balances SET quantity_units=quantity_units-1,updated_at=NOW() WHERE outlet_id=$1 AND product_id=$2',[d.outletId,d.productId]);
+ await consumeInventoryBatchFefo(client,{
+  organisationId:orgId(req),outletId:d.outletId,productId:d.productId,
+  stockMovementId:movement.id,quantityUnits:1
+ });
  const bottle=await client.query(`INSERT INTO open_bottles(organisation_id,outlet_id,product_id,source_movement_id,bottle_volume_ml,remaining_ml,opened_by)
  VALUES($1,$2,$3,$4,$5,$5,$6) RETURNING *`,[orgId(req),d.outletId,d.productId,movement.id,d.bottleVolumeMl,req.auth!.userId]);
  await client.query('COMMIT');res.status(201).json({data:bottle.rows[0],replayed:false});
  }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
 });
 operationsRouter.post('/bar/peg-transactions',requirePermission('peg:sell'),async(req,res)=>{
- const s=z.object({outletId:uuid,openBottleId:uuid,volumeMl:z.number().int().positive(),type:z.enum(['WASTAGE','COMPLIMENTARY','ADJUSTMENT','BREAKAGE']),referenceId:uuid.optional(),notes:z.string().max(1000).optional()}).safeParse(req.body);
+ const s=z.object({outletId:uuid,openBottleId:uuid,volumeMl:z.number().int().positive(),type:z.enum(['WASTAGE','COMPLIMENTARY','ADJUSTMENT','BREAKAGE']),referenceId:uuid.optional(),notes:z.string().trim().min(3).max(1000)}).safeParse(req.body);
  if(!s.success)return res.status(400).json({error:{code:'VALIDATION_ERROR',details:s.error.flatten()}});
- const d=s.data,client=await pool.connect();
+ const d=s.data,key=String(req.get('Idempotency-Key')??'').trim();
+ if(!/^[A-Za-z0-9][A-Za-z0-9._:-]{15,120}$/.test(key))return fail(res,'IDEMPOTENCY_KEY_REQUIRED','Provide a 16-120 character Idempotency-Key header');
+ const fingerprint=createHash('sha256').update(JSON.stringify({
+  openBottleId:d.openBottleId.toLowerCase(),volumeMl:d.volumeMl,type:d.type,
+  referenceId:d.referenceId?.toLowerCase()??null,notes:d.notes.trim()
+ })).digest('hex');
+ const client=await pool.connect();
  try{await client.query('BEGIN');
  const access=await checkOutletOperationalAccess(client,orgId(req),d.outletId,'BAR_SERVICE',{userId:req.auth!.userId,roleCode:req.auth!.roleCode});
  if(!access.allowed){await client.query('ROLLBACK');return fail(res,access.code,access.message,403);}
+ const prior=await client.query(
+  'SELECT * FROM peg_transactions WHERE organisation_id=$1 AND outlet_id=$2 AND idempotency_key=$3 FOR UPDATE',
+  [orgId(req),d.outletId,key]
+ );
+ if(prior.rowCount){
+  if(prior.rows[0].request_fingerprint!==fingerprint){await client.query('ROLLBACK');return fail(res,'IDEMPOTENCY_KEY_CONFLICT','Idempotency key was already used with a different bottle adjustment',409);}
+  const bottle=await client.query('SELECT remaining_ml FROM open_bottles WHERE id=$1 AND organisation_id=$2 AND outlet_id=$3',[d.openBottleId,orgId(req),d.outletId]);
+ if(!bottle.rowCount){await client.query('ROLLBACK');return fail(res,'OPEN_BOTTLE_NOT_FOUND','Open bottle no longer exists for the recorded adjustment',404);}
+ await client.query('COMMIT');
+ return res.json({data:prior.rows[0],remainingMl:bottle.rows[0].remaining_ml,replayed:true});
+ }
  const b=await client.query('SELECT * FROM open_bottles WHERE id=$1 AND outlet_id=$2 AND organisation_id=$3 FOR UPDATE',[d.openBottleId,d.outletId,orgId(req)]);
  if(!b.rowCount){await client.query('ROLLBACK');return fail(res,'OPEN_BOTTLE_NOT_FOUND','Open bottle not found',404);}
  const reserved=await client.query("SELECT COALESCE(SUM(reserved_ml-consumed_ml),0)::int amount FROM bar_bottle_reservations WHERE open_bottle_id=$1 AND status='ACTIVE' AND expires_at>NOW()",[d.openBottleId]);
@@ -711,9 +1073,12 @@ operationsRouter.post('/bar/peg-transactions',requirePermission('peg:sell'),asyn
  if(unreserved<d.volumeMl){await client.query('ROLLBACK');return res.status(409).json({error:{code:'INSUFFICIENT_UNRESERVED_ML',message:'Release active bottle reservations before recording this volume deduction',availableMl:Math.max(0,unreserved)}});}
  const left=Number(b.rows[0].remaining_ml)-d.volumeMl;
  await client.query('UPDATE open_bottles SET remaining_ml=$1,status=$2,closed_at=CASE WHEN $2=\'EMPTY\' THEN NOW() ELSE closed_at END WHERE id=$3',[left,left===0?'EMPTY':'OPEN',d.openBottleId]);
- const tx=await client.query(`INSERT INTO peg_transactions(organisation_id,outlet_id,open_bottle_id,product_id,volume_ml,transaction_type,reference_id,notes,performed_by)
- VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,[orgId(req),d.outletId,d.openBottleId,b.rows[0].product_id,d.volumeMl,d.type,d.referenceId ?? null,d.notes ?? null,req.auth!.userId]);
- await client.query('COMMIT');res.status(201).json({data:tx.rows[0],remainingMl:left});
+ const tx=await client.query(`INSERT INTO peg_transactions(organisation_id,outlet_id,open_bottle_id,product_id,volume_ml,transaction_type,reference_id,notes,performed_by,idempotency_key,request_fingerprint)
+ VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,[orgId(req),d.outletId,d.openBottleId,b.rows[0].product_id,d.volumeMl,d.type,d.referenceId ?? null,d.notes,req.auth!.userId,key,fingerprint]);
+ await client.query(`INSERT INTO audit_events(organisation_id,outlet_id,actor_user_id,event_type,entity_type,entity_id,reason,metadata)
+  VALUES($1,$2,$3,'BAR_PEG_ADJUSTMENT_RECORDED','OPEN_BOTTLE',$4,$5,$6)`,
+  [orgId(req),d.outletId,req.auth!.userId,d.openBottleId,d.notes,{transactionId:tx.rows[0].id,type:d.type,volumeMl:d.volumeMl,remainingMl:left}]);
+ await client.query('COMMIT');res.status(201).json({data:tx.rows[0],remainingMl:left,replayed:false});
  }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
 });
 operationsRouter.get('/bar/open-bottles',requirePermission('peg:read'),async(req,res)=>{

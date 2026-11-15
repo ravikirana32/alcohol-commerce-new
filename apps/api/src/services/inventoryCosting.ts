@@ -50,7 +50,7 @@ export async function consumeInventoryCostFifo(client: PoolClient, input: {
 }
 
 export async function addInventoryCostLayer(client: PoolClient,input:{
- organisationId:string;outletId:string;productId:string;sourceType:'GOODS_RECEIPT'|'OPENING'|'RETURN'|'ADJUSTMENT'|'MANUAL_RECEIPT'|'INVENTORY_BATCH';
+ organisationId:string;outletId:string;productId:string; sourceType:'GOODS_RECEIPT'|'OPENING'|'RETURN'|'ADJUSTMENT'|'MANUAL_RECEIPT'|'INVENTORY_BATCH'|'STOCK_TRANSFER';
  sourceId:string;sourceLineId:string;quantityUnits:number;unitCost:number;receivedAt?:string;
 }) {
  if(!Number.isFinite(input.quantityUnits)||input.quantityUnits<=0||!Number.isFinite(input.unitCost)||input.unitCost<0) throw new Error('Invalid inventory cost layer');

@@ -155,7 +155,7 @@
     "verify:p576:static": "node scripts/verify-p576-procurement-completion.mjs",
     "verify:p577:static": "node scripts/verify-p577-settlement-reconciliation.mjs",
     "verify:p578:static": "node scripts/verify-p578-financial-statements.mjs",
-    "verify:p575-p578": "npm run verify:p575:static && npm run verify:p576:static && npm run verify:p577:static && npm run verify:p578:static && npm run verify:p574",
+    "verify:p575-p578": "npm run verify:p575:static && npm run verify:p576:static && npm run verify:p577:static && npm run verify:p578:static && npm run verify:p574:static",
     "verify:p579": "node scripts/verify-p579-regulatory-traceability.mjs",
     "verify:p580": "node scripts/verify-p580-device-offline-operations.mjs",
     "verify:p579-p580:migrations": "node scripts/verify-p579-p580-migrations.mjs",

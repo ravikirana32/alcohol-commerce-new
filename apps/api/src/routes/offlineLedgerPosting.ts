@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { pool } from '../db/pool.js';
 import { appendStockMovementOnce } from '../services/stockMovementIdempotency.js';
+import { consumeInventoryBatchFefo } from '../services/inventoryBatchFefo.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { requirePermission } from '../middleware/requirePermission.js';
 import { requireOrgScope } from '../middleware/requireOrgScope.js';
@@ -204,10 +205,12 @@ offlineLedgerPostingRouter.post('/offline/posting-intents/:intentId/post', requi
     await client.query('UPDATE retail_sales SET excise_decision_id=$1 WHERE id=$2', [compliance.decisionId, saleId]);
     for (let index=0; index<lineRows.length; index++) {
       const line = lineRows[index]; const source = payload.items[index];
-      await client.query(`INSERT INTO retail_sale_lines(sale_id,product_id,quantity_units,unit_price,tax_amount,line_total) VALUES($1,$2,$3,$4,$5,$6)`, [saleId,line.productId,line.quantity,line.unitPrice,line.tax,line.lineTotal]);
+      const saleLine=await client.query(`INSERT INTO retail_sale_lines(sale_id,product_id,quantity_units,unit_price,tax_amount,line_total) VALUES($1,$2,$3,$4,$5,$6) RETURNING id`, [saleId,line.productId,line.quantity,line.unitPrice,line.tax,line.lineTotal]);
       const updated = await client.query(`UPDATE stock_balances SET quantity_units=quantity_units-$1,updated_at=NOW() WHERE organisation_id=$2 AND outlet_id=$3 AND product_id=$4 AND quantity_units >= $1 RETURNING quantity_units`, [line.quantity,org(req),intent.outlet_id,line.productId]);
       if (!updated.rowCount) throw new Error('Stock changed while posting; transaction rolled back');
-      await appendStockMovementOnce(client,{organisationId:org(req),outletId:intent.outlet_id,productId:line.productId,movementType:'SALE',quantityUnits:line.quantity,referenceType:'RETAIL_SALE',referenceId:saleId,idempotencyKey:`offline-retail:${intent.source_event_id}:line:${index}`,notes:`Offline event ${intent.source_event_id}`,createdBy:req.auth!.userId});
+      const movement=await appendStockMovementOnce(client,{organisationId:org(req),outletId:intent.outlet_id,productId:line.productId,movementType:'SALE',quantityUnits:line.quantity,referenceType:'RETAIL_SALE',referenceId:saleId,idempotencyKey:`offline-retail:${intent.source_event_id}:line:${index}`,notes:`Offline event ${intent.source_event_id}`,createdBy:req.auth!.userId});
+      await client.query('UPDATE retail_sale_lines SET stock_movement_id=$1 WHERE id=$2',[movement.id,saleLine.rows[0].id]);
+      await consumeInventoryBatchFefo(client,{organisationId:org(req),outletId:intent.outlet_id,productId:line.productId,stockMovementId:movement.id,quantityUnits:line.quantity});
     }
     for (const payment of payload.payments) await client.query(`INSERT INTO sale_payments(organisation_id,sale_id,method,amount,reference,status) VALUES($1,$2,$3,$4,$5,'RECORDED_OFFLINE')`, [org(req),saleId,payment.method,payment.amountMinor/100,payment.reference ?? intent.source_event_id]);
     await client.query(`INSERT INTO offline_posting_executions(organisation_id,outlet_id,posting_intent_id,event_row_id,sale_id,outcome,payload_hash)
@@ -217,7 +220,7 @@ offlineLedgerPostingRouter.post('/offline/posting-intents/:intentId/post', requi
     await client.query(`INSERT INTO offline_sync_audit(organisation_id,batch_id,actor_user_id,action,details) VALUES($1,$2,$3,'LEDGER_POSTED',$4::jsonb)`, [org(req),intent.batch_id,req.auth!.userId,JSON.stringify({intentId:intent.id,saleId,totalMinor:payload.totalMinor,stockLines:lineRows.length,journal:'DEFERRED_TO_P536'})]);
     await client.query('COMMIT');
     res.status(201).json({ data: { ...sale.rows[0], id: saleId, stockLines: lineRows.length }, ledgerPosting: 'SALES_AND_STOCK_POSTED; JOURNAL_DEFERRED_TO_P536', idempotentReplay: false });
-  } catch (error) { await client.query('ROLLBACK'); throw error; }
+  } catch (error:any) { await client.query('ROLLBACK');if(typeof error?.code==='string'&&error.code.startsWith('INVENTORY_BATCH_'))return fail(res,error.code,error.message,409);throw error; }
   finally { client.release(); }
 });
 

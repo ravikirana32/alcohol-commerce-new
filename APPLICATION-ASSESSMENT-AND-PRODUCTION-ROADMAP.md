@@ -12,7 +12,7 @@ The product is intended to support licensed-liquor retail, bars/pubs, or hybrid 
 
 Some important business paths are wired through the UI and API. In particular, bar checkout performs server-side validation, tax/excise checks, payment allocation checks, ticket/KOT creation, and stock or open-bottle volume updates in a database transaction. Table sessions and KOT state transitions, retail checkout, shifts, refunds, inventory operations, catalogue/pricing, and role-based authorization also have source implementations.
 
-That is not yet a production claim. Phase 0 stabilized the local engineering baseline. The current Phase 1 increment validates the tab lifecycle, dual-control adjustments, station-routed KOTs, prepared-order wastage, and related stock/shift behavior. See the Phase 1 evidence below for the latest test results. The ordinary API suite intentionally skips its opt-in PostgreSQL tests unless an explicitly guarded test URL is supplied. A production-only dependency audit still finds one high-severity issue in the direct `zod` dependency, whose available fix is a major-version upgrade and needs compatibility work. The current P585 production gate remains **NO-GO**, with mandatory release gates not run. A healthy local Docker stack only shows that this development environment starts; it does not establish a production release.
+That is not yet a production claim. Phase 0 stabilized the local engineering baseline. Phase 1 implementation is complete, with its acceptance checks deferred by user decision until Phases 1–8 are implemented. Phase 2 software gaps are implemented, including menu substitutions, operator-facing PO/GRN authoring, multi-receipt three-way invoice matching, and guarded PostgreSQL coverage. Its remaining acceptance is physical/operator validation; historical adjustments without direction evidence remain explicit reconciliation exceptions until source records are remediated. A production-only dependency audit still finds one high-severity issue in the direct `zod` dependency, whose available fix is a major-version upgrade and needs compatibility work. The current P585 production gate remains **NO-GO**, with mandatory release gates not run. A healthy local Docker stack only shows that this development environment starts; it does not establish a production release.
 
 ### Bottom line by use
 
@@ -62,15 +62,15 @@ The clearest scope reference is [`docs/PRODUCT-SCOPE.md`](docs/PRODUCT-SCOPE.md)
 | Area | What exists in source | Assessment and material gaps |
 |---|---|---|
 | Authentication and roles | Login/session flow; seeded local role accounts; permission-aware navigation and server-side authorization. | Useful foundation. Needs full authentication/security validation, role/tenant negative tests, account lifecycle, and production identity/secret operations. Demo users/passwords are local-only and must not be used in production. |
-| Catalogue and pricing | Product/category/brand and outlet-price APIs and UI. | Foundational catalogue/pricing path. Full menu configuration, modifiers, combos, availability controls, and operator acceptance were not established by the reviewed evidence. |
+| Catalogue and pricing | Product/category/brand, outlet-price, bar measure availability, versioned recipes, modifiers, combos, and substitution controls are present. | Operator acceptance and legal price/tax approval remain open. |
 | Retail POS | Retail checkout route and POS workspace; server-side checkout, stock, and tax logic; helper/integrity tests. | A meaningful retail workflow exists in source. No reviewed browser test proves a complete sale, receipt, stock ledger, and closeout journey against a real database. |
 | Bar checkout | Bar checkout API and POS submission; server-side price/tax/excise checks, tender-total checks, ticket/payment/KOT writes, and stock/open-bottle consumption in a transaction. | Unpaid table-tab rounds, retry-safe partial/mixed tender settlement, and packaged-stock posting have API/database coverage. Open-bottle tab concurrency and live operator acceptance remain. |
 | Tables and KOT | Open/transfer/merge/close and hold/reopen table sessions; per-station KOT routing and transitions; reasoned, audited reprints; separately approved cancellation with a persisted restock/wastage disposition. | Tab lifecycle and station splitting have PostgreSQL coverage. The browser uses a printable preview; physical KDS/printer behavior and device acceptance are not verified. |
 | Tabs and bill settlement | Unpaid table tabs with multiple rounds; partial and equal split payments; item-level splitting; persisted packaged-line quantity edits; dual-control discount/comp/refund/void requests. | Core paths have separate browser and PostgreSQL tests, including concurrency and post-preparation wastage. The browser tests mock APIs, so a single live browser-to-PostgreSQL acceptance journey remains. |
-| Payments and refunds | Checkout accepts tender method/amount/reference allocations; refund and settlement code exists. | Tender allocations are not proof of gateway authorization/capture/void/refund. Provider certification, idempotent callbacks, disputes, settlement reconciliation, and payment hardware are not established. |
+| Payments and refunds | Manual tender flows plus an initial Razorpay bar-tab sandbox path with server-side signature and captured-status verification. | The provider path is not yet certified; retail integration, webhook recovery, provider-side refunds/voids, disputes, and real terminal acceptance remain open. |
 | Shifts and cash | Shift open/current/preview/close and cash movement/reconciliation routes. | Basic shift/cash controls exist in source. Needs role-approved cash operations, full denomination/count variance flow, cash drawer integration, replay/failure testing, and end-to-end closeout acceptance. |
-| Inventory and open bottles | Stock balance, receipts, adjustments, batches, transfers, stocktakes, and peg-volume depletion are represented in APIs and logic. | Good primitives, but the UI exposes only part of the capability. Recipe/ingredient deduction, robust FEFO/expiry alerts, physical counts, wastage, bottle breakage, and reconciliation need completion and acceptance. |
-| Procurement and receiving | Supplier/PO foundations and a goods-receipt/invoice-match schema/API direction are present. | UI documentation says full PO editor and GRN form remain outstanding. Schema existence does not prove a usable procure-to-receive workflow. |
+| Inventory and open bottles | Stock balances, receipts, adjustments, batch FEFO, transfers, stocktakes, recipe depletion, packaged wastage, peg-volume depletion, and multi-outlet reconciliation have operator surfaces and automated coverage. | Physical counts/operator acceptance remain; historical adjustments with unknown direction require source-document remediation. |
+| Procurement and receiving | Operator-authored POs, separate approval, batch-evidenced GRNs, invoice matching, and variance decisions are implemented. | Supplier payment execution and finance accounting remain Phase 3; physical/operator acceptance remains. |
 | Tax and excise | Tax rule/profile/pricing APIs and checkout quoting; licence-condition, excise-rule, and dry-day workflows. | Local compliance foundation only. Karnataka dry-day listing is specifically scoped in the reviewed source; broader jurisdictional rules, legal validation, rule-pack lifecycle, statutory calculation evidence, and production approval are outstanding. |
 | Reports and exports | Sales summaries/trends/top products and CSV export. | Operational analytics, not demonstrated statutory tax/accounting reports. Saved-report scheduling reports `schedulerEnabled:false`; caller-provided report evidence is not proof of a trusted reporting pipeline. |
 | Offline operation | Browser IndexedDB diagnostic queue and API sync/review endpoints. | **Not an offline POS:** queue is diagnostic-only; financial events enter review and offline alcohol financial posting is disabled. A tested offline sale, safe replay, and controlled reconciliation workflow are not demonstrated. |
@@ -101,7 +101,7 @@ This is the minimum practical target for a reliable bar POS; liquor-specific con
 | Tables, tabs, and walk-ins | Open tab before payment; transfer/merge tables; add rounds; identify/hold/reopen checks; close later. | Unpaid rounds, settlement, transfer/merge, and hold/reopen have API/database coverage; broader operator/UAT acceptance remains. |
 | Bar/kitchen production | Route KOT to stations/printers/KDS; acknowledge/prepare/serve; edit/cancel with audit; reprint safely. | KOT transitions and audited reprint preview exist; station routing, printer/KDS operation, and prepared-order recovery are not production-verified. |
 | Bill control | Split by item/person/equal shares; partial/mixed tender; merge/separate; discount/comp/void with approvals and audit trail. | Item-level ticket split and equal/partial tender exist for unpaid tabs; order edits/removals, partial-line void, discount/comp rules, and distinct approval flows remain. |
-| Payments | Cash/card/UPI or configured tender; terminal capture/refund/void; tips; receipts; duplicate-safe callbacks and settlement. | Manual tender allocations exist; live provider integration/certification is not demonstrated. |
+| Payments | Cash/card/UPI or configured tender; terminal capture/refund/void; tips; receipts; duplicate-safe callbacks and settlement. | Razorpay is selected for India and an initial bar-tab flow is implemented in test mode; retail checkout and provider certification are not demonstrated. |
 | Cash and shift control | Open float, cash in/out, safe drops, blind close/count, variance reasons/approval, cashier/shift handoff. | Basic shift/cash routes exist; full cash-control and hardware acceptance remain. |
 | Inventory and costing | Recipes/BOM and ingredient depletion; open-bottle volume; waste/spillage/comps; receiving; transfers; stock counts; cost/margin. | Stock and peg depletion foundations exist; recipe costing and complete procurement/receiving/stock-control UX are not demonstrated. |
 | Liquor-specific rules | Licence/outlet eligibility, permitted product and measure, sale restrictions, age/ID process where required, dry-day/time rules, excise/tax records. | Rules and licence foundations exist; legal/jurisdiction approval and production runtime verification remain open. |
@@ -140,10 +140,10 @@ Passing local checks and health endpoints must not be used to waive the unresolv
 ## 7. Priority gaps and risks
 
 1. **Production release gates remain NO-GO:** local build/typecheck/tests pass, but security/legal approval, provider certification, restore drill, pilot, support, and rollback evidence are still absent.
-2. **Core pub workflow is incomplete:** unpaid rounds, partial settlement, hold/reopen, transfer/merge, equal/item splits, and a narrow permission-gated packaged-ticket void path are implemented and covered. Persisted line edits/removals, partial-line void, comp/discount policies, distinct manager approvals, and broader acceptance remain open.
-3. **Payments are not operationally complete:** tender recording is not provider capture; refunds, reconciliation, terminal certification, and settlement evidence must be real and tested.
+2. **Core pub workflow needs operational acceptance:** unpaid rounds, partial settlement, hold/reopen, transfer/merge, equal/item splits, persisted line edits, approvals, and void stock disposition have automated coverage. Combined live browser/API/database UAT and physical KDS/printer acceptance remain open.
+3. **Payments are not operationally complete:** the Razorpay bar-tab path is test-mode only. Retail provider capture, automatic webhook recovery, provider refunds, reconciliation, terminal certification, and settlement evidence must still be implemented and tested.
 4. **Bar production hardware is not integrated:** a browser KOT print preview is not physical integration; station routing, printers/KDS, receipt printing, cash drawer, and terminal operation remain.
-5. **Inventory accuracy/cost is incomplete:** recipes/ingredient consumption, wastage, batch/expiry controls, purchase receiving, and inventory-cost reconciliation need usable end-to-end workflows.
+5. **Inventory accuracy/cost needs operational evidence:** recipe depletion, batch/expiry FEFO, physical stocktakes, transfers, PO/GRN authoring, menu substitutions/modifiers/combos, bottle-loss recording, invoice matching, and multi-outlet reconciliation have implementation and automated PostgreSQL coverage. Physical stock counts and outlet/operator acceptance remain; historical adjustment rows with unknown direction stay visible as exceptions and require evidence-based data remediation.
 6. **Regulatory coverage is not approved:** liquor rules vary by jurisdiction and licence. Current rule packs/statuses and local scope require competent legal/compliance review before any live sale.
 7. **Offline behavior is intentionally constrained:** no offline financial alcohol posting is enabled; product behavior during network loss must be explicit, safe, and accepted.
 8. **Production operations are unevidenced:** backup/restore, monitoring, alerts, capacity, failover, incident response, data retention, and rollback are mandatory before customer operations.
@@ -209,9 +209,11 @@ Still required before Phase 1 can exit:
 - Operator UAT and explicit accounting/legal sign-off for wastage classification, tax/excise configuration, refund handling, and closeout controls.
 - A customer-facing real-money payment provider/terminal is Phase 3 work; current tender entries are internal records and do not capture funds.
 
-Phase 1 remains **in progress** until the combined acceptance journey and operational sign-offs are evidenced. Do not treat this snapshot as production approval or begin Phase 2.
+Phase 1 implementation is complete; its final acceptance checks are explicitly deferred by user decision until Phases 1–8 are implemented. Track those checks in [`docs/PHASE-1-DEFERRED-ACCEPTANCE.md`](docs/PHASE-1-DEFERRED-ACCEPTANCE.md). This deferral does not constitute production approval.
 
 ### Phase 2 — Menu, recipes, and inventory integrity
+
+**Status: software implementation and automated acceptance complete; physical/operator acceptance remains.**
 
 **Goal:** Make every sale explainable against menu configuration and stock/cost movements.
 
@@ -223,15 +225,44 @@ Phase 1 remains **in progress** until the combined acceptance journey and operat
 
 **Exit criteria:** Automated end-to-end cases reconcile starting stock + receipts − sales − waste + transfers to closing stock, including repeated measures, fractional/invalid quantities, refunds, and concurrency.
 
+**Progress snapshot — software implementation and automated acceptance complete**
+
+- Added migration `269_p595_menu_recipes_and_batch_fefo.sql` for versioned recipes, outlet/measure availability, batch movement evidence, batch-level stocktake snapshots, and transfer batch lineage; existing untracked balances are preserved as no-expiry legacy lots.
+- Added bar menu/recipe APIs and a workspace for availability, recipe versions, ingredient yields, and estimated ingredient cost/margin. Bar checkout now checks availability and depletes active recipe ingredients transactionally; eligible ticket voids restore recipe ingredient stock.
+- Added batch FEFO allocation and restoration to retail/bar checkout, manual receipts/adjustments, procurement receipts, transfers, offline retail posting, returns, and stocktake controls. Expired stock cannot be sold; expired lots can be recorded as packaged wastage.
+- Added idempotent batch receiving, explicit packaged wastage categories, and editable batch/product counts with approval-based stocktake posting; stocktake approvers must differ from the counter. Added frontend and guarded PostgreSQL cases for menu availability, recipe depletion/void, expired-batch prevention, FEFO, maker-checker stocktakes, wastage replay, and batch-receipt replay.
+- Added modifier groups/options with required selection rules, per-unit price changes, ingredient stock/batch/FIFO consumption and pre-preparation void restoration; added combo recipe labeling and POS modifier snapshots.
+- Added idempotent/audited open-bottle loss transactions and supplier invoice entry with approved-PO/posted-GRN matching, variance review, maker-checker separation, and no payment posting. Matching now supports partial invoices against multiple posted receipts and checks both receipt and approved-PO quantity/value ceilings. A multi-outlet reconciliation API and operator UI preserve the original single-outlet response shape.
+- Added operator-facing PO creation/line entry, separate submit/approval, and GRN posting with partial acceptance, supplier batch evidence, optional expiry, and retry-stable idempotency. Accepted expired stock is rejected before it reaches saleable inventory.
+- Added recipe-linked substitution configuration, mandatory POS selection, recipe-ingredient suppression, replacement stock/cost depletion, ticket snapshots, and void restoration; open-bottle peg pours cannot apply recipe substitutions.
+- Extended guarded PostgreSQL acceptance coverage for modifier and substitution checkout/void restoration, bottle-loss replay/conflict, multi-receipt invoice match/replay/variance decisions, and multi-outlet reconciliation. Added mocked browser journeys for combo/substitution setup, modifier checkout, PO/GRN authoring, invoice entry, and multi-outlet runs.
+- Final validation passed: all 271 ordered migrations applied to a fresh isolated PostgreSQL database; the complete API suite passed 116 tests across 25 files, including both guarded PostgreSQL integration tests; all 18 frontend Playwright tests passed; API/web typechecks and production builds passed; migration verification/preflight, syntax transpilation (292 files), inventory checks (8/8), P574 checks (10/10), and P575–P578 checks (36/36) passed; `git diff --check` passed. Browser tests mock API responses, while the guarded integration tests exercise the API against PostgreSQL; a combined browser-to-live-database journey has not been run.
+
+**Only pending Phase 2 exit criterion:**
+
+- Complete physical/operator acceptance at representative outlets: perform real stock counts and receipt/transfer/wastage workflows; confirm scanners, printers/KDS, terminals, and role-based work instructions on actual devices.
+
+**Known data and business boundaries (not Phase 2 coding gaps):**
+
+- Remediate historical stock adjustments with unknown direction only from source documents. The application deliberately reports these as exceptions rather than inferring an increase/decrease sign.
+- Dietary/allergen declarations and customer-specific substitution policies require separate approved business and regulatory rules; recipe substitutions implement inventory replacement only.
+- Supplier invoice matching is net-goods evidence and does not post supplier payments; payment execution and related financial controls are Phase 3 scope.
+
 ### Phase 3 — Payments, cash, tax, and accounting
+
+**Status: in progress. Initial provider selection: Razorpay for India; implement and validate in test mode before any production credentials or live capture.**
 
 **Goal:** Connect POS business records to real money and finance controls.
 
+- Implemented the first provider-backed bar-tab path: idempotent Razorpay order creation for the ticket balance, Checkout.js UI, server-side signature verification, provider-side payment fetch, and atomic recording of captured tenders as pending settlement reconciliation. Ambiguous order creation and captured-payment mismatches fail closed into review.
+- Remaining provider work includes browser/network recovery through automated webhook processing, retail checkout, provider-side refund/void handling, provider certification, and real-terminal acceptance.
 - Integrate selected payment providers/terminals in a certified sandbox and production configuration.
 - Implement idempotent authorization/capture/void/refund/webhook handling and provider outage recovery.
 - Complete cash drawer and tender closeout, tips, variance approval, settlement reconciliation, and refund-to-provider behavior.
 - Validate tax/excise calculations against approved fixtures and define auditable rule activation/versioning.
 - Deliver accounting exports/reconciliation and reports that reconcile to source transactions; distinguish operational estimates from posted totals.
+
+**Validation to date:** migrations through 272 applied to a fresh isolated PostgreSQL database; the complete API suite passed 121 tests, including the Razorpay payment integration test; all 19 frontend browser tests passed; typechecks, production builds, migration checks, syntax checks, and static inventory/payment-finance checks passed. Razorpay requests were mocked in automated tests; no merchant sandbox account, actual credential, live capture, webhook delivery, or provider certification was exercised.
 
 **Exit criteria:** Provider certification passes; no duplicate capture/refund under retry; daily tender, cash, settlement, tax, and ledger totals reconcile exactly on controlled test data; finance and compliance owners sign off.
 

@@ -8,10 +8,13 @@ type Price = {
   id: string; product_id: string; name: string; sku: string; barcode?: string | null; channel: string;
   volume_ml: number | null; unit_price: string | number; tax_rate: string | number;
 };
+type MenuAvailability = { product_id: string; measure_type: string | null; is_available: boolean | null };
 type OpenBottle = { id: string; product_id: string; name: string; sku: string; remaining_ml: number; bottle_volume_ml: number };
+type ModifierOption={id:string;name:string;priceDelta:number;status:string;ingredientName?:string|null;ingredientQuantity?:number};
+type ModifierGroup={id:string;name:string;min_selections:number;max_selections:number;status:string;substitutes_product_id?:string|null;substitutes_product_name?:string|null;options:ModifierOption[]};
 type PendingCheckout = { url: string; body: Record<string, unknown> };
 type RetailCartLine = { priceId: string; productId: string; name: string; sku: string; quantity: number; unitPrice: number; taxRate: number };
-type BarCartLine = { priceId:string; productId:string; name:string; sku:string; quantity:number; unitPrice:number; taxRate:number; lineType:'PEG'|'BOTTLE'|'PACKAGED'; volumeMl?:number; openBottleId?:string };
+type BarCartLine = { priceId:string; productId:string; name:string; sku:string; quantity:number; unitPrice:number; taxRate:number; lineType:'PEG'|'BOTTLE'|'PACKAGED'; volumeMl?:number; openBottleId?:string; modifiers:Array<{id:string;name:string;priceDelta:number}> };
 type TenderLine = { id: string; method: string; amount: number; reference: string };
 type ReceiptSnapshot = { receiptNumber: string; total: number; lines: Array<{ name: string; quantity: number; amount: number }>; tenders: TenderLine[]; createdAt: string };
 
@@ -22,6 +25,9 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
   const [outlets, setOutlets] = useState<Outlet[]>([]);
   const [outletId, setOutletId] = useState('');
   const [prices, setPrices] = useState<Price[]>([]);
+  const [menuAvailability, setMenuAvailability] = useState<MenuAvailability[]>([]);
+  const [modifierGroups,setModifierGroups]=useState<ModifierGroup[]>([]);
+  const [selectedModifierIds,setSelectedModifierIds]=useState<string[]>([]);
   const [bottles, setBottles] = useState<OpenBottle[]>([]);
   const [tableSessions, setTableSessions] = useState<TableSession[]>([]);
   const [tableSessionId, setTableSessionId] = useState('');
@@ -75,12 +81,24 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
       const payload = await request(`/api/v1/outlets/${outletId}/prices?channel=${channel}`);
       all.push(...(payload.data ?? []));
     }
+    let availability: MenuAvailability[] = [];
+    if (mode === 'BAR') {
+      const menu = await request(`/api/v1/bar/menu?outletId=${outletId}`);
+      availability = menu.data ?? [];
+    }
+    setMenuAvailability(availability);
     setPrices(all);
-    setPriceId(all[0]?.id ?? '');
+    const selectable = all.filter((price) => {
+      if (mode !== 'BAR') return true;
+      const measure = price.channel === 'BAR_PEG' ? 'PEG' : price.channel === 'BAR_BOTTLE' ? 'BOTTLE' : 'PACKAGED';
+      return !availability.some((item) => item.product_id === price.product_id && item.measure_type === measure && item.is_available === false);
+    });
+    setPriceId(selectable[0]?.id ?? '');
   }, [mode, outletId, request]);
 
   useEffect(() => {
     setPrices([]);
+    setMenuAvailability([]);
     setBottles([]);
     setTableSessions([]);
     setTableSessionId('');
@@ -97,14 +115,31 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
     }
   }, [loadPrices, mode, outletId, request]);
 
-  const selected = prices.find((p) => p.id === priceId);
-  const visiblePrices = prices.filter((p) => {
+  const selectablePrices = prices.filter((price) => {
+    if (mode !== 'BAR') return true;
+    const measure = price.channel === 'BAR_PEG' ? 'PEG' : price.channel === 'BAR_BOTTLE' ? 'BOTTLE' : 'PACKAGED';
+    return !menuAvailability.some((item) => item.product_id === price.product_id && item.measure_type === measure && item.is_available === false);
+  });
+  const selected = selectablePrices.find((p) => p.id === priceId);
+  useEffect(()=>{
+    setModifierGroups([]);setSelectedModifierIds([]);
+    if(mode!=='BAR'||!selected?.product_id)return;
+    request(`/api/v1/bar/modifiers?productId=${selected.product_id}`)
+      .then(payload=>setModifierGroups((payload.data??[]).filter((group:ModifierGroup)=>group.status==='ACTIVE')))
+      .catch(err=>setError(err instanceof Error?err.message:'Unable to load menu modifiers'));
+  },[mode,selected?.product_id,selected?.channel,request]);
+  const isPegSelected=mode==='BAR'&&selected?.channel==='BAR_PEG';
+  const eligibleModifierGroups=modifierGroups.filter(group=>!(isPegSelected&&group.substitutes_product_id));
+  const activeModifierOptions=eligibleModifierGroups.flatMap(group=>group.options.filter(option=>option.status==='ACTIVE'));
+  const selectedModifiers=activeModifierOptions.filter(option=>selectedModifierIds.includes(option.id));
+  const selectedModifierPrice=selectedModifiers.reduce((sum,option)=>sum+Number(option.priceDelta),0);
+  const visiblePrices = selectablePrices.filter((p) => {
     const q = productSearch.trim().toLowerCase();
     return !q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q) || (p.barcode ?? '').toLowerCase().includes(q);
   });
   function scanOrSearch(value: string) {
     setProductSearch(value);
-    const exact = prices.find((p) => (p.barcode ?? '').trim() === value.trim() || p.sku.toLowerCase() === value.trim().toLowerCase());
+    const exact = selectablePrices.find((p) => (p.barcode ?? '').trim() === value.trim() || p.sku.toLowerCase() === value.trim().toLowerCase());
     if (exact) { setPriceId(exact.id); setProductSearch(''); }
   }
   const unitPrice = selected ? Number(selected.unit_price) : 0;
@@ -120,7 +155,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
     return sum + lineBase + lineTax;
   }, 0);
   const barCartTotal = barCart.reduce((sum,line)=>{
-    const base=line.quantity*line.unitPrice;
+    const base=line.quantity*(line.unitPrice+line.modifiers.reduce((total,modifier)=>total+modifier.priceDelta,0));
     return sum+base+Math.round((base*line.taxRate/100+Number.EPSILON)*100)/100;
   },0);
   const checkoutTotal = mode === 'RETAIL' ? Math.round((retailCartTotal + Number.EPSILON) * 100) / 100 : barCart.length ? Math.round((barCartTotal+Number.EPSILON)*100)/100 : total;
@@ -154,10 +189,17 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
     if (isPeg && (!selectedBottle || selectedBottle.product_id !== selected.product_id)) {
       setError('Select an open bottle of the selected product before adding a peg line.'); return;
     }
+    for(const group of eligibleModifierGroups){
+      const count=group.options.filter(option=>option.status==='ACTIVE'&&selectedModifierIds.includes(option.id)).length;
+      if(count<Number(group.min_selections)||count>Number(group.max_selections)){
+        setError(`Choose ${group.min_selections}-${group.max_selections} option(s) for ${group.name}.`);return;
+      }
+    }
     const lineType: BarCartLine['lineType'] = selected.channel === 'BAR_PEG' ? 'PEG' : selected.channel === 'BAR_BOTTLE' ? 'BOTTLE' : 'PACKAGED';
     setBarCart((rows) => [...rows, {
       priceId:selected.id,productId:selected.product_id,name:selected.name,sku:selected.sku,
       quantity,unitPrice,taxRate,lineType,
+      modifiers:selectedModifiers.map(option=>({id:option.id,name:option.name,priceDelta:Number(option.priceDelta)})),
       ...(lineType==='PEG'?{volumeMl:Number(selected.volume_ml),openBottleId:bottleId}:{})
     }]);
     setQuantity(1);setBottleId('');setError('');
@@ -194,6 +236,7 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
               outletId, idempotencyKey: id, ticketNumber: `B-${id.slice(0, 8).toUpperCase()}`, tableLabel: tableLabel || undefined, ...(tableSessionId ? { tableSessionId } : {}),
               lines: barCart.map((line) => ({
                 productId:line.productId,lineType:line.lineType,quantity:line.quantity,
+                ...(line.modifiers.length?{modifierOptionIds:line.modifiers.map(modifier=>modifier.id)}:{}),
                 ...(line.lineType==='PEG'?{volumeMl:line.volumeMl,openBottleId:line.openBottleId}:{})
               })),
               complianceAttestations: { ageVerified, notIntoxicated, noRestrictedCustomer, mealProvided, consumptionOnPremises: true },
@@ -208,7 +251,11 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
       setPendingCheckout(null);
       const receiptLines = mode === 'RETAIL'
         ? (payload.lines ?? []).map((line: any, index: number) => ({ name: cart.find((item) => item.productId === line.productId)?.name ?? cart[index]?.name ?? 'Product', quantity: Number(line.quantity ?? line.quantity_units), amount: Number(line.lineTotal ?? line.line_total ?? 0) }))
-        : barCart.map((line) => ({ name: `${line.name} ${line.lineType==='PEG'?`${line.volumeMl} ml`:''}`, quantity:line.quantity, amount:line.quantity*line.unitPrice*(1+line.taxRate/100) }));
+        : barCart.map((line) => {
+          const unitPrice=line.unitPrice+line.modifiers.reduce((sum,modifier)=>sum+modifier.priceDelta,0);
+          const base=line.quantity*unitPrice;
+          return {name:`${line.name} ${line.lineType==='PEG'?`${line.volumeMl} ml`:''}`,quantity:line.quantity,amount:base+Math.round((base*line.taxRate/100+Number.EPSILON)*100)/100};
+        });
       setLastReceipt({
         receiptNumber: String(payload.data.receipt_number ?? payload.data.ticket_number ?? payload.data.id),
         total: Number(payload.totals?.grandTotal ?? payload.data.grand_total ?? checkoutTotal), lines: receiptLines, tenders: deferBarPayment ? [] : tenders.filter((tender) => tender.amount > 0), createdAt: new Date().toISOString()
@@ -288,6 +335,15 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
             .map((b) => <option key={b.id} value={b.id}>{b.name} · {b.remaining_ml} ml remaining</option>)}
         </select>
       </label>}
+      {mode==='BAR'&&eligibleModifierGroups.map(group=><fieldset key={group.id} className="tender-panel">
+        <legend>{group.name} · {group.substitutes_product_name?`replace ${group.substitutes_product_name} · choose exactly one`:`choose ${group.min_selections}-${group.max_selections}`}</legend>
+        {group.options.filter(option=>option.status==='ACTIVE').map(option=><label key={option.id}>
+          <input type="checkbox" checked={selectedModifierIds.includes(option.id)} disabled={busy||Boolean(pendingCheckout)}
+            onChange={event=>setSelectedModifierIds(ids=>event.target.checked?[...ids,option.id]:ids.filter(id=>id!==option.id))}/>
+          {option.name}{Number(option.priceDelta)!==0?` · ${money(Number(option.priceDelta))}`:''}{option.ingredientName?` · uses ${option.ingredientName} ${option.ingredientQuantity??''}`:''}
+        </label>)}
+      </fieldset>)}
+      {mode==='BAR'&&selectedModifierPrice!==0&&<small>Selected modifiers add {money(selectedModifierPrice)} per unit before tax.</small>}
       <label>Quantity
         <input disabled={busy || Boolean(pendingCheckout)} type="number" min="1" step="1" value={quantity} onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}/>
       </label>
@@ -319,10 +375,10 @@ export default function POSWorkspace({ mode, token }: { mode: Mode; token: strin
           <strong>Ticket ({barCart.length} lines)</strong>
           {!barCart.length&&<small>No items added to this ticket.</small>}
           {barCart.map((line,index)=>{
-            const base=line.quantity*line.unitPrice;
+            const base=line.quantity*(line.unitPrice+line.modifiers.reduce((sum,modifier)=>sum+modifier.priceDelta,0));
             const amount=base+Math.round((base*line.taxRate/100+Number.EPSILON)*100)/100;
             return <div className="retail-cart-line" key={`${line.priceId}-${index}`}>
-              <span>{line.name} <small>{line.lineType} {line.volumeMl?`· ${line.volumeMl} ml`:''} · Qty {line.quantity} {line.openBottleId?'· open bottle selected':''}</small></span>
+              <span>{line.name} <small>{line.lineType} {line.volumeMl?`· ${line.volumeMl} ml`:''} · Qty {line.quantity} {line.openBottleId?'· open bottle selected':''}{line.modifiers.length?` · ${line.modifiers.map(modifier=>modifier.name).join(', ')}`:''}</small></span>
               <strong>{money(amount)}</strong>
               <button type="button" disabled={busy||Boolean(pendingCheckout)} onClick={()=>setBarCart(rows=>rows.filter((_,i)=>i!==index))}>Remove</button>
             </div>;

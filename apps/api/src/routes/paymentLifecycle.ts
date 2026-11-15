@@ -11,7 +11,9 @@ export const paymentLifecycleRouter = Router();
 paymentLifecycleRouter.post('/payments/provider-webhooks/:provider', async (req,res) => {
  const provider=String(req.params.provider).toLowerCase(); const raw=Buffer.isBuffer(req.body)?req.body:Buffer.alloc(0);
  const secretKey=providerSecretName(provider); const secret=secretKey?process.env[secretKey]:undefined;
- const signature=req.header('x-provider-signature')??req.header('x-signature');
+ const signature=provider==='razorpay'
+  ?req.header('x-razorpay-signature')??req.header('x-provider-signature')??req.header('x-signature')
+  :req.header('x-provider-signature')??req.header('x-signature');
  if(!verifyProviderWebhook(raw,signature,secret)) return res.status(401).json({error:{code:'WEBHOOK_SIGNATURE_INVALID'}});
  let payload:any; try{payload=JSON.parse(raw.toString('utf8'));}catch{return res.status(400).json({error:{code:'WEBHOOK_INVALID_JSON'}});}
  const eventId=String(payload?.id??payload?.event_id??'').trim(); const eventType=String(payload?.type??payload?.event??'').trim();

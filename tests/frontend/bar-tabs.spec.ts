@@ -28,6 +28,9 @@ async function authenticate(page: Page) {
   await page.route('**/api/v1/outlets', (route) =>
     route.fulfill({ json: { data: [{ id: outletId, name: 'Test Bar', outlet_code: 'TB1' }] } })
   );
+  await page.route('**/api/v1/bar/menu?outletId=*', route =>
+    route.fulfill({ json: { data: [] } })
+  );
   await page.route('**/api/v1/bar/ticket-approval-requests?outletId=*',route=>route.fulfill({json:{data:[]}}));
   await page.route('**/api/v1/bar/kot/stations?outletId=*',route=>route.fulfill({json:{data:[]}}));
   await page.goto('/');
@@ -174,6 +177,73 @@ test('retries a partial tab payment with the same idempotency key and preserves 
   expect(paymentRequests[2]).toMatchObject({
     payments: [{ method: 'CASH', amount: 20 }, { method: 'CARD', amount: 10 }]
   });
+});
+
+test('confirms a captured Razorpay tab payment through the server verifier', async ({ page }) => {
+  await page.addInitScript(() => {
+    type CheckoutOptions = {
+      order_id: string;
+      handler: (result: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => void;
+    };
+    type CheckoutWindow = Window & {
+      Razorpay?: new (options: CheckoutOptions) => { open: () => void };
+    };
+    (window as CheckoutWindow).Razorpay = class {
+      constructor(private readonly options: CheckoutOptions) {}
+      open() {
+        this.options.handler({
+          razorpay_order_id: this.options.order_id,
+          razorpay_payment_id: 'pay_test123',
+          razorpay_signature: 'a'.repeat(64)
+        });
+      }
+    };
+  });
+  await authenticate(page);
+  let session = {
+    id: sessionId, table_label: 'T-09', covers: 2, opened_at: new Date().toISOString(),
+    ticket_count: 1, billed_total: 25.5, paid_total: 0, outstanding_total: 25.5, pending_kot_count: 0,
+    tickets: [{
+      id: ticketId, ticket_number: 'B-RAZORPAY', status: 'SENT',
+      grand_total: 25.5, paid_total: 0, balance_due: 25.5
+    }]
+  };
+  await page.route('**/api/v1/bar/table-sessions?outletId=*', route =>
+    route.fulfill({ json: { data: [session] } })
+  );
+  await page.route('**/api/v1/bar/kot?outletId=*', route => route.fulfill({ json: { data: [] } }));
+  await page.route('**/api/v1/bar/open-bottles?outletId=*', route => route.fulfill({ json: { data: [] } }));
+  await page.route('**/api/v1/bar/bottle-reservations?outletId=*', route => route.fulfill({ json: { data: [] } }));
+  await page.route('**/api/v1/bar/kot/stations?outletId=*', route => route.fulfill({ json: { data: [] } }));
+  const createdOrders: Array<Record<string, unknown>> = [];
+  await page.route(`**/api/v1/bar/tickets/${ticketId}/razorpay-order`, async route => {
+    createdOrders.push(route.request().postDataJSON());
+    await route.fulfill({ status: 201, json: { data: {
+      localOrderId: '00000000-0000-4000-8000-000000000301',
+      orderId: 'order_test123', amount: 2550, currency: 'INR', keyId: 'rzp_test_public'
+    } } });
+  });
+  const verifications: Array<Record<string, unknown>> = [];
+  await page.route(`**/api/v1/bar/tickets/${ticketId}/razorpay-verify`, async route => {
+    verifications.push(route.request().postDataJSON());
+    session = {
+      ...session, paid_total: 25.5, outstanding_total: 0,
+      tickets: [{ ...session.tickets[0], status: 'PAID', paid_total: 25.5, balance_due: 0 }]
+    };
+    await route.fulfill({ json: { data: { ticketId, status: 'PAID', paidTotal: 25.5, remainingDue: 0 } } });
+  });
+
+  await page.getByRole('button', { name: 'Tables & KOT' }).click();
+  await page.getByRole('button', { name: 'Pay via Razorpay' }).click();
+  await expect(page.getByText('Razorpay payment verified for B-RAZORPAY. Remaining balance ₹0.00.')).toBeVisible();
+  expect(createdOrders).toHaveLength(1);
+  expect(createdOrders[0].idempotencyKey).toMatch(/^[0-9a-f-]{36}$/i);
+  expect(verifications).toEqual([{
+    localOrderId: '00000000-0000-4000-8000-000000000301',
+    razorpayOrderId: 'order_test123',
+    razorpayPaymentId: 'pay_test123',
+    razorpaySignature: 'a'.repeat(64)
+  }]);
 });
 
 test('splits the remaining amount evenly to the cent', async ({ page }) => {

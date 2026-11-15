@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { pool } from '../db/pool.js';
 import { authenticate } from '../middleware/authenticate.js';
@@ -7,6 +7,8 @@ import { requirePermission } from '../middleware/requirePermission.js';
 import { requireOrgScope } from '../middleware/requireOrgScope.js';
 import { validatePegQuarantineDecision } from '../services/pegQuarantineDisposition.js';
 import { appendStockMovementOnce } from '../services/stockMovementIdempotency.js';
+import { restoreInventoryBatchFefo } from '../services/inventoryBatchFefo.js';
+import { addInventoryCostLayer } from '../services/inventoryCosting.js';
 
 export const settlementsRouter = Router();
 settlementsRouter.use(authenticate, requireOrgScope);
@@ -110,7 +112,7 @@ settlementsRouter.post('/retail/sales/:saleId/refunds', requirePermission('retai
       for(const allocation of parsed.data.restockAllocations){
         if(seen.has(allocation.saleLineId)){await client.query('ROLLBACK');return res.status(400).json({error:{code:'DUPLICATE_RESTOCK_LINE'}});}
         seen.add(allocation.saleLineId);
-        const original=await client.query('SELECT id,product_id,quantity_units FROM retail_sale_lines WHERE id=$1 AND sale_id=$2 FOR UPDATE',[allocation.saleLineId,req.params.saleId]);
+        const original=await client.query('SELECT id,product_id,quantity_units,stock_movement_id FROM retail_sale_lines WHERE id=$1 AND sale_id=$2 FOR UPDATE',[allocation.saleLineId,req.params.saleId]);
         if(!original.rowCount){await client.query('ROLLBACK');return res.status(400).json({error:{code:'INVALID_RESTOCK_LINE',saleLineId:allocation.saleLineId}});}
         const priorQty=await client.query('SELECT COALESCE(SUM(quantity),0) quantity FROM retail_refund_restock_lines WHERE sale_line_id=$1',[allocation.saleLineId]);
         const available=Number(original.rows[0].quantity_units)-Number(priorQty.rows[0].quantity);
@@ -119,13 +121,41 @@ settlementsRouter.post('/retail/sales/:saleId/refunds', requirePermission('retai
         await client.query(`INSERT INTO stock_balances(organisation_id,outlet_id,product_id,quantity_units) VALUES($1,$2,$3,$4) ON CONFLICT(outlet_id,product_id) DO UPDATE SET quantity_units=stock_balances.quantity_units+EXCLUDED.quantity_units,updated_at=NOW()`,[org,sale.rows[0].outlet_id,original.rows[0].product_id,allocation.quantity]);
         const movement=await appendStockMovementOnce(client,{organisationId:org,outletId:sale.rows[0].outlet_id,productId:original.rows[0].product_id,movementType:'RETURN',quantityUnits:allocation.quantity,referenceType:'RETAIL_REFUND',referenceId:refund.rows[0].id,idempotencyKey:`retail-refund:${createHash('sha256').update(key).digest('hex')}:line:${allocation.saleLineId}`,notes:parsed.data.reason,createdBy:req.auth!.userId});
         if(!movement.created) throw Object.assign(new Error('Refund stock movement already exists before its refund transaction completed'),{code:'REFUND_STOCK_MOVEMENT_CONFLICT'});
+        await restoreInventoryBatchFefo(client,{
+          organisationId:org,outletId:sale.rows[0].outlet_id,productId:original.rows[0].product_id,
+          sourceMovementIds:original.rows[0].stock_movement_id?[original.rows[0].stock_movement_id]:[],
+          returnMovementId:movement.id,quantityUnits:allocation.quantity
+        });
+        if(original.rows[0].stock_movement_id){
+          const cost=await client.query(
+           `SELECT COALESCE(SUM(quantity_units),0) quantity,COALESCE(SUM(extended_cost),0) amount
+              FROM inventory_cost_consumptions WHERE movement_id=$1`,
+           [original.rows[0].stock_movement_id]
+          );
+          const costQuantity=Number(cost.rows[0].quantity);
+          if(costQuantity>0){
+            const unitCost=Number(cost.rows[0].amount)/costQuantity;
+            const covered=Math.min(allocation.quantity,costQuantity-Number(priorQty.rows[0].quantity));
+            if(covered>0)await addInventoryCostLayer(client,{
+              organisationId:org,outletId:sale.rows[0].outlet_id,productId:original.rows[0].product_id,
+              sourceType:'RETURN',sourceId:movement.id,sourceLineId:randomUUID(),
+              quantityUnits:covered,unitCost
+            });
+            if(covered<allocation.quantity-0.0005)await client.query(
+              `INSERT INTO inventory_cost_exceptions(organisation_id,outlet_id,product_id,source_type,source_id,requested_units,covered_units,reason)
+               VALUES($1,$2,$3,'RETAIL_REFUND',$4,$5,$6,'Restocked refund quantity has incomplete original FIFO cost evidence')
+               ON CONFLICT DO NOTHING`,
+              [org,sale.rows[0].outlet_id,original.rows[0].product_id,movement.id,allocation.quantity,covered]
+            );
+          }
+        }
       }
     } else if(parsed.data.restockAllocations.length){await client.query('ROLLBACK');return res.status(400).json({error:{code:'RESTOCK_FLAG_REQUIRED'}});}
     const refunded=Number(prior.rows[0].amount)+parsed.data.amount;
     await client.query(`UPDATE retail_sales SET status=CASE WHEN $1 >= grand_total THEN 'REFUNDED' ELSE status END, payment_status=CASE WHEN $1 >= grand_total THEN 'REFUNDED' ELSE 'PARTIAL' END WHERE id=$2 AND organisation_id=$3`,[refunded,req.params.saleId,org]);
     await client.query(`INSERT INTO audit_events(organisation_id,outlet_id,actor_user_id,event_type,entity_type,entity_id,reason,metadata) VALUES($1,$2,$3,'RETAIL_REFUND_CREATED','RETAIL_SALE',$4,$5,$6)`,[org,sale.rows[0].outlet_id,req.auth!.userId,req.params.saleId,parsed.data.reason,{amount:parsed.data.amount,restock:parsed.data.restock,restockAllocations:parsed.data.restockAllocations}]);
     await client.query('COMMIT'); return res.status(201).json({data:refund.rows[0],remainingRefundable:Math.max(0,Number(sale.rows[0].grand_total)-refunded)});
-  } catch(e:any){await client.query('ROLLBACK');if(e?.code==='23505')return res.status(409).json({error:{code:'IDEMPOTENCY_KEY_CONFLICT',message:'This Idempotency-Key is already in use for another refund request.'}});throw e;} finally{client.release();}
+  } catch(e:any){await client.query('ROLLBACK');if(e?.code==='23505')return res.status(409).json({error:{code:'IDEMPOTENCY_KEY_CONFLICT',message:'This Idempotency-Key is already in use for another refund request.'}});if(typeof e?.code==='string'&&e.code.startsWith('INVENTORY_BATCH_'))return res.status(409).json({error:{code:e.code,message:e.message}});throw e;} finally{client.release();}
 });
 
 

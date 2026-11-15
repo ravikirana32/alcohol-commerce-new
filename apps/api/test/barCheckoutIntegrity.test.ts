@@ -23,6 +23,9 @@ describe('bar checkout fingerprint',()=>{
   expect(createBarCheckoutFingerprint(checkout)).not.toBe(createBarCheckoutFingerprint({
    ...checkout,lines:checkout.lines.map((line)=>line.lineType==='PEG'?{...line,openBottleId:'55555555-5555-4555-8555-555555555555'}:line)
   }));
+  expect(createBarCheckoutFingerprint(checkout)).not.toBe(createBarCheckoutFingerprint({
+   ...checkout,lines:checkout.lines.map((line,index)=>index===1?{...line,modifierOptionIds:['66666666-6666-4666-8666-666666666666']}:line)
+  }));
  });
  it('normalises UUID case and table whitespace',()=>{
   expect(createBarCheckoutFingerprint(checkout)).toBe(createBarCheckoutFingerprint({

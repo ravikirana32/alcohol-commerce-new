@@ -26,6 +26,25 @@ The start script checks Docker Compose, creates `.env` with random local secrets
 
 Do not commit, publish, or share `.env`. If startup reports placeholder secrets in an existing file, replace the values for `POSTGRES_PASSWORD`, `JWT_SECRET`, and `BOOTSTRAP_SECRET` with unique local secrets. Never paste secret values into a ticket or chat.
 
+### Optional Razorpay sandbox for bar-tab payments
+
+The local stack is locked to `PAYMENT_LIVE_MODE=false`. To test the initial Razorpay integration, obtain **test-mode** API keys from your Razorpay account and add them to the ignored local `.env` file:
+
+```dotenv
+RAZORPAY_KEY_ID=rzp_test_...
+RAZORPAY_KEY_SECRET=...
+# Optional: used to verify Razorpay webhook evidence
+PAYMENT_WEBHOOK_SECRET_RAZORPAY=...
+```
+
+Recreate the API container after changing the local environment:
+
+```bash
+docker compose up -d --build --force-recreate api
+```
+
+The Tables & KOT workspace can then start a Razorpay payment for the full outstanding balance of an existing bar-tab ticket. The API creates the order, validates the checkout signature, fetches the payment status directly from Razorpay, and records only captured payments. Use Razorpay test instruments and confirm capture is enabled on the test account. The tender remains pending settlement reconciliation until matched to provider settlement evidence. This initial integration does not cover retail checkout or provider-side refunds. Never enable live payments or put real credentials/customer data in this local stack.
+
 After startup, use the URLs printed by the script. To see the configured host ports without displaying secrets:
 
 ```bash

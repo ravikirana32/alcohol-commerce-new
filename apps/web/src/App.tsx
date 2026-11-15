@@ -5,8 +5,10 @@ import RetailSalesWorkspace from './components/RetailSalesWorkspace';
 import BarTicketsWorkspace from './components/BarTicketsWorkspace';
 import BarServiceWorkspace from './components/BarServiceWorkspace';
 import InventoryWorkspace from './components/InventoryWorkspace';
+import InventoryReconciliationWorkspace from './components/InventoryReconciliationWorkspace';
 import OrganisationWorkspace from './components/OrganisationWorkspace';
 import CatalogueWorkspace from './components/CatalogueWorkspace';
+import BarMenuWorkspace from './components/BarMenuWorkspace';
 import ProcurementWorkspace from './components/ProcurementWorkspace';
 import OfflineDeviceWorkspace from './components/OfflineDeviceWorkspace';
 import OfflineReconciliationWorkspace from './components/OfflineReconciliationWorkspace';
@@ -31,6 +33,7 @@ const navigation = [
   { label: 'Shift Management', icon: ClipboardCheck, group: 'Operations' },
   { label: 'Sales & Refunds', icon: ReceiptText, group: 'Operations' },
   { label: 'Bar Tickets & Refunds', icon: Wine, group: 'Operations' },
+  { label: 'Bar Menu & Recipes', icon: Wine, group: 'Operations' },
   { label: 'Tables & KOT', icon: ClipboardCheck, group: 'Operations' },
   { label: 'Inventory Control', icon: Boxes, group: 'Operations' },
   { label: 'Organisation & Team', icon: Users, group: 'Administration' },
@@ -57,6 +60,7 @@ const navigationPermissions: Record<string, string[]> = {
   'Shift Management': ['shift:read', 'shift:manage'],
   'Sales & Refunds': ['retail:read', 'retail:billing', 'retail:refund'],
   'Bar Tickets & Refunds': ['bar:read', 'bar:billing', 'bar:refund'],
+  'Bar Menu & Recipes': ['catalogue:read', 'catalogue:manage'],
   'Tables & KOT': ['bar:read', 'bar:sell', 'bar:manage'],
   'Inventory Control': ['inventory:read', 'inventory:manage', 'inventory:adjust'],
   'Organisation & Team': ['organisation:read', 'organisation:manage', 'user:read', 'user:manage'],
@@ -177,7 +181,10 @@ function App() {
           ) : active === 'Tables & KOT' ? (
             <BarServiceWorkspace token={token!}/>
           ) : active === 'Inventory Control' ? (
-            <InventoryWorkspace token={token!}/>
+            <>
+              <InventoryWorkspace token={token!}/>
+              <InventoryReconciliationWorkspace token={token!}/>
+            </>
           ) : active === 'Organisation & Team' ? (
             <OrganisationWorkspace token={token!}/>
           ) : active === 'Procurement' ? (
@@ -198,6 +205,8 @@ function App() {
             <TradePortalWorkspace token={token!}/>
           ) : active === 'Products' ? (
             <CatalogueWorkspace token={token!}/>
+          ) : active === 'Bar Menu & Recipes' ? (
+            <BarMenuWorkspace token={token!}/>
           ) : (
             <>
           <div className="notice"><Activity size={17}/><div><strong>Foundation build — development workspace</strong><span>Authentication is enabled. Business transactions and stock operations are not yet active.</span></div></div>

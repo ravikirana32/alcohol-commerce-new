@@ -13,9 +13,28 @@ type BottleReservation={id:string;open_bottle_id:string;reserved_ml:number;consu
 type PaymentMethod='CASH'|'UPI'|'CARD'|'WALLET'|'OTHER';
 type PaymentDraftLine={id:string;amount:string;method:PaymentMethod;reference:string};
 type PaymentDraft={payments:PaymentDraftLine[];equalShares:string;pending?:{idempotencyKey:string;payments:Array<{method:PaymentMethod;amount:number;reference?:string}>}};
+type RazorpayOrder={localOrderId:string;orderId:string;amount:number;currency:'INR';keyId:string};
+type RazorpayCallback={localOrderId:string;razorpayOrderId:string;razorpayPaymentId:string;razorpaySignature:string};
+type RazorpayCheckoutResult={razorpay_order_id:string;razorpay_payment_id:string;razorpay_signature:string};
+type RazorpayOptions={key:string;amount:number;currency:string;name:string;description:string;order_id:string;handler:(result:RazorpayCheckoutResult)=>void;modal:{ondismiss:()=>void}};
+declare global{interface Window{Razorpay?:new(options:RazorpayOptions)=>{open:()=>void}}}
 const API=import.meta.env.VITE_API_BASE_URL??'http://localhost:8080';
 const money=(n:number)=>`₹${n.toFixed(2)}`;
 const nextStatus:Record<string,string>={NEW:'ACCEPTED',ACCEPTED:'PREPARING',PREPARING:'READY',READY:'SERVED'};
+async function loadRazorpayCheckout():Promise<void>{
+ if(window.Razorpay)return;
+ await new Promise<void>((resolve,reject)=>{
+  const existing=document.querySelector<HTMLScriptElement>('script[data-razorpay-checkout]');
+  const script=existing??document.createElement('script');
+  script.src='https://checkout.razorpay.com/v1/checkout.js';
+  script.async=true;
+  script.dataset.razorpayCheckout='true';
+  script.addEventListener('load',()=>resolve(),{once:true});
+  script.addEventListener('error',()=>{script.remove();reject(new Error('Could not load Razorpay Checkout. Check the network and retry.'));},{once:true});
+  if(!existing)document.head.appendChild(script);
+ });
+ if(!window.Razorpay)throw new Error('Razorpay Checkout did not initialize.');
+}
 export default function BarServiceWorkspace({token}:{token:string}){
  const [outlets,setOutlets]=useState<Outlet[]>([]),[outletId,setOutletId]=useState('');
  const [sessions,setSessions]=useState<Session[]>([]),[kot,setKot]=useState<Kot[]>([]),[kotStations,setKotStations]=useState<KotStation[]>([]);
@@ -24,9 +43,11 @@ export default function BarServiceWorkspace({token}:{token:string}){
  const [approvalRequests,setApprovalRequests]=useState<TicketApproval[]>([]);
  const [bottles,setBottles]=useState<Bottle[]>([]),[reservations,setReservations]=useState<BottleReservation[]>([]);
  const [reservationBottle,setReservationBottle]=useState(''),[reservationMl,setReservationMl]=useState(60),[reservationExpiry,setReservationExpiry]=useState(()=>{const d=new Date(Date.now()+60*60*1000);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}),[reservationReason,setReservationReason]=useState('Table service reservation');
- const [adjustmentBottle,setAdjustmentBottle]=useState(''),[adjustmentMl,setAdjustmentMl]=useState(30),[adjustmentType,setAdjustmentType]=useState<'WASTAGE'|'BREAKAGE'|'COMPLIMENTARY'|'ADJUSTMENT'>('WASTAGE'),[adjustmentNotes,setAdjustmentNotes]=useState('Recorded bar inventory loss');
+ const [adjustmentBottle,setAdjustmentBottle]=useState(''),[adjustmentMl,setAdjustmentMl]=useState(30),[adjustmentType,setAdjustmentType]=useState<'WASTAGE'|'BREAKAGE'|'COMPLIMENTARY'|'ADJUSTMENT'>('WASTAGE'),[adjustmentNotes,setAdjustmentNotes]=useState('Recorded bar inventory loss'),[adjustmentRequestKey,setAdjustmentRequestKey]=useState(()=>crypto.randomUUID().replaceAll('-',''));
  const [tableLabel,setTableLabel]=useState(''),[covers,setCovers]=useState(2);
  const [paymentDrafts,setPaymentDrafts]=useState<Record<string,PaymentDraft>>({});
+ const [razorpayIdempotencyKeys,setRazorpayIdempotencyKeys]=useState<Record<string,string>>({});
+ const [pendingRazorpayVerifications,setPendingRazorpayVerifications]=useState<Record<string,RazorpayCallback>>({});
  const [kotPrint,setKotPrint]=useState<KotPrint|null>(null);
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
  const request=useCallback(async(url:string,init?:RequestInit)=>{
@@ -40,10 +61,10 @@ export default function BarServiceWorkspace({token}:{token:string}){
  },[request,reservationBottle,adjustmentBottle,assignmentStationId]);
  useEffect(()=>{request('/api/v1/outlets').then(p=>{const rows=p.data??[];setOutlets(rows);if(rows[0])setOutletId(rows[0].id);}).catch(e=>setError(e.message));},[request]);
  useEffect(()=>{if(outletId)refresh(outletId).catch(e=>setError(e.message));},[outletId,refresh]);
- async function act(fn:()=>Promise<any>,success:string){
+ async function act(fn:()=>Promise<any>,success:string):Promise<boolean>{
   setBusy(true);setError('');setMessage('');
-  try{await fn();setMessage(success);if(outletId)await refresh(outletId);}
-  catch(e){setError(e instanceof Error?e.message:'Operation failed');}
+  try{await fn();setMessage(success);if(outletId)await refresh(outletId);return true;}
+  catch(e){setError(e instanceof Error?e.message:'Operation failed');return false;}
   finally{setBusy(false);}
  }
  async function createKotStation(e:FormEvent){
@@ -116,6 +137,45 @@ export default function BarServiceWorkspace({token}:{token:string}){
   }
   finally{setBusy(false);}
  }
+ async function verifyRazorpayPayment(ticket:SessionTicket,payload:RazorpayCallback){
+  setBusy(true);setError('');setMessage('');
+  try{
+   const result=await request(`/api/v1/bar/tickets/${ticket.id}/razorpay-verify`,{method:'POST',body:JSON.stringify(payload)});
+   setPendingRazorpayVerifications(current=>{const next={...current};delete next[ticket.id];return next;});
+   setRazorpayIdempotencyKeys(current=>{const next={...current};delete next[ticket.id];return next;});
+   setMessage(`Razorpay payment verified for ${ticket.ticket_number}. Remaining balance ${money(Number(result.data.remainingDue))}.`);
+   try{await refresh(outletId);}catch(e){setError(`Payment was recorded, but table data could not refresh: ${e instanceof Error?e.message:'refresh failed'}`);}
+  }catch(e){
+   setError(`Payment may have completed at Razorpay, but confirmation was not recorded. Retry verification with the same payment details. ${e instanceof Error?e.message:''}`.trim());
+  }finally{setBusy(false);}
+ }
+ async function payViaRazorpay(ticket:SessionTicket){
+  setBusy(true);setError('');setMessage('');
+  try{
+   const idempotencyKey=razorpayIdempotencyKeys[ticket.id]??crypto.randomUUID();
+   setRazorpayIdempotencyKeys(current=>({...current,[ticket.id]:idempotencyKey}));
+   const result=await request(`/api/v1/bar/tickets/${ticket.id}/razorpay-order`,{
+    method:'POST',body:JSON.stringify({idempotencyKey})
+   });
+   const order: RazorpayOrder=result.data;
+   await loadRazorpayCheckout();
+   const checkout=new window.Razorpay!({
+    key:order.keyId,amount:order.amount,currency:order.currency,
+    name:'Alcohol Commerce',description:`Bar tab ${ticket.ticket_number}`,
+    order_id:order.orderId,
+    handler:async response=>{
+     const verification={localOrderId:order.localOrderId,razorpayOrderId:response.razorpay_order_id,razorpayPaymentId:response.razorpay_payment_id,razorpaySignature:response.razorpay_signature};
+     setPendingRazorpayVerifications(current=>({...current,[ticket.id]:verification}));
+     await verifyRazorpayPayment(ticket,verification);
+    },
+    modal:{ondismiss:()=>setBusy(false)}
+   });
+   checkout.open();
+  }catch(e){
+   setBusy(false);
+   setError(e instanceof Error?e.message:'Could not start Razorpay payment.');
+  }
+ }
  function updatePaymentDraft(ticketId:string,current:PaymentDraft,update:(draft:PaymentDraft)=>PaymentDraft){
   setPaymentDrafts(rows=>({...rows,[ticketId]:update(rows[ticketId]??current)}));
  }
@@ -165,7 +225,8 @@ export default function BarServiceWorkspace({token}:{token:string}){
  }
  async function recordBottleLoss(e:FormEvent){
   e.preventDefault();if(!adjustmentBottle||!outletId)return;
-  await act(()=>request('/api/v1/bar/peg-transactions',{method:'POST',body:JSON.stringify({outletId,openBottleId:adjustmentBottle,volumeMl:adjustmentMl,type:adjustmentType,notes:adjustmentNotes})}),`${adjustmentType} of ${adjustmentMl} ml recorded.`);
+  const saved=await act(()=>request('/api/v1/bar/peg-transactions',{method:'POST',headers:{'Idempotency-Key':adjustmentRequestKey},body:JSON.stringify({outletId,openBottleId:adjustmentBottle,volumeMl:adjustmentMl,type:adjustmentType,notes:adjustmentNotes})}),`${adjustmentType} of ${adjustmentMl} ml recorded.`);
+  if(saved)setAdjustmentRequestKey(crypto.randomUUID().replaceAll('-',''));
  }
  return <section className="sales-workspace">
   <div className="pos-heading"><div><span className="eyebrow">BAR SERVICE · TABLES, TABS & KOT</span><h2>Tables and KOT queue</h2><p>Track open tabs across order rounds, record partial or mixed-tender settlements, and close only fully settled tables.</p></div><span className="tag">P586</span></div>
@@ -206,6 +267,8 @@ export default function BarServiceWorkspace({token}:{token:string}){
        <label>Equal shares<input aria-label={`Equal shares for ${t.ticket_number}`} type="number" min="2" max="50" step="1" value={draft.equalShares} disabled={busy||Boolean(draft.pending)} onChange={e=>updatePaymentDraft(t.id,draft,value=>({...value,equalShares:e.target.value}))}/></label>
        <button type="button" disabled={busy||Boolean(draft.pending)} onClick={()=>splitEvenly(t.id,t,draft)}>Split due evenly</button>
        <ActionGuard action="bar.checkout"><button type="submit" disabled={busy}>{draft.pending?'Retry payment':'Record payment'}</button></ActionGuard>
+       <ActionGuard action="bar.checkout"><button type="button" disabled={busy} onClick={()=>void payViaRazorpay(t)}>Pay via Razorpay</button></ActionGuard>
+       {pendingRazorpayVerifications[t.id]&&<ActionGuard action="bar.checkout"><button type="button" disabled={busy} onClick={()=>void verifyRazorpayPayment(t,pendingRazorpayVerifications[t.id])}>Retry Razorpay verification</button></ActionGuard>}
        {draft.pending&&<small>Retry preserves the same idempotency key and payment details.</small>}
       </form>}
      </div>;
